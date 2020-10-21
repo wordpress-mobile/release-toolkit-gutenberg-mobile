@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# Execute script commands from project's root directory
-SCRIPT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-cd "$SCRIPT_PATH/.."
+# Execute script commands from gutenberg-mobile root directory
+GB_MOBILE_PATH="$1"
+ cd "$GB_MOBILE_PATH"
 
 #####
 # PR Milestone check
@@ -34,7 +34,7 @@ function check_if_version_has_pending_prs_for_milestone() {
 SEMANTIC_VERSION_REGEX='\d+\.\d+\.\d+'
 
 function check_android_aztec_is_release_version() {
-    react_native_aztec_gradle='gutenberg/packages/react-native-aztec/android/build.gradle'
+    react_native_aztec_gradle="$GB_MOBILE_PATH/gutenberg/packages/react-native-aztec/android/build.gradle"
     release_version=$(grep aztecVersion "$react_native_aztec_gradle" | grep -oE "$SEMANTIC_VERSION_REGEX")
     if [[ -z "$release_version" ]]; then
         echo "A release version for AztecAndroid was not found in $react_native_aztec_gradle"
@@ -44,13 +44,13 @@ function check_android_aztec_is_release_version() {
 function check_ios_aztec_is_release_version() {
     result=''
 
-    podspec_file='RNTAztecView.podspec'
+    podspec_file="$GB_MOBILE_PATH/RNTAztecView.podspec"
     aztec_version=$(grep WordPress-Aztec-iOS "$podspec_file" | grep -oE "$SEMANTIC_VERSION_REGEX")
     if [[ -z "$aztec_version" ]]; then
         result="A release version for WordPress-Aztec-iOS was not found in $podspec_file"
     fi
 
-    podfile='gutenberg/packages/react-native-editor/ios/Podfile'
+    podfile="$GB_MOBILE_PATH/gutenberg/packages/react-native-editor/ios/Podfile"
     commented_out_reference_in_podfile=$(grep -E "# *pod 'WordPress-Aztec-iOS'" "$podfile")
     if [[ -z "$commented_out_reference_in_podfile" ]]; then
         message="The developer version of WordPress-Aztec-iOS was not commented out in $podfile"

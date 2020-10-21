@@ -8,12 +8,23 @@
 
 set -e
 
-# Execute script commands from project's root directory
 SCRIPT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-cd "$SCRIPT_PATH/.."
+# Ask for path to gutenberg-mobile directory
+# (default is sibling directory of gutenberg-mobile-release-toolkit)
+DEFAULT_GB_MOBILE_LOCATION="$SCRIPT_PATH/../gutenberg-mobile"
 
-source bin/release_prechecks.sh
-source bin/release_utils.sh
+read -p "Please enter the path to the gutenberg-mobile directory ["$DEFAULT_GB_MOBILE_LOCATION"]:" GB_MOBILE_PATH
+GB_MOBILE_PATH=${GB_MOBILE_PATH:-"$DEFAULT_GB_MOBILE_LOCATION"}
+echo ""
+if [[ ! "$GB_MOBILE_PATH" == *gutenberg-mobile ]]; then
+    abort "Error path does not end with gutenberg-mobile"
+fi
+
+source ./release_utils.sh
+source ./release_prechecks.sh $GB_MOBILE_PATH
+
+# Execute script commands from gutenberg-mobile directory
+cd "$GB_MOBILE_PATH"
 
 # Check that Github CLI is installed
 command -v gh >/dev/null || abort "Error: The Github CLI must be installed."
