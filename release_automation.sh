@@ -243,13 +243,19 @@ Release Submission Checklist
 
 WP_APPS_INTEGRATION_BRANCH="gutenberg/integrate_release_$VERSION_NUMBER"
 
+
 #####
 # WPAndroid PR
 #####
+read -p "Do you want to target $WPANDROID_TARGET_BRANCH branch for WPAndroid PR? (y/n) " -n 1
+echo ""
+if [[ $REPLY =~ ^[Nn]$ ]]; then
+    read -p "Enter the branch name you want to target. Make sure a branch with this name already exists in WPAndroid repository: " WPANDROID_TARGET_BRANCH
+fi
 
 TEMP_WP_ANDROID_DIRECTORY=$(mktemp -d)
 ohai "Clone WordPress-Android into '$TEMP_WP_ANDROID_DIRECTORY'"
-execute "git" "clone" "--depth=1" "git@github.com:$MOBILE_REPO/WordPress-Android.git" "$TEMP_WP_ANDROID_DIRECTORY"
+execute "git" "clone" "-b" "$WPANDROID_TARGET_BRANCH" "--depth=1" "git@github.com:$MOBILE_REPO/WordPress-Android.git" "$TEMP_WP_ANDROID_DIRECTORY"
 
 cd "$TEMP_WP_ANDROID_DIRECTORY"
 
@@ -305,9 +311,15 @@ echo ""
 # WPiOS PR
 #####
 
+read -p "Do you want to target $WPIOS_TARGET_BRANCH branch for WPiOS PR? (y/n) " -n 1
+echo ""
+if [[ $REPLY =~ ^[Nn]$ ]]; then
+    read -p "Enter the branch name you want to target. Make sure a branch with this name already exists in WPiOS repository: " WPIOS_TARGET_BRANCH
+fi
+
 TEMP_WP_IOS_DIRECTORY=$(mktemp -d)
 ohai "Clone WordPress-iOS into '$TEMP_WP_IOS_DIRECTORY'"
-execute "git" "clone" "--depth=1" "git@github.com:$MOBILE_REPO/WordPress-iOS.git" "$TEMP_WP_IOS_DIRECTORY"
+execute "git" "clone" "-b" "$WPIOS_TARGET_BRANCH" "--depth=1" "git@github.com:$MOBILE_REPO/WordPress-iOS.git" "$TEMP_WP_IOS_DIRECTORY"
 
 cd "$TEMP_WP_IOS_DIRECTORY"
 
