@@ -198,7 +198,7 @@ GB_MOBILE_PR_URL=$(execute "gh" "pr" "create" \
 "--title" "Release $VERSION_NUMBER" \
 "--body" "$PR_BODY" \
 "--repo" "$MOBILE_REPO/gutenberg-mobile" \
-"--head" "$MOBILE_REPO:$RELEASE_BRANCH"
+"--head" "$MOBILE_REPO:$RELEASE_BRANCH" \
 "--base" "$GUTENBERG_MOBILE_TARGET_BRANCH" \
 "--label" "$GUTENBERG_MOBILE_PR_LABEL" \
 "--draft")
