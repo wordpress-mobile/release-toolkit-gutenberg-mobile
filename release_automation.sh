@@ -146,14 +146,29 @@ else
 fi
 cd ..
 
+# Ask if a cherry-pick is needed before bundling (for example if this is a hotfix release)
+cd gutenberg
+read -p "Do you want to cherry-pick a commit from gutenberg? (y/n) " -n 1
+echo ""
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    read -p "Enter the commit hash to cherry-pick: " GUTENBERG_COMMIT_HASH_TO_CHERRY_PICK
+    execute "git" "cherry-pick" "$GUTENBERG_COMMIT_HASH_TO_CHERRY_PICK"
+fi
+cd ..
+
+# Commit updates to gutenberg submodule
+ohai "Commit updates to gutenberg submodule"
+execute "git" "add" "gutenberg"
+execute "git" "commit" "-m" "Release script: Update gutenberg ref"
 
 # Update the bundles
 ohai "Update the bundles"
 npm run bundle || abort "Error: 'npm bundle' failed.\nIf there is an error stating something like \"Command 'bundle' unrecognized.\" above, perhaps try running 'rm -rf node_modules gutenberg/node_modules && npm ci'."
 
-# Commit bundle changes along with any update to the gutenberg submodule (if necessary)
-ohai "Commit bundle changes along with any update to the gutenberg submodule (if necessary)"
-execute "git" "commit" "-a" "-m" "Release script: Update bundle for: $VERSION_NUMBER"
+# Commit bundle changes
+ohai "Commit bundle changes"
+execute "git" "add" "bundle/"
+execute "git" "commit" "-m" "Release script: Update bundle for: $VERSION_NUMBER"
 
 
 #####
@@ -176,13 +191,17 @@ PR_TEMPLATE=$(cat "$PR_TEMPLATE_PATH")
 # Replace version number in GB-Mobile PR template
 PR_BODY=${PR_TEMPLATE//v1.XX.Y/$VERSION_NUMBER}
 
-# Insure PR is created on proper remote
-# see https://github.com/cli/cli/issues/800
-BASE_REMOTE=$(get_remote_name "$MOBILE_REPO/gutenberg-mobile")
-execute "git" "push" "-u" "$BASE_REMOTE" "HEAD"
+execute "git" "push" "-u" "origin" "HEAD"
 
 # Create Draft GB-Mobile Release PR in GitHub
-GB_MOBILE_PR_URL=$(execute "gh" "pr" "create" "--title" "Release $VERSION_NUMBER" "--body" "$PR_BODY" "--repo" "$MOBILE_REPO/gutenberg-mobile" "--base" "$GUTENBERG_MOBILE_TARGET_BRANCH" "--label" "$GUTENBERG_MOBILE_PR_LABEL" "--draft")
+GB_MOBILE_PR_URL=$(execute "gh" "pr" "create" \
+"--title" "Release $VERSION_NUMBER" \
+"--body" "$PR_BODY" \
+"--repo" "$MOBILE_REPO/gutenberg-mobile" \
+"--head" "$MOBILE_REPO:$RELEASE_BRANCH" \
+"--base" "$GUTENBERG_MOBILE_TARGET_BRANCH" \
+"--label" "$GUTENBERG_MOBILE_PR_LABEL" \
+"--draft")
 
 #####
 # Gutenberg PR
@@ -204,13 +223,17 @@ GUTENBERG_PR_BODY="$GUTENBERG_PR_BEGINNING
 
 $CHECKLIST_FROM_GUTENBERG_PR_TEMPLATE"
 
-# Insure PR is created on proper remote
-# see https://github.com/cli/cli/issues/800
-GB_BASE_REMOTE=$(get_remote_name "$GUTENBERG_REPO/gutenberg")
-execute "git" "push" "-u" "$GB_BASE_REMOTE" "HEAD"
+execute "git" "push" "-u" "origin" "HEAD"
 
 # Create Draft Gutenberg Release PR in GitHub
-GUTENBERG_PR_URL=$(execute "gh" "pr" "create" "--title" "Mobile Release v$VERSION_NUMBER" "--body" "$GUTENBERG_PR_BODY" "--repo" "$GUTENBERG_REPO/gutenberg" "--base" "$GUTENBERG_TARGET_BRANCH" "--label" "$GUTENBERG_PR_LABEL" "--draft")
+GUTENBERG_PR_URL=$(execute "gh" "pr" "create" \
+"--title" "Mobile Release v$VERSION_NUMBER" \
+"--body" "$GUTENBERG_PR_BODY" \
+"--repo" "$GUTENBERG_REPO/gutenberg" \
+"--head" "$GUTENBERG_REPO:$GB_RELEASE_BRANCH" \
+"--base" "$GUTENBERG_TARGET_BRANCH" \
+"--label" "$GUTENBERG_PR_LABEL" \
+"--draft")
 cd ..
 
 echo "PRs Created"
@@ -223,13 +246,31 @@ ohai "Proceeding to create main apps PRs..."
 
 GB_MOBILE_PR_REF=$(git rev-parse HEAD)
 
+WP_APPS_PR_TITLE="Integrate gutenberg-mobile release $VERSION_NUMBER"
+
+WP_APPS_PR_BODY="## Description
+This PR incorporates the $VERSION_NUMBER release of gutenberg-mobile.  
+For more information about this release and testing instructions, please see the related Gutenberg-Mobile PR: $GB_MOBILE_PR_URL
+
+Release Submission Checklist
+
+- [ ] I have considered if this change warrants user-facing release notes and have added them to \`RELEASE-NOTES.txt\` if necessary."
+
+WP_APPS_INTEGRATION_BRANCH="gutenberg/integrate_release_$VERSION_NUMBER"
+
+
 #####
 # WPAndroid PR
 #####
+read -p "Do you want to target $WPANDROID_TARGET_BRANCH branch for WPAndroid PR? (y/n) " -n 1
+echo ""
+if [[ $REPLY =~ ^[Nn]$ ]]; then
+    read -p "Enter the branch name you want to target. Make sure a branch with this name already exists in WPAndroid repository: " WPANDROID_TARGET_BRANCH
+fi
 
 TEMP_WP_ANDROID_DIRECTORY=$(mktemp -d)
 ohai "Clone WordPress-Android into '$TEMP_WP_ANDROID_DIRECTORY'"
-execute "git" "clone" "--depth=1" "git@github.com:$MOBILE_REPO/WordPress-Android.git" "$TEMP_WP_ANDROID_DIRECTORY"
+execute "git" "clone" "-b" "$WPANDROID_TARGET_BRANCH" "--depth=1" "git@github.com:$MOBILE_REPO/WordPress-Android.git" "$TEMP_WP_ANDROID_DIRECTORY"
 
 cd "$TEMP_WP_ANDROID_DIRECTORY"
 
@@ -238,13 +279,10 @@ execute "git" "submodule" "update" "--init" "--recursive" "--depth=1" "--recomme
 ohai "Create after_x.xx.x branch in WordPress-Android"
 execute "git" "switch" "-c" "gutenberg/after_$VERSION_NUMBER" 
 
-# Insure PR is created on proper remote
-# see https://github.com/cli/cli/issues/800
-WP_ANDROID_BASE_REMOTE=$(get_remote_name "$MOBILE_REPO/WordPress-Android")
-execute "git" "push" "-u" "$WP_ANDROID_BASE_REMOTE" "HEAD"
+execute "git" "push" "-u" "origin" "HEAD"
 
 ohai "Create release branch in WordPress-Android"
-execute "git" "switch" "-c" "gutenberg/integrate_release_$VERSION_NUMBER" 
+execute "git" "switch" "-c" "$WP_APPS_INTEGRATION_BRANCH"
 
 ohai "Update gutenberg-mobile ref"
 cd libs/gutenberg-mobile
@@ -268,19 +306,17 @@ else
 fi
 
 ohai "Push integration branch"
-execute "git" "push" "-u" "$WP_ANDROID_BASE_REMOTE" "HEAD"
-
-WP_ANDROID_PR_BODY="## Description
-This PR incorporates the $VERSION_NUMBER release of gutenberg-mobile.  
-For more information about this release and testing instructions, please see the related Gutenberg-Mobile PR: $GB_MOBILE_PR_URL
-
-Release Submission Checklist
-
-- [ ] I have considered if this change warrants user-facing release notes and have added them to \`RELEASE-NOTES.txt\` if necessary."
+execute "git" "push" "-u" "origin" "HEAD"
 
 # Create Draft WPAndroid Release PR in GitHub
 ohai "Create Draft WPAndroid Release PR in GitHub"
-WP_ANDROID_PR_URL=$(execute "gh" "pr" "create" "--title" "Integrate gutenberg-mobile release $VERSION_NUMBER" "--body" "$WP_ANDROID_PR_BODY" --repo "$MOBILE_REPO/WordPress-Android" "--base" "$WPANDROID_TARGET_BRANCH" "--label" "$WPANDROID_PR_LABEL" "--draft")
+WP_ANDROID_PR_URL=$(execute "gh" "pr" "create" \
+"--title" "Integrate gutenberg-mobile release $VERSION_NUMBER" \
+"--body" "$WP_APPS_PR_BODY" --repo "$MOBILE_REPO/WordPress-Android" \
+"--head" "$MOBILE_REPO:$WP_APPS_INTEGRATION_BRANCH" \
+"--base" "$WPANDROID_TARGET_BRANCH" \
+"--label" "$WPANDROID_PR_LABEL" \
+"--draft")
 
 ohai "WPAndroid PR Created: $WP_ANDROID_PR_URL"
 echo ""
@@ -290,19 +326,20 @@ echo ""
 # WPiOS PR
 #####
 
+read -p "Do you want to target $WPIOS_TARGET_BRANCH branch for WPiOS PR? (y/n) " -n 1
+echo ""
+if [[ $REPLY =~ ^[Nn]$ ]]; then
+    read -p "Enter the branch name you want to target. Make sure a branch with this name already exists in WPiOS repository: " WPIOS_TARGET_BRANCH
+fi
+
 TEMP_WP_IOS_DIRECTORY=$(mktemp -d)
 ohai "Clone WordPress-iOS into '$TEMP_WP_IOS_DIRECTORY'"
-execute "git" "clone" "--depth=1" "git@github.com:$MOBILE_REPO/WordPress-iOS.git" "$TEMP_WP_IOS_DIRECTORY"
+execute "git" "clone" "-b" "$WPIOS_TARGET_BRANCH" "--depth=1" "git@github.com:$MOBILE_REPO/WordPress-iOS.git" "$TEMP_WP_IOS_DIRECTORY"
 
 cd "$TEMP_WP_IOS_DIRECTORY"
 
 ohai "Create after_x.xx.x branch in WordPress-iOS"
-execute "git" "switch" "-c" "gutenberg/after_$VERSION_NUMBER" 
-
-# Insure PR is created on proper remote
-# see https://github.com/cli/cli/issues/800
-WP_IOS_BASE_REMOTE=$(get_remote_name "$MOBILE_REPO/WordPress-iOS")
-execute "git" "push" "-u" "$WP_IOS_BASE_REMOTE" "HEAD"
+execute "git" "push" "-u" "origin" "HEAD"
 
 ohai "Create release branch in WordPress-iOS"
 execute "git" "switch" "-c" "gutenberg/integrate_release_$VERSION_NUMBER" 
@@ -317,19 +354,18 @@ execute "git" "add" "Podfile" "Podfile.lock"
 execute "git" "commit" "-m" "Release script: Update gutenberg-mobile ref"
 
 ohai "Push integration branch"
-execute "git" "push" "-u" "$WP_IOS_BASE_REMOTE" "HEAD"
-
-WP_IOS_PR_BODY="## Description
-This PR incorporates the $VERSION_NUMBER release of gutenberg-mobile.  
-For more information about this release and testing instructions, please see the related Gutenberg-Mobile PR: $GB_MOBILE_PR_URL
-
-Release Submission Checklist
-
-- [ ] I have considered if this change warrants user-facing release notes and have added them to \`RELEASE-NOTES.txt\` if necessary."
+execute "git" "push" "-u" "origin" "HEAD"
 
 # Create Draft WPiOS Release PR in GitHub
 ohai "Create Draft WPiOS Release PR in GitHub"
-WP_IOS_PR_URL=$(execute "gh" "pr" "create" "--title" "Integrate gutenberg-mobile release $VERSION_NUMBER" "--body" "$WP_IOS_PR_BODY" --repo "$MOBILE_REPO/WordPress-iOS" "--base" "$WPIOS_TARGET_BRANCH" "--label" "$WPIOS_PR_LABEL" "--draft")
+WP_IOS_PR_URL=$(execute "gh" "pr" "create" \
+"--title" "Integrate gutenberg-mobile release $VERSION_NUMBER" \
+"--body" "$WP_APPS_PR_BODY" \
+"--repo" "$MOBILE_REPO/WordPress-iOS" \
+"--head" "$MOBILE_REPO:$WP_APPS_INTEGRATION_BRANCH" \
+"--base" "$WPIOS_TARGET_BRANCH" \
+"--label" "$WPIOS_PR_LABEL" \
+"--draft")
 
 ohai "WPiOS PR Created: $WP_IOS_PR_URL"
 echo ""
