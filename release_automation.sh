@@ -311,7 +311,7 @@ execute "git" "push" "-u" "origin" "HEAD"
 # Create Draft WPAndroid Release PR in GitHub
 ohai "Create Draft WPAndroid Release PR in GitHub"
 WP_ANDROID_PR_URL=$(execute "gh" "pr" "create" \
-"--title" "Integrate gutenberg-mobile release $VERSION_NUMBER" \
+"--title" "$WP_APPS_PR_TITLE" \
 "--body" "$WP_APPS_PR_BODY" --repo "$MOBILE_REPO/WordPress-Android" \
 "--head" "$MOBILE_REPO:$WP_APPS_INTEGRATION_BRANCH" \
 "--base" "$WPANDROID_TARGET_BRANCH" \
@@ -359,7 +359,7 @@ execute "git" "push" "-u" "origin" "HEAD"
 # Create Draft WPiOS Release PR in GitHub
 ohai "Create Draft WPiOS Release PR in GitHub"
 WP_IOS_PR_URL=$(execute "gh" "pr" "create" \
-"--title" "Integrate gutenberg-mobile release $VERSION_NUMBER" \
+"--title" "$WP_APPS_PR_TITLE" \
 "--body" "$WP_APPS_PR_BODY" \
 "--repo" "$MOBILE_REPO/WordPress-iOS" \
 "--head" "$MOBILE_REPO:$WP_APPS_INTEGRATION_BRANCH" \
