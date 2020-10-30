@@ -24,7 +24,7 @@ GUTENBERG_REPO="WordPress"
 MOBILE_REPO="wordpress-mobile"
 #GUTENBERG_REPO="YOUR_GITHUB_USERNAME"
 #MOBILE_REPO="YOUR_GITHUB_USERNAME"
-# 5. Clone the forked gutenberg-mobile repo somewhere near this repo using a different name
+# 5. Clone the forked gutenberg-mobile repo
 
 # Before creating the release, this script performs the following checks:
 # - AztecAndroid and WordPress-Aztec-iOS are set to release versions
