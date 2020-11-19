@@ -340,6 +340,8 @@ execute "git" "clone" "-b" "$WPIOS_TARGET_BRANCH" "--depth=1" "git@github.com:$M
 cd "$TEMP_WP_IOS_DIRECTORY"
 
 ohai "Create after_x.xx.x branch in WordPress-iOS"
+execute "git" "switch" "-c" "gutenberg/after_$VERSION_NUMBER" 
+
 execute "git" "push" "-u" "origin" "HEAD"
 
 ohai "Create release branch in WordPress-iOS"
