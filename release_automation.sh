@@ -39,7 +39,7 @@ SCRIPT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 # (default is sibling directory of gutenberg-mobile-release-toolkit)
 DEFAULT_GB_MOBILE_LOCATION="$SCRIPT_PATH/../gutenberg-mobile"
 
-read -p "Please enter the path to the gutenberg-mobile directory ["$DEFAULT_GB_MOBILE_LOCATION"]:" GB_MOBILE_PATH
+read -p "Please enter the path to the gutenberg-mobile directory [$DEFAULT_GB_MOBILE_LOCATION]:" GB_MOBILE_PATH
 GB_MOBILE_PATH=${GB_MOBILE_PATH:-"$DEFAULT_GB_MOBILE_LOCATION"}
 echo ""
 if [[ ! "$GB_MOBILE_PATH" == *gutenberg-mobile ]]; then
