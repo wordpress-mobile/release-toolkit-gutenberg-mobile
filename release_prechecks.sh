@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # Execute script commands from gutenberg-mobile root directory
 GB_MOBILE_PATH="$1"
  cd "$GB_MOBILE_PATH"
