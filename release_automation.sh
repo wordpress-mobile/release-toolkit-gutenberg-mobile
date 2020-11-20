@@ -69,9 +69,9 @@ fi
 
 ## Check current branch is develop, trunk, or release/* branch
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-if [[ ! "$CURRENT_BRANCH" =~ "^develop$|^trunk$|^release/.*" ]]; then
-    echo "Releases should generally only be based on 'develop', 'trunk', or an earlier release branch."
-    echo "You are currently on the '$CURRENT_BRANCH' branch."
+if [[ ! "$CURRENT_BRANCH" =~ ^develop$|^trunk$|^release/.* ]]; then
+    warn "Releases should generally only be based on 'develop', 'trunk', or an earlier release branch."
+    warn "You are currently on the '$CURRENT_BRANCH' branch."
     confirm_to_proceed "Are you sure you want to create a release branch from the '$CURRENT_BRANCH' branch?"
 fi
 
