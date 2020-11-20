@@ -49,7 +49,7 @@ cut a new release.
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Message any related Slack channels to inform that the gutenberg-mobile release is now cut and any new WPiOS and WPAndroid changes having related gutenberg-mobile or gutenberg parts should now be merged to <code>gutenberg/after_X.XX.X</code> branches until WPiOS and WPAndroid have cut their own releases next week.</p>
+<p>o Message any related Slack channels to inform that the gutenberg-mobile release is now cut and any new WPiOS and WPAndroid changes having related gutenberg-mobile or gutenberg parts should now be merged to <code>gutenberg/after_X.XX.X</code> branches on WPiOS and WPAndroid until their own releases are cut next week.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":3} -->
