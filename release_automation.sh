@@ -60,7 +60,7 @@ command -v jq >/dev/null || abort "Error: jq must be installed."
 
 # Check that Aztec versions are set to release versions
 aztec_version_problems="$(check_android_and_ios_aztec_versions)"
-if [[ ! -z "$aztec_version_problems" ]]; then
+if [[ -n "$aztec_version_problems" ]]; then
     warn "There appear to be problems with the Aztec versions:\n$aztec_version_problems"
     confirm_to_proceed "Do you want to proceed with the release despite the ^above^ problem(s) with the Aztec version?"
 else
@@ -95,7 +95,7 @@ fi
 
 # If there are any open PRs with a milestone matching the release version number, notify the user and ask them if they want to proceed
 number_milestone_prs=$(check_if_version_has_pending_prs_for_milestone "$VERSION_NUMBER")
-if [[ ! -z "$number_milestone_prs" ]] && [[ "0" != "$number_milestone_prs" ]]; then
+if [[ -n "$number_milestone_prs" ]] && [[ "0" != "$number_milestone_prs" ]]; then
     echo "There are currently $number_milestone_prs PRs with a milestone matching $VERSION_NUMBER."
     confirm_to_proceed "Do you want to proceed with cutting the release?"
 fi
@@ -139,7 +139,7 @@ eval "$PRE_IOS_COMMAND"
 
 # If preios results in changes, commit them
 cd gutenberg
-if [[ ! -z "$(git status --porcelain)" ]]; then
+if [[ -n "$(git status --porcelain)" ]]; then
     ohai "Commit changes from '$PRE_IOS_COMMAND'"
     execute "git" "commit" "-a" "-m" "Release script: Update with changes from '$PRE_IOS_COMMAND'"
 else
@@ -298,7 +298,7 @@ execute "git" "commit" "-m" "Release script: Update gutenberg-mobile ref"
 ohai "Update strings"
 execute "python" "tools/merge_strings_xml.py"
 # If merge_strings_xml.py results in changes, commit them
-if [[ ! -z "$(git status --porcelain)" ]]; then
+if [[ -n "$(git status --porcelain)" ]]; then
     ohai "Commit changes from 'python tools/merge_strings_xml.py'"
     execute "git" "add" "WordPress/src/main/res/values/strings.xml"
     execute "git" "commit" "-m" "Release script: Update strings"
