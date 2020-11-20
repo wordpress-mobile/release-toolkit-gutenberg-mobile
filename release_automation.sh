@@ -213,7 +213,7 @@ cd gutenberg
 GUTENBERG_PR_TEMPLATE_PATH=".github/PULL_REQUEST_TEMPLATE.md"
 test -f "$GUTENBERG_PR_TEMPLATE_PATH" || abort "Error: Could not find PR template at $GUTENBERG_PR_TEMPLATE_PATH" 
 # Get the checklist from the gutenberg PR template by removing everything before the '## Checklist:' line
-CHECKLIST_FROM_GUTENBERG_PR_TEMPLATE=$(cat "$GUTENBERG_PR_TEMPLATE_PATH" | sed -e/'## Checklist:'/\{ -e:1 -en\;b1 -e\} -ed)
+CHECKLIST_FROM_GUTENBERG_PR_TEMPLATE=$(sed -e/'## Checklist:'/\{ -e:1 -en\;b1 -e\} -ed < "$GUTENBERG_PR_TEMPLATE_PATH")
 
 # Construct body for Gutenberg release PR
 GUTENBERG_PR_BEGINNING="## Description
