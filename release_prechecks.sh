@@ -71,7 +71,7 @@ function check_ios_aztec_is_release_version() {
 function check_android_and_ios_aztec_versions() {
     android_result=$(check_android_aztec_is_release_version)
     ios_result=$(check_ios_aztec_is_release_version)
-    if [[ ! -z "$android_result" ]]; then
+    if [[ -n "$android_result" ]]; then
         echo "${android_result}\n${ios_result}"
     else
         echo "$ios_result"
