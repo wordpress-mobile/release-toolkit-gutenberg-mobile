@@ -39,7 +39,7 @@ SCRIPT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 # (default is sibling directory of gutenberg-mobile-release-toolkit)
 DEFAULT_GB_MOBILE_LOCATION="$SCRIPT_PATH/../gutenberg-mobile"
 
-read -p "Please enter the path to the gutenberg-mobile directory [$DEFAULT_GB_MOBILE_LOCATION]:" GB_MOBILE_PATH
+read -p -r "Please enter the path to the gutenberg-mobile directory [$DEFAULT_GB_MOBILE_LOCATION]:" GB_MOBILE_PATH
 GB_MOBILE_PATH=${GB_MOBILE_PATH:-"$DEFAULT_GB_MOBILE_LOCATION"}
 echo ""
 if [[ ! "$GB_MOBILE_PATH" == *gutenberg-mobile ]]; then
@@ -81,13 +81,13 @@ fi
 # Ask for new version number
 CURRENT_VERSION_NUMBER=$(jq '.version' package.json --raw-output)
 echo "Current Version Number:$CURRENT_VERSION_NUMBER"
-read -p "Enter the new version number: " VERSION_NUMBER
+read -p -r "Enter the new version number: " VERSION_NUMBER
 if [[ -z "$VERSION_NUMBER" ]]; then
     abort "Version number cannot be empty."
 fi
 
 # Ensure javascript dependencies are up-to-date
-read -p "Run 'npm ci' to ensure javascript dependencies are up-to-date? (y/n) " -n 1
+read -p -r "Run 'npm ci' to ensure javascript dependencies are up-to-date? (y/n) " -n 1
 echo ""
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     execute "npm" "ci"
@@ -149,10 +149,10 @@ cd ..
 
 # Ask if a cherry-pick is needed before bundling (for example if this is a hotfix release)
 cd gutenberg
-read -p "Do you want to cherry-pick a commit from gutenberg? (y/n) " -n 1
+read -p -r "Do you want to cherry-pick a commit from gutenberg? (y/n) " -n 1
 echo ""
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    read -p "Enter the commit hash to cherry-pick: " GUTENBERG_COMMIT_HASH_TO_CHERRY_PICK
+    read -p -r "Enter the commit hash to cherry-pick: " GUTENBERG_COMMIT_HASH_TO_CHERRY_PICK
     execute "git" "cherry-pick" "$GUTENBERG_COMMIT_HASH_TO_CHERRY_PICK"
 fi
 cd ..
@@ -263,10 +263,10 @@ WP_APPS_INTEGRATION_BRANCH="gutenberg/integrate_release_$VERSION_NUMBER"
 #####
 # WPAndroid PR
 #####
-read -p "Do you want to target $WPANDROID_TARGET_BRANCH branch for WPAndroid PR? (y/n) " -n 1
+read -p -r "Do you want to target $WPANDROID_TARGET_BRANCH branch for WPAndroid PR? (y/n) " -n 1
 echo ""
 if [[ $REPLY =~ ^[Nn]$ ]]; then
-    read -p "Enter the branch name you want to target. Make sure a branch with this name already exists in WPAndroid repository: " WPANDROID_TARGET_BRANCH
+    read -p -r "Enter the branch name you want to target. Make sure a branch with this name already exists in WPAndroid repository: " WPANDROID_TARGET_BRANCH
 fi
 
 TEMP_WP_ANDROID_DIRECTORY=$(mktemp -d)
@@ -327,10 +327,10 @@ echo ""
 # WPiOS PR
 #####
 
-read -p "Do you want to target $WPIOS_TARGET_BRANCH branch for WPiOS PR? (y/n) " -n 1
+read -p -r "Do you want to target $WPIOS_TARGET_BRANCH branch for WPiOS PR? (y/n) " -n 1
 echo ""
 if [[ $REPLY =~ ^[Nn]$ ]]; then
-    read -p "Enter the branch name you want to target. Make sure a branch with this name already exists in WPiOS repository: " WPIOS_TARGET_BRANCH
+    read -p -r "Enter the branch name you want to target. Make sure a branch with this name already exists in WPiOS repository: " WPIOS_TARGET_BRANCH
 fi
 
 TEMP_WP_IOS_DIRECTORY=$(mktemp -d)
