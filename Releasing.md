@@ -21,7 +21,7 @@ cut a new release.
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
-<p>This checklist is based on the <a href="https://github.com/wordpress-mobile/gutenberg-mobile/blob/develop/docs/Releasing.md#release-checklist">Release Checklist Template</a>. If you need a checklist for a new gutenberg-mobile release, please copy from that template.</p>
+<p>This checklist is based on the <a href="https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/blob/develop/Releasing.md#release-checklist-template">Release Checklist Template</a>. If you need a checklist for a new gutenberg-mobile release, please copy from that template.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
@@ -37,7 +37,7 @@ cut a new release.
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Check that <code>RNTAztecView.podspec</code> and <code>gutenberg/packages/react-native-aztec/RNTAztecView.podspec</code> refer to the same Aztec version.
+<p>o Check that <code>gutenberg-mobile/RNTAztecView.podspec</code> and <code>gutenberg-mobile/gutenberg/packages/react-native-aztec/RNTAztecView.podspec</code> refer to the same <code>WordPress-Aztec-iOS</code> version.
 </p>
 <!-- /wp:paragraph -->
 
@@ -47,6 +47,10 @@ cut a new release.
 
 <!-- wp:paragraph -->
 <p>o Run the release script in release-toolkit-gutenberg-mobile: <code>./release_automation.sh</code>. This will take care of creating the gutenberg and gutenberg-mobile release PRs as well as WPAndroid and WPiOS integration PRs.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>o Message any related Slack channels to inform that the gutenberg-mobile release is now cut and any new WPiOS and WPAndroid changes having related gutenberg-mobile or gutenberg parts should now be merged to <code>gutenberg/after_X.XX.X</code> branches until WPiOS and WPAndroid have cut their own releases next week.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":3} -->
@@ -102,7 +106,7 @@ cut a new release.
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o In WPiOS update the reference to point to the <em>tag</em>. For iOS do not forget to remove <code>develop</code> branch reference near 3rd party pod specs if any.</p>
+<p>o In WPiOS update the reference to point to the <em>tag</em>.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
