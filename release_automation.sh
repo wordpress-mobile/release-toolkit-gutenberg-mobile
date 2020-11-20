@@ -239,8 +239,7 @@ cd ..
 
 echo "PRs Created"
 echo "==========="
-printf "Gutenberg-Mobile $GB_MOBILE_PR_URL
-Gutenberg $GUTENBERG_PR_URL\n" | column -t
+printf "Gutenberg-Mobile PR %s \n Gutenberg %s \n" "$GB_MOBILE_PR_URL" "$GUTENBERG_PR_URL" | column -t
 
 confirm_to_proceed "Do you want to proceed with creating main apps (WPiOS and WPAndroid) PRs?"
 ohai "Proceeding to create main apps PRs..."
@@ -375,6 +374,5 @@ echo ""
 
 echo "Main apps PRs created"
 echo "==========="
-printf "WPAndroid $WP_ANDROID_PR_URL
-WPiOS $WP_IOS_PR_URL\n" | column -t
+printf "WPAndroid %s \n WPiOS %s \n" "$WP_ANDROID_PR_URL" "$WP_IOS_PR_URL" | column -t
 
