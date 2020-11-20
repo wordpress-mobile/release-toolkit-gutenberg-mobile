@@ -47,7 +47,7 @@ if [[ ! "$GB_MOBILE_PATH" == *gutenberg-mobile ]]; then
 fi
 
 source ./release_utils.sh
-source ./release_prechecks.sh $GB_MOBILE_PATH
+source ./release_prechecks.sh "$GB_MOBILE_PATH"
 
 # Execute script commands from gutenberg-mobile directory
 cd "$GB_MOBILE_PATH"
