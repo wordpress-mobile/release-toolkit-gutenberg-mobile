@@ -78,4 +78,4 @@ function check_android_and_ios_aztec_versions() {
     fi
 }
 
-printf "$(check_android_and_ios_aztec_versions)\n"
+printf "%s \n" "$(check_android_and_ios_aztec_versions)"
