@@ -11,7 +11,6 @@ tty_mkbold() { tty_escape "1;$1"; }
 tty_underline="$(tty_escape "4;39")"
 tty_blue="$(tty_mkbold 34)"
 tty_red="$(tty_mkbold 31)"
-tty_bold="$(tty_mkbold 39)"
 tty_reset="$(tty_escape 0)"
 
 
@@ -61,7 +60,7 @@ execute() {
 
 # Accepts a single argument: a yes/no question (ending with a ? most likely) to ask the user
 function confirm_to_proceed() {
-    read -p "$1 (y/n) " -n 1
+    read -r -p "$1 (y/n) " -n 1
     echo ""
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
         abort "Aborting release..."

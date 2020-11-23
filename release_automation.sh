@@ -44,7 +44,7 @@ SCRIPT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 # (default is sibling directory of gutenberg-mobile-release-toolkit)
 DEFAULT_GB_MOBILE_LOCATION="$SCRIPT_PATH/../gutenberg-mobile"
 
-read -p "Please enter the path to the gutenberg-mobile directory ["$DEFAULT_GB_MOBILE_LOCATION"]:" GB_MOBILE_PATH
+read -r -p "Please enter the path to the gutenberg-mobile directory [$DEFAULT_GB_MOBILE_LOCATION]:" GB_MOBILE_PATH
 GB_MOBILE_PATH=${GB_MOBILE_PATH:-"$DEFAULT_GB_MOBILE_LOCATION"}
 echo ""
 if [[ ! "$GB_MOBILE_PATH" == *gutenberg-mobile ]]; then
@@ -52,7 +52,7 @@ if [[ ! "$GB_MOBILE_PATH" == *gutenberg-mobile ]]; then
 fi
 
 source ./release_utils.sh
-source ./release_prechecks.sh $GB_MOBILE_PATH
+source ./release_prechecks.sh "$GB_MOBILE_PATH"
 
 # Execute script commands from gutenberg-mobile directory
 cd "$GB_MOBILE_PATH"
@@ -65,7 +65,7 @@ command -v jq >/dev/null || abort "Error: jq must be installed."
 
 # Check that Aztec versions are set to release versions
 aztec_version_problems="$(check_android_and_ios_aztec_versions)"
-if [[ ! -z "$aztec_version_problems" ]]; then
+if [[ -n "$aztec_version_problems" ]]; then
     warn "There appear to be problems with the Aztec versions:\n$aztec_version_problems"
     confirm_to_proceed "Do you want to proceed with the release despite the ^above^ problem(s) with the Aztec version?"
 else
@@ -74,9 +74,9 @@ fi
 
 ## Check current branch is develop, trunk, or release/* branch
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-if [[ ! "$CURRENT_BRANCH" =~ "^develop$|^trunk$|^release/.*" ]]; then
-    echo "Releases should generally only be based on 'develop', 'trunk', or an earlier release branch."
-    echo "You are currently on the '$CURRENT_BRANCH' branch."
+if [[ ! "$CURRENT_BRANCH" =~ ^develop$|^trunk$|^release/.* ]]; then
+    warn "Releases should generally only be based on 'develop', 'trunk', or an earlier release branch."
+    warn "You are currently on the '$CURRENT_BRANCH' branch."
     confirm_to_proceed "Are you sure you want to create a release branch from the '$CURRENT_BRANCH' branch?"
 fi
 
@@ -86,13 +86,13 @@ fi
 # Ask for new version number
 CURRENT_VERSION_NUMBER=$(jq '.version' package.json --raw-output)
 echo "Current Version Number:$CURRENT_VERSION_NUMBER"
-read -p "Enter the new version number: " VERSION_NUMBER
+read -r -p "Enter the new version number: " VERSION_NUMBER
 if [[ -z "$VERSION_NUMBER" ]]; then
     abort "Version number cannot be empty."
 fi
 
 # Ensure javascript dependencies are up-to-date
-read -p "Run 'npm ci' to ensure javascript dependencies are up-to-date? (y/n) " -n 1
+read -r -p "Run 'npm ci' to ensure javascript dependencies are up-to-date? (y/n) " -n 1
 echo ""
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     execute "npm" "ci"
@@ -100,7 +100,7 @@ fi
 
 # If there are any open PRs with a milestone matching the release version number, notify the user and ask them if they want to proceed
 number_milestone_prs=$(check_if_version_has_pending_prs_for_milestone "$VERSION_NUMBER")
-if [[ ! -z "$number_milestone_prs" ]] && [[ "0" != "$number_milestone_prs" ]]; then
+if [[ -n "$number_milestone_prs" ]] && [[ "0" != "$number_milestone_prs" ]]; then
     echo "There are currently $number_milestone_prs PRs with a milestone matching $VERSION_NUMBER."
     confirm_to_proceed "Do you want to proceed with cutting the release?"
 fi
@@ -144,7 +144,7 @@ eval "$PRE_IOS_COMMAND"
 
 # If preios results in changes, commit them
 cd gutenberg
-if [[ ! -z "$(git status --porcelain)" ]]; then
+if [[ -n "$(git status --porcelain)" ]]; then
     ohai "Commit changes from '$PRE_IOS_COMMAND'"
     execute "git" "commit" "-a" "-m" "Release script: Update with changes from '$PRE_IOS_COMMAND'"
 else
@@ -154,10 +154,10 @@ cd ..
 
 # Ask if a cherry-pick is needed before bundling (for example if this is a hotfix release)
 cd gutenberg
-read -p "Do you want to cherry-pick a commit from gutenberg? (y/n) " -n 1
+read -r -p "Do you want to cherry-pick a commit from gutenberg? (y/n) " -n 1
 echo ""
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    read -p "Enter the commit hash to cherry-pick: " GUTENBERG_COMMIT_HASH_TO_CHERRY_PICK
+    read -r -p "Enter the commit hash to cherry-pick: " GUTENBERG_COMMIT_HASH_TO_CHERRY_PICK
     execute "git" "cherry-pick" "$GUTENBERG_COMMIT_HASH_TO_CHERRY_PICK"
 fi
 cd ..
@@ -213,7 +213,7 @@ cd gutenberg
 GUTENBERG_PR_TEMPLATE_PATH=".github/PULL_REQUEST_TEMPLATE.md"
 test -f "$GUTENBERG_PR_TEMPLATE_PATH" || abort "Error: Could not find PR template at $GUTENBERG_PR_TEMPLATE_PATH" 
 # Get the checklist from the gutenberg PR template by removing everything before the '## Checklist:' line
-CHECKLIST_FROM_GUTENBERG_PR_TEMPLATE=$(cat "$GUTENBERG_PR_TEMPLATE_PATH" | sed -e/'## Checklist:'/\{ -e:1 -en\;b1 -e\} -ed)
+CHECKLIST_FROM_GUTENBERG_PR_TEMPLATE=$(sed -e/'## Checklist:'/\{ -e:1 -en\;b1 -e\} -ed < "$GUTENBERG_PR_TEMPLATE_PATH")
 
 # Construct body for Gutenberg release PR
 GUTENBERG_PR_BEGINNING="## Description
@@ -239,8 +239,7 @@ cd ..
 
 echo "PRs Created"
 echo "==========="
-printf "Gutenberg-Mobile $GB_MOBILE_PR_URL
-Gutenberg $GUTENBERG_PR_URL\n" | column -t
+printf "Gutenberg-Mobile PR %s \n Gutenberg %s \n" "$GB_MOBILE_PR_URL" "$GUTENBERG_PR_URL" | column -t
 
 confirm_to_proceed "Do you want to proceed with creating main apps (WPiOS and WPAndroid) PRs?"
 ohai "Proceeding to create main apps PRs..."
@@ -263,10 +262,10 @@ WP_APPS_INTEGRATION_BRANCH="gutenberg/integrate_release_$VERSION_NUMBER"
 #####
 # WPAndroid PR
 #####
-read -p "Do you want to target $WPANDROID_TARGET_BRANCH branch for WPAndroid PR? (y/n) " -n 1
+read -r -p "Do you want to target $WPANDROID_TARGET_BRANCH branch for WPAndroid PR? (y/n) " -n 1
 echo ""
 if [[ $REPLY =~ ^[Nn]$ ]]; then
-    read -p "Enter the branch name you want to target. Make sure a branch with this name already exists in WPAndroid repository: " WPANDROID_TARGET_BRANCH
+    read -r -p "Enter the branch name you want to target. Make sure a branch with this name already exists in WPAndroid repository: " WPANDROID_TARGET_BRANCH
 fi
 
 TEMP_WP_ANDROID_DIRECTORY=$(mktemp -d)
@@ -298,7 +297,7 @@ execute "git" "commit" "-m" "Release script: Update gutenberg-mobile ref"
 ohai "Update strings"
 execute "python" "tools/merge_strings_xml.py"
 # If merge_strings_xml.py results in changes, commit them
-if [[ ! -z "$(git status --porcelain)" ]]; then
+if [[ -n "$(git status --porcelain)" ]]; then
     ohai "Commit changes from 'python tools/merge_strings_xml.py'"
     execute "git" "add" "WordPress/src/main/res/values/strings.xml"
     execute "git" "commit" "-m" "Release script: Update strings"
@@ -327,10 +326,10 @@ echo ""
 # WPiOS PR
 #####
 
-read -p "Do you want to target $WPIOS_TARGET_BRANCH branch for WPiOS PR? (y/n) " -n 1
+read -r -p "Do you want to target $WPIOS_TARGET_BRANCH branch for WPiOS PR? (y/n) " -n 1
 echo ""
 if [[ $REPLY =~ ^[Nn]$ ]]; then
-    read -p "Enter the branch name you want to target. Make sure a branch with this name already exists in WPiOS repository: " WPIOS_TARGET_BRANCH
+    read -r -p "Enter the branch name you want to target. Make sure a branch with this name already exists in WPiOS repository: " WPIOS_TARGET_BRANCH
 fi
 
 TEMP_WP_IOS_DIRECTORY=$(mktemp -d)
@@ -375,6 +374,5 @@ echo ""
 
 echo "Main apps PRs created"
 echo "==========="
-printf "WPAndroid $WP_ANDROID_PR_URL
-WPiOS $WP_IOS_PR_URL\n" | column -t
+printf "WPAndroid %s \n WPiOS %s \n" "$WP_ANDROID_PR_URL" "$WP_IOS_PR_URL" | column -t
 
