@@ -34,6 +34,11 @@ MOBILE_REPO="wordpress-mobile"
 
 set -e
 
+# Read GB-Mobile PR template
+PR_TEMPLATE_PATH='./release_pull_request.md'
+test -f "$PR_TEMPLATE_PATH" || abort "Error: Could not find PR template at $PR_TEMPLATE_PATH"
+PR_TEMPLATE=$(cat "$PR_TEMPLATE_PATH")
+
 SCRIPT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 # Ask for path to gutenberg-mobile directory
 # (default is sibling directory of gutenberg-mobile-release-toolkit)
@@ -183,11 +188,6 @@ ohai "Proceeding to create PRs..."
 #####
 # Gutenberg-Mobile PR
 #####
-
-# Read GB-Mobile PR template
-PR_TEMPLATE_PATH='.github/PULL_REQUEST_TEMPLATE/release_pull_request.md'
-test -f "$PR_TEMPLATE_PATH" || abort "Error: Could not find PR template at $PR_TEMPLATE_PATH"
-PR_TEMPLATE=$(cat "$PR_TEMPLATE_PATH")
 
 # Replace version number in GB-Mobile PR template
 PR_BODY=${PR_TEMPLATE//v1.XX.Y/$VERSION_NUMBER}
