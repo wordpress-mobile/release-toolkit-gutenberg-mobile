@@ -20,4 +20,4 @@ Run the script: `./release_automation.sh`
 
 ## Testing
 
-You can test the scripts on forked repos. Please follow the instructions on top of the [release_automation.sh](https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/blob/develop/release_automation.sh) file.
+You can test the scripts on forked repos. Please follow the instructions on top of the [release_automation.sh](./release_automation.sh) file.
