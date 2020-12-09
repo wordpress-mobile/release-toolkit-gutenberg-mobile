@@ -49,6 +49,18 @@ cut a new release.
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
+<p>o Trigger an installable build on WPiOS PR.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>o Fill in the missing parts of the gutenberg-mobile PR description.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>o Mark all 4 PRs ready for review and request reviews for them from your release wrangler buddy.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
 <p>o Message any related Slack channels to inform that the gutenberg-mobile release is now cut and any new WPiOS and WPAndroid changes having related gutenberg-mobile or gutenberg parts should now be merged to <code>gutenberg/after_X.XX.X</code> branches on WPiOS and WPAndroid until their own releases are cut next week.</p>
 <!-- /wp:paragraph -->
 
