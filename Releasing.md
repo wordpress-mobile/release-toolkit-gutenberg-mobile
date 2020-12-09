@@ -53,7 +53,7 @@ cut a new release.
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Fill in the missing parts in gutenberg-mobile PR description.</p>
+<p>o Fill in the missing parts of the gutenberg-mobile PR description.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
