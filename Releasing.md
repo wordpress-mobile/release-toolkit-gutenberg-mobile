@@ -57,7 +57,7 @@ cut a new release.
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Mark all 4 PRs ready for review, requesting reviews from your buddy.</p>
+<p>o Mark all 4 PRs ready for review and request reviews for them from your release wrangler buddy.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
