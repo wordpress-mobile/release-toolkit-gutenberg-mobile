@@ -105,7 +105,7 @@ cut a new release.
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Merge the Gutenberg-Mobile PR to `trunk`. WARNING: Don’t merge the Gutenberg PR to master at this point.</p>
+<p>o Merge the Gutenberg-Mobile PR to <code>trunk</code>. WARNING: Don’t merge the Gutenberg PR to master at this point.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
