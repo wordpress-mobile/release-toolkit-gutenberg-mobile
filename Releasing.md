@@ -64,6 +64,10 @@ cut a new release.
 <p>o Message any related Slack channels to inform that the gutenberg-mobile release is now cut and any new WPiOS and WPAndroid changes having related gutenberg-mobile or gutenberg parts should now be merged to <code>gutenberg/after_X.XX.X</code> branches on WPiOS and WPAndroid until their own releases are cut next week.</p>
 <!-- /wp:paragraph -->
 
+<!-- wp:paragraph -->
+<p>o If this is a release for inclusion in the frozen WPiOS and WPAndroid release branches (ie. this is a point-release, e.g. X.XX.2), ping the directly responsible individual handing the release of each platform of the main apps.</p>
+<!-- /wp:paragraph -->
+
 <!-- wp:heading {"level":3} -->
 <h3>New Aztec Release</h3>
 <!-- /wp:heading -->
