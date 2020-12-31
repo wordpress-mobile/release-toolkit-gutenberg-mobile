@@ -12,14 +12,17 @@ This is useful in case you want to use an unreleased version of the bundle in th
 
 # Release Checklist Template
 
-Just copy this checklist and replace all occurrences of `X.XX.X` with the applicable release number, when we are ready to
-cut a new release.
+When you are ready to cut a new release, use the following template.
+
+For the post title, use this (replacing `X.XX.X` with the applicable release number):
 
 ```
-<!-- wp:heading {"level":1} -->
-<h1>Gutenberg Mobile X.XX.X – Release Scenario</h1>
-<!-- /wp:heading -->
+Gutenberg Mobile X.XX.X – Release Scenario
+```
 
+For the body of the post, just copy this checklist and again replace all occurrences of `X.XX.X` with the applicable release number.
+
+```
 <!-- wp:paragraph -->
 <p>This checklist is based on the <a href="https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/blob/develop/Releasing.md#release-checklist-template">Release Checklist Template</a>. If you need a checklist for a new gutenberg-mobile release, please copy from that template.</p>
 <!-- /wp:paragraph -->
