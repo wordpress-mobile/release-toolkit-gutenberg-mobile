@@ -16,6 +16,8 @@ brew install jq
 
 ## Usage
 
+Prerequisite: Use Xcode 12.1 (not Xcode 12.2). Set it using `sudo xcode-select -s /Applications/Xcode12.1.app` (changing the path if required). This avoids a "Failed to build gem native extension." error during the `rake dependencies` step.
+
 Run the script: `./release_automation.sh`
 
 ## Testing
