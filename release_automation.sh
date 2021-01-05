@@ -174,7 +174,7 @@ npm run bundle || abort "Error: 'npm bundle' failed.\nIf there is an error stati
 # Commit bundle changes
 ohai "Commit bundle changes"
 execute "git" "add" "bundle/"
-execute "git" "diff-index" "--quiet" "HEAD" "||" "git" "commit" "-m" "Release script: Update bundle for: $VERSION_NUMBER"
+execute "git" "diff-index" "--quiet" "HEAD" "--" "." "||" "git" "commit" "-m" "Release script: Update bundle for: $VERSION_NUMBER"
 
 
 #####
