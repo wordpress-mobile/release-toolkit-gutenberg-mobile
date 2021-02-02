@@ -121,7 +121,7 @@ cd ..
 ohai "Set version numbers in package.json files"
 for file in 'package.json' 'package-lock.json' 'gutenberg/packages/react-native-aztec/package.json' 'gutenberg/packages/react-native-bridge/package.json' 'gutenberg/packages/react-native-editor/package.json'; do
     TEMP_FILE=$(mktemp)
-    execute "jq" ".version = \"$VERSION_NUMBER\"" "$file" > "$TEMP_FILE"
+    execute "jq" ".version = \"$VERSION_NUMBER\"" "$file" > "$TEMP_FILE" "--tab"
     execute "mv" "$TEMP_FILE" "$file"
 done
 
