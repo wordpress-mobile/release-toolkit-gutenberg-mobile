@@ -346,8 +346,9 @@ execute "git" "push" "-u" "origin" "HEAD"
 ohai "Create release branch in WordPress-iOS"
 execute "git" "switch" "-c" "gutenberg/integrate_release_$VERSION_NUMBER" 
 
-ohai "Update gutenberg-mobile ref"
+ohai "Update GitHub organization and gutenberg-mobile ref"
 test -f "Podfile" || abort "Error: Could not find Podfile"
+sed -i'.orig' -E "s/(podspec_prefix = \"https:\/\/raw.githubusercontent.com\/)wordpress-mobile(\/gutenberg-mobile\/#{tag_or_commit}\")/\1$MOBILE_REPO\2/" Podfile || abort "Error: Failed updating GitHub organization in Podfile"
 sed -i'.orig' -E "s/gutenberg :(commit|tag) => '(.*)'/gutenberg :commit => '$GB_MOBILE_PR_REF'/" Podfile || abort "Error: Failed updating gutenberg ref in Podfile"
 execute "rake" "dependencies"
 
