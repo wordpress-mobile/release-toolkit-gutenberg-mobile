@@ -61,7 +61,7 @@ cd "$GB_MOBILE_PATH"
 command -v gh >/dev/null || abort "Error: The Github CLI must be installed."
 
 # Check that Github CLI is logged
-gh auth status >/dev/null 2>&1 || abort "Error: You are not logged into any GitHub hosts. Run gh auth login to authenticate."
+gh auth status >/dev/null 2>&1 || abort "Error: You are not logged into any GitHub hosts. Run 'gh auth login' to authenticate."
 
 # Check that jq is installed
 command -v jq >/dev/null || abort "Error: jq must be installed."
