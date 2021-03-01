@@ -11,7 +11,7 @@
 #    d) WordPress-iOS: https://github.com/wordpress-mobile/WordPress-iOS
 # 2. Insure that each of your forked repos contains the PR labels specified below:
 GUTENBERG_MOBILE_PR_LABEL="release-process"
-GUTENBERG_PR_LABEL="Mobile App Android/iOS"
+GUTENBERG_PR_LABEL="Mobile App - i.e. Android or iOS"
 WPANDROID_PR_LABEL="gutenberg-mobile"
 WPIOS_PR_LABEL="Gutenberg integration"
 # 3. Ensure that each of your repos contains the target branch listed below:
