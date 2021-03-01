@@ -16,7 +16,7 @@ WPANDROID_PR_LABEL="gutenberg-mobile"
 WPIOS_PR_LABEL="Gutenberg integration"
 # 3. Ensure that each of your repos contains the target branch listed below:
 GUTENBERG_MOBILE_TARGET_BRANCH="trunk"
-GUTENBERG_TARGET_BRANCH="master"
+GUTENBERG_TARGET_BRANCH="trunk"
 WPANDROID_TARGET_BRANCH="develop"
 WPIOS_TARGET_BRANCH="develop"
 # 4. Update the repo names below to the user repo name for your fork
