@@ -96,7 +96,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o If there were changes in Gutenberg repo, make sure to cherry-pick the changes that landed in the master branch back to the release branch and don't forget to run <code>npm run bundle</code> in gutenberg-mobile again if necessary.</p>
+<p>o If there were changes in Gutenberg repo, make sure to cherry-pick the changes that landed in the <code>trunk</code> branch back to the release branch and don't forget to run <code>npm run bundle</code> in gutenberg-mobile again if necessary.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
@@ -112,7 +112,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Merge the Gutenberg-Mobile PR to <code>trunk</code>. WARNING: Don’t merge the Gutenberg PR to master at this point.</p>
+<p>o Merge the Gutenberg-Mobile PR to <code>trunk</code>. WARNING: Don’t merge the Gutenberg PR to <code>trunk</code> at this point.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
