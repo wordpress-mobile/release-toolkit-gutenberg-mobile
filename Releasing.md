@@ -96,7 +96,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o If there were changes in Gutenberg repo, make sure to cherry-pick the changes that landed in the master branch back to the release branch and don't forget to run <code>npm run bundle</code> in gutenberg-mobile again if necessary.</p>
+<p>o If there were changes in Gutenberg repo, make sure to cherry-pick the changes that landed in the <code>trunk</code> branch back to the release branch and don't forget to run <code>npm run bundle</code> in gutenberg-mobile again if necessary.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
@@ -112,7 +112,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Merge the Gutenberg-Mobile PR to <code>trunk</code>. WARNING: Don’t merge the Gutenberg PR to master at this point.</p>
+<p>o Merge the Gutenberg-Mobile PR to <code>trunk</code>. WARNING: Don’t merge the Gutenberg PR to <code>trunk</code> at this point.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
@@ -144,7 +144,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
-<p>o If there are any conflicts in the Gutenberg PR, merge <code>master</code> into it and resolve them.</p>
+<p>o If there are any conflicts in the Gutenberg PR, merge <code>trunk</code> into it and resolve them.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
@@ -156,7 +156,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Merge the Gutenberg PR to <code>master</code> and Gutenberg Mobile PR to <code>develop</code>.</p>
+<p>o Merge the Gutenberg PR to <code>trunk</code> and Gutenberg Mobile PR to <code>develop</code>.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":3} -->
@@ -194,7 +194,7 @@ For example when releasing gutenberg-mobile `1.11.0`.
 
 | Repo             | Cut From | Branch Name                        | Merging To      |
 | ---------------- | -------- | ---------------------------------- | --------------- |
-| gutenberg        | master   | rnmobile/release_1.11.0            | master          |
+| gutenberg        | trunk    | rnmobile/release_1.11.0            | trunk           |
 | gutenberg-mobile | develop  | release/1.11.0                     | trunk & develop |
 | WPAndroid        | develop  | gutenberg/integrate_release_1.11.0 | develop         |
 | WPiOS            | develop  | gutenberg/integrate_release_1.11.0 | develop         |
@@ -212,7 +212,7 @@ At the same time there could also be a regular release going on for example for 
 
 | Repo             | Cut From                | Branch Name                        | Merging To                                                       |
 | ---------------- | ----------------------- | ---------------------------------- | ---------------------------------------------------------------- |
-| gutenberg        | rnmobile/release_1.11.0 | rnmobile/release_1.11.1            | master & (maybe also) rnmobile/release_1.12.0                    |
+| gutenberg        | rnmobile/release_1.11.0 | rnmobile/release_1.11.1            | trunk & (maybe also) rnmobile/release_1.12.0                     |
 | gutenberg-mobile | release/1.11.0          | release/1.11.1                     | trunk & develop & (maybe also) release/1.12.0                    |
 | WPAndroid        | release/22.2.0          | gutenberg/integrate_release_1.11.1 | release/22.2.0 & (maybe also) gutenberg/integrate_release_1.12.0 |
 | WPiOS            | release/22.2.0          | gutenberg/integrate_release_1.11.1 | release/22.2.0 & (maybe also) gutenberg/integrate_release_1.12.0 |
@@ -242,7 +242,7 @@ At the same time there could also be a regular release, a betafix or even anothe
 
 | Repo             | Cut From                | Branch Name                        | Merging To                                                       |
 | ---------------- | ----------------------- | ---------------------------------- | ---------------------------------------------------------------- |
-| gutenberg        | rnmobile/release_1.11.0 | rnmobile/release_1.11.1            | master & (maybe also) rnmobile/release_1.12.1                    |
+| gutenberg        | rnmobile/release_1.11.0 | rnmobile/release_1.11.1            | trunk & (maybe also) rnmobile/release_1.12.1                     |
 | gutenberg-mobile | release/1.11.0          | release/1.11.1                     | trunk & develop & (maybe also) release/1.12.1                    |
 | WPAndroid        | release/22.2.0          | gutenberg/integrate_release_1.11.1 | release/22.2.1 & (maybe also) gutenberg/integrate_release_1.12.1 |
 | WPiOS            | release/22.2.0          | gutenberg/integrate_release_1.11.1 | release/22.2.1 & (maybe also) gutenberg/integrate_release_1.12.1 |
