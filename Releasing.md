@@ -28,7 +28,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>+mobilegutenberg</p>
+<p>+mobilegutenberg +mobilegutenpagesp2</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":3} -->
