@@ -12,7 +12,7 @@ This is useful in case you want to use an unreleased version of the bundle in th
 
 # Release Checklist Template
 
-When you are ready to cut a new release, use the template found below. It specifies the use of an automation script which handles the creation of release branches. It's best practice to use this script for all releases types (regular, betafix, hotfix). When wrangling a betafix or hotfix, the actual fix should be merged to `trunk` before the release is cut. This helps ensure that fixes are always included in all subsequent releases, especially in scenarios where multiple releases are cut in a short timeframe.
+When you are ready to cut a new release, use the following template.
 
 For the post title, use this (replacing `X.XX.X` with the applicable release number):
 
