@@ -182,6 +182,10 @@ For the body of the post, just copy this checklist and again replace all occurre
 
 # Different types of releases
 
+## Best practices
+
+When you are ready to cut a new release, use the template found above. It specifies the use of an automation script which handles the creation of release branches. It's best practice to use this script for all releases types (regular, betafix, hotfix). When wrangling a betafix or hotfix, it's important to merge the fix to Gutenberg `trunk` independently of the release process. When the release is cut (by the automation script) the commit(s) that make up the betafix or hotfix should then be cherry-picked onto the Gutenberg release branch.
+
 ## 1. Regular
 
 ### When
