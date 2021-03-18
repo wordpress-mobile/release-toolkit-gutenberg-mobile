@@ -160,7 +160,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Update the Gutenberg reference in the Gutenberg Mobile PR so it points to the Gutengerg PR merge commit in <code>trunk</code>.</p>
+<p>o Update the Gutenberg reference in the Gutenberg Mobile PR so it points to the Gutenberg PR merge commit in <code>trunk</code>.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
