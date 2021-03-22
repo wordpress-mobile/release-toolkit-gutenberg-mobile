@@ -52,6 +52,10 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
+<p>o Run the Optional Tests on both the WPiOS and WPAndroid PRs.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
 <p>o Trigger an installable build on WPiOS PR.</p>
 <!-- /wp:paragraph -->
 
@@ -103,6 +107,10 @@ For the body of the post, just copy this checklist and again replace all occurre
 <p>o Add the new change to the "Extra PRs that Landed After the Release Was Cut" section of the gb-mobile PR description.</p>
 <!-- /wp:paragraph -->
 
+<!-- wp:paragraph -->
+<p>o Re-run the Optional Tests on both the WPiOS and WPAndroid PRs.</p>
+<!-- /wp:paragraph -->
+
 <!-- wp:heading {"level":3} -->
 <h3>Last Day</h3>
 <!-- /wp:heading -->
@@ -129,6 +137,11 @@ For the body of the post, just copy this checklist and again replace all occurre
 
 <!-- wp:paragraph -->
 <p>o In WPAndroid, update the submodule to point to the merge commit on GB-Mobile <code>trunk</code>.</p>
+<!-- /wp:paragraph -->
+
+
+<!-- wp:paragraph -->
+<p>o Re-run the Optional Tests on both the WPiOS and WPAndroid PRs.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
