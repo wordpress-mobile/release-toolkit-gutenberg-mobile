@@ -136,7 +136,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o In WPAndroid, update the submodule to point to the merge commit on GB-Mobile <code>trunk</code>.</p>
+<p>o In WPAndroid, update the `gutenbergMobileVersion` in `build.gradle` to point to the <em>tag</em>.</p>
 <!-- /wp:paragraph -->
 
 
