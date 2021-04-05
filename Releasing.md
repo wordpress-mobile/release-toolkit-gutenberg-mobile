@@ -28,7 +28,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>+mobilegutenberg</p>
+<p>+mobilegutenberg +mobilegutenpagesp2</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":3} -->
@@ -49,6 +49,10 @@ For the body of the post, just copy this checklist and again replace all occurre
 
 <!-- wp:paragraph -->
 <p>o Run the release script in release-toolkit-gutenberg-mobile: <code>./release_automation.sh</code>. This will take care of creating the gutenberg and gutenberg-mobile release PRs as well as WPAndroid and WPiOS integration PRs.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>o Run the Optional Tests on both the WPiOS and WPAndroid PRs.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
@@ -103,6 +107,10 @@ For the body of the post, just copy this checklist and again replace all occurre
 <p>o Add the new change to the "Extra PRs that Landed After the Release Was Cut" section of the gb-mobile PR description.</p>
 <!-- /wp:paragraph -->
 
+<!-- wp:paragraph -->
+<p>o Re-run the Optional Tests on both the WPiOS and WPAndroid PRs.</p>
+<!-- /wp:paragraph -->
+
 <!-- wp:heading {"level":3} -->
 <h3>Last Day</h3>
 <!-- /wp:heading -->
@@ -127,6 +135,11 @@ For the body of the post, just copy this checklist and again replace all occurre
 <p>o In WPAndroid, update the submodule to point to the merge commit on GB-Mobile <code>trunk</code>.</p>
 <!-- /wp:paragraph -->
 
+
+<!-- wp:paragraph -->
+<p>o Re-run the Optional Tests on both the WPiOS and WPAndroid PRs.</p>
+<!-- /wp:paragraph -->
+
 <!-- wp:paragraph -->
 <p>o Main apps PRs should be ready to merge to their develop now. Merge them or get them merged.</p>
 <!-- /wp:paragraph -->
@@ -140,15 +153,19 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
-<p>o If there are any conflicts in the Gutenberg-Mobile PR, merge <code>trunk</code> into it and resolve them.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
 <p>o If there are any conflicts in the Gutenberg PR, merge <code>trunk</code> into it and resolve them.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Merge the Gutenberg PR to <code>trunk</code> and Gutenberg-Mobile PR to <code>trunk</code>.</p>
+<p>o Merge the Gutenberg PR to <code>trunk</code>.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>o Update the Gutenberg reference in the Gutenberg Mobile PR so it points to the Gutenberg PR merge commit in <code>trunk</code>.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>o Merge the Gutenberg-Mobile PR to <code>trunk</code>.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":3} -->
@@ -157,6 +174,10 @@ For the body of the post, just copy this checklist and again replace all occurre
 
 <!-- wp:paragraph -->
 <p>o Update the <code>gutenberg/after_X.XX.X</code> branches and open a PR against <code>develop</code>. If the branches are empty we’ll just delete them. The PR can actually get created as soon as something gets merged to the after_X.XX.X branches.&nbsp; Merge the <code>gutenberg/after_X.XX.X</code> PR(s) only AFTER the main apps have cut their release branches.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>o Update the <a href="https://docs.google.com/spreadsheets/d/15U4v6zUBmPGagksHX_6ZfVA672-1qB2MO8M7HYBOOgQ/edit?usp=sharing">Release Incident Spreadsheet</a> with any fixes that occurred after the release branches were cut.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":3} -->
@@ -173,6 +194,10 @@ For the body of the post, just copy this checklist and again replace all occurre
 ```
 
 # Different types of releases
+
+## Best practices
+
+It's best practice to use the automation script (mentioned in the release template above) for all releases types (regular, betafix, hotfix). When wrangling a betafix or hotfix, it's important to merge the fix to Gutenberg `trunk` independently of the release process. When the release is cut (by the automation script) the commit(s) that make up the betafix or hotfix should then be cherry-picked onto the Gutenberg release branch.
 
 ## 1. Regular
 
