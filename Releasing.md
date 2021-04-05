@@ -112,15 +112,11 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Merge the Gutenberg-Mobile PR to <code>trunk</code>. WARNING: Don’t merge the Gutenberg PR to <code>trunk</code> at this point.</p>
+<p>o Create a new GitHub release pointing to the tag: https://github.com/wordpress-mobile/gutenberg-mobile/releases/new?tag=vX.XX.X&target=release/X.XX.X&title=Release%20X.XX.X. Include a list of changes in the release's description</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
 <p>o Tag the head of Gutenberg release branch that the Gutenberg-Mobile release branch is pointing to with the <code>rnmobile/X.XX.X</code> tag.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>o Create a new GitHub release pointing to the tag: https://github.com/wordpress-mobile/gutenberg-mobile/releases/new?tag=vX.XX.X&target=trunk&title=Release%20X.XX.X. Include a list of changes in the release's description</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
@@ -144,11 +140,15 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
+<p>o If there are any conflicts in the Gutenberg-Mobile PR, merge <code>trunk</code> into it and resolve them.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
 <p>o If there are any conflicts in the Gutenberg PR, merge <code>trunk</code> into it and resolve them.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Merge the Gutenberg PR to <code>trunk</code>.</p>
+<p>o Merge the Gutenberg PR to <code>trunk</code> and Gutenberg-Mobile PR to <code>trunk</code>.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":3} -->
