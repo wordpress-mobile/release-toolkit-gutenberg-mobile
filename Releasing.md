@@ -177,7 +177,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Merge the Gutenberg PR to <code>trunk</code>.</p>
+<p>o Merge the Gutenberg Mobile PR to <code>develop</code>.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":3} -->
