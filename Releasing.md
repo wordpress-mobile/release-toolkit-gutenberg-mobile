@@ -24,7 +24,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <details><summary>Click to expand</summary>
 <p>
   
-```python
+```
 print("hello world!")
 Hewhifu 
 wefhwifu fwe
