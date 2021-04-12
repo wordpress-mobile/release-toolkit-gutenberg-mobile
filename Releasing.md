@@ -30,6 +30,18 @@ Hewhifu
 wefhwifu fwe
 fwwhuiwef 
 
+<!-- wp:paragraph -->
+<p>This checklist is based on the <a href="https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/blob/develop/Releasing.md#release-checklist-template">Release Checklist Template</a>. If you need a checklist for a new gutenberg-mobile release, please copy from that template.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>+mobilegutenberg +mobilegutenpagesp2</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3>Day 1 - create the release branch, update the version</h3>
+<!-- /wp:heading -->
+
 ```
 
 
