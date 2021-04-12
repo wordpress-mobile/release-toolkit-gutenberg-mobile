@@ -21,10 +21,10 @@ Gutenberg Mobile X.XX.X – Release Scenario
 ```
 
 For the body of the post, just copy this checklist and again replace all occurrences of `X.XX.X` with the applicable release number.
-<details>
-  <summary>Click to expand</summary>
-
-```javascript
+<details><summary>Click to expand</summary>
+<p>
+  
+```
 <!-- wp:paragraph -->
 <p>This checklist is based on the <a href="https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/blob/develop/Releasing.md#release-checklist-template">Release Checklist Template</a>. If you need a checklist for a new gutenberg-mobile release, please copy from that template.</p>
 <!-- /wp:paragraph -->
@@ -207,6 +207,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 ```
 
+</p>
 </details>
 
 # Different types of releases
