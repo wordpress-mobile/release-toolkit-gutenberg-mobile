@@ -277,7 +277,7 @@ execute "git" "clone" "-b" "$WPANDROID_TARGET_BRANCH" "--depth=1" "git@github.co
 
 cd "$TEMP_WP_ANDROID_DIRECTORY"
 
-# This is still needed bacause of Andorid Stories.
+# This is still needed because of Android Stories.
 execute "git" "submodule" "update" "--init" "--recursive" "--depth=1" "--recommend-shallow"
 
 ohai "Create after_x.xx.x branch in WordPress-Android"
@@ -377,4 +377,3 @@ echo ""
 echo "Main apps PRs created"
 echo "==========="
 printf "WPAndroid %s \n WPiOS %s \n" "$WP_ANDROID_PR_URL" "$WP_IOS_PR_URL" | column -t
-
