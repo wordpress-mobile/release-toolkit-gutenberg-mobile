@@ -277,6 +277,7 @@ execute "git" "clone" "-b" "$WPANDROID_TARGET_BRANCH" "--depth=1" "git@github.co
 
 cd "$TEMP_WP_ANDROID_DIRECTORY"
 
+# This is still needed bacause of Andorid Stories.
 execute "git" "submodule" "update" "--init" "--recursive" "--depth=1" "--recommend-shallow"
 
 ohai "Create after_x.xx.x branch in WordPress-Android"
@@ -287,15 +288,12 @@ execute "git" "push" "-u" "origin" "HEAD"
 ohai "Create release branch in WordPress-Android"
 execute "git" "switch" "-c" "$WP_APPS_INTEGRATION_BRANCH"
 
-ohai "Update gutenberg-mobile ref"
-cd libs/gutenberg-mobile
-execute "git" "fetch" "--recurse-submodules=no" "origin" "$GB_MOBILE_PR_REF"
-execute "git" "checkout" "$GB_MOBILE_PR_REF"
-execute "git" "submodule" "update"
-cd ../..
+ohai "Update build.gradle file with the latest version"
+test -f "build.gradle" || abort "Error: Could not find build.gradle"
+sed -i'.orig' -E "s/ext.gutenbergMobileVersion = '(.*)'/ext.gutenbergMobileVersion = 'v$VERSION_NUMBER'/" build.gradle || abort "Error: Failed updating gutenbergMobileVersion in build.gradle"
 
-execute "git" "add" "libs/gutenberg-mobile"
-execute "git" "commit" "-m" "Release script: Update gutenberg-mobile ref"
+execute "git" "add" "build.gradle"
+execute "git" "commit" "-m" "Release script: Update build.gradle gutenbergMobileVersion version to $VERSION_NUMBER"
 
 ohai "Update strings"
 execute "python" "tools/merge_strings_xml.py"
