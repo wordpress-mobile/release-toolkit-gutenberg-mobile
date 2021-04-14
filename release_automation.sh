@@ -288,12 +288,15 @@ execute "git" "push" "-u" "origin" "HEAD"
 ohai "Create release branch in WordPress-Android"
 execute "git" "switch" "-c" "$WP_APPS_INTEGRATION_BRANCH"
 
+# Explodes the PR url with the second parameter being the PR ID. 
+PULL_ID_ARR=(${GB_MOBILE_PR_URL//pull\// })
+
 ohai "Update build.gradle file with the latest version"
 test -f "build.gradle" || abort "Error: Could not find build.gradle"
-sed -i'.orig' -E "s/ext.gutenbergMobileVersion = '(.*)'/ext.gutenbergMobileVersion = 'v$VERSION_NUMBER'/" build.gradle || abort "Error: Failed updating gutenbergMobileVersion in build.gradle"
+sed -i'.orig' -E "s/ext.gutenbergMobileVersion = '(.*)'/ext.gutenbergMobileVersion = '${PULL_ID_ARR[1]}-$GB_MOBILE_PR_REF'/" build.gradle || abort "Error: Failed updating gutenbergMobileVersion in build.gradle"
 
 execute "git" "add" "build.gradle"
-execute "git" "commit" "-m" "Release script: Update build.gradle gutenbergMobileVersion version to $VERSION_NUMBER"
+execute "git" "commit" "-m" "Release script: Update build.gradle gutenbergMobileVersion to ref"
 
 ohai "Update strings"
 execute "python" "tools/merge_strings_xml.py"
