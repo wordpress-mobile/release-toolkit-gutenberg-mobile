@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # INSTRUCTIONS FOR TESTING FROM FORKED REPOS
-# Prerequisites: 
+# Prerequisites:
 # 1. Fork the following repos to your github user repo:
 #    a) Gutenberg-Mobile: https://github.com/wordpress-mobile/gutenberg-mobile
-#    * .gitmodules on CURRENT_BRANCH should reference your gutenberg fork, replace 'WordPress' with GITHUB_USERNAME 
+#    * .gitmodules on CURRENT_BRANCH should reference your gutenberg fork, replace 'WordPress' with GITHUB_USERNAME
 #    * (https://github.com/wordpress-mobile/gutenberg-mobile/blob/develop/.gitmodules)
 #    b) Gutenberg: https://github.com/WordPress/gutenberg
 #    c) WordPress-Android: https://github.com/wordpress-mobile/WordPress-Android
@@ -22,8 +22,8 @@ WPIOS_TARGET_BRANCH="develop"
 # 4. Update the repo names below to the user repo name for your fork
 GUTENBERG_REPO="WordPress"
 MOBILE_REPO="wordpress-mobile"
-#GUTENBERG_REPO="YOUR_GITHUB_USERNAME"
-#MOBILE_REPO="YOUR_GITHUB_USERNAME"
+# GUTENBERG_REPO="YOUR_GITHUB_USERNAME"
+# MOBILE_REPO="YOUR_GITHUB_USERNAME"
 # 5. Clone the forked gutenberg-mobile repo
 
 # Before creating the release, this script performs the following checks:
@@ -111,13 +111,13 @@ fi
 # Create Git branch
 RELEASE_BRANCH="release/$VERSION_NUMBER"
 ohai "Create Git branch '$RELEASE_BRANCH' in gutenberg-mobile."
-execute "git" "switch" "-c" "$RELEASE_BRANCH" 
+execute "git" "switch" "-c" "$RELEASE_BRANCH"
 
 # Create Git branch in Gutenberg
 GB_RELEASE_BRANCH="rnmobile/release_$VERSION_NUMBER"
 ohai "Create Git branch '$GB_RELEASE_BRANCH' in gutenberg."
 cd gutenberg
-execute "git" "switch" "-c" "$GB_RELEASE_BRANCH" 
+execute "git" "switch" "-c" "$GB_RELEASE_BRANCH"
 cd ..
 
 # Set version numbers
@@ -214,7 +214,7 @@ GB_MOBILE_PR_URL=$(execute "gh" "pr" "create" \
 # Get Checklist from Gutenberg PR template
 cd gutenberg
 GUTENBERG_PR_TEMPLATE_PATH=".github/PULL_REQUEST_TEMPLATE.md"
-test -f "$GUTENBERG_PR_TEMPLATE_PATH" || abort "Error: Could not find PR template at $GUTENBERG_PR_TEMPLATE_PATH" 
+test -f "$GUTENBERG_PR_TEMPLATE_PATH" || abort "Error: Could not find PR template at $GUTENBERG_PR_TEMPLATE_PATH"
 # Get the checklist from the gutenberg PR template by removing everything before the '## Checklist:' line
 CHECKLIST_FROM_GUTENBERG_PR_TEMPLATE=$(sed -e/'## Checklist:'/\{ -e:1 -en\;b1 -e\} -ed < "$GUTENBERG_PR_TEMPLATE_PATH")
 
@@ -252,7 +252,7 @@ GB_MOBILE_PR_REF=$(git rev-parse HEAD)
 WP_APPS_PR_TITLE="Integrate gutenberg-mobile release $VERSION_NUMBER"
 
 WP_APPS_PR_BODY="## Description
-This PR incorporates the $VERSION_NUMBER release of gutenberg-mobile.  
+This PR incorporates the $VERSION_NUMBER release of gutenberg-mobile.
 For more information about this release and testing instructions, please see the related Gutenberg-Mobile PR: $GB_MOBILE_PR_URL
 
 Release Submission Checklist
@@ -281,7 +281,7 @@ cd "$TEMP_WP_ANDROID_DIRECTORY"
 execute "git" "submodule" "update" "--init" "--recursive" "--depth=1" "--recommend-shallow"
 
 ohai "Create after_x.xx.x branch in WordPress-Android"
-execute "git" "switch" "-c" "gutenberg/after_$VERSION_NUMBER" 
+execute "git" "switch" "-c" "gutenberg/after_$VERSION_NUMBER"
 
 execute "git" "push" "-u" "origin" "HEAD"
 
@@ -332,12 +332,12 @@ execute "git" "clone" "-b" "$WPIOS_TARGET_BRANCH" "--depth=1" "git@github.com:$M
 cd "$TEMP_WP_IOS_DIRECTORY"
 
 ohai "Create after_x.xx.x branch in WordPress-iOS"
-execute "git" "switch" "-c" "gutenberg/after_$VERSION_NUMBER" 
+execute "git" "switch" "-c" "gutenberg/after_$VERSION_NUMBER"
 
 execute "git" "push" "-u" "origin" "HEAD"
 
 ohai "Create release branch in WordPress-iOS"
-execute "git" "switch" "-c" "gutenberg/integrate_release_$VERSION_NUMBER" 
+execute "git" "switch" "-c" "gutenberg/integrate_release_$VERSION_NUMBER"
 
 ohai "Update GitHub organization and gutenberg-mobile ref"
 test -f "Podfile" || abort "Error: Could not find Podfile"
