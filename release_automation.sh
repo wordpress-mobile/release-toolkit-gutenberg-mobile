@@ -298,17 +298,6 @@ sed -i'.orig' -E "s/ext.gutenbergMobileVersion = '(.*)'/ext.gutenbergMobileVersi
 execute "git" "add" "build.gradle"
 execute "git" "commit" "-m" "Release script: Update build.gradle gutenbergMobileVersion to ref"
 
-ohai "Update strings"
-execute "python" "tools/merge_strings_xml.py"
-# If merge_strings_xml.py results in changes, commit them
-if [[ -n "$(git status --porcelain)" ]]; then
-    ohai "Commit changes from 'python tools/merge_strings_xml.py'"
-    execute "git" "add" "WordPress/src/main/res/values/strings.xml"
-    execute "git" "commit" "-m" "Release script: Update strings"
-else
-    ohai "There were no changes from 'python tools/merge_strings_xml.py' to be committed."
-fi
-
 ohai "Push integration branch"
 execute "git" "push" "-u" "origin" "HEAD"
 
