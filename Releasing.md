@@ -40,7 +40,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Check that <code>gutenberg-mobile/RNTAztecView.podspec</code> and <code>gutenberg-mobile/gutenberg/packages/react-native-aztec/RNTAztecView.podspec</code> refer to the same <code>WordPress-Aztec-iOS</code> version and are pointing to a stable release.</p>
+<p>o Check that <code>gutenberg-mobile/RNTAztecView.podspec</code> and <code>gutenberg-mobile/gutenberg/packages/react-native-aztec/RNTAztecView.podspec</code> refer to the same <code>WordPress-Aztec-iOS</code> version and are pointing to a stable, tagged release (e.g. x.xx.x). If they are not, a new Aztec release may be required (see section below).</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
@@ -84,7 +84,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
-<p>o Make sure there is no pending Aztec PR required for this Gutenberg release. Check the commit hash referred in the gutenberg repo is in the Aztec <code>develop</code> branch. If it's not, make sure pending PRs are merged before next steps.</p>
+<p>o Verify all Aztec PRs attached to the "Next Release" milestone or PRs with changes required for this Gutenberg release have been merged before next steps.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
@@ -93,6 +93,10 @@ For the body of the post, just copy this checklist and again replace all occurre
 
 <!-- wp:paragraph -->
 <p>o Create a new release and name it with the tag name from step 1. For Aztec-iOS, follow <a href="https://github.com/wordpress-mobile/AztecEditor-iOS/blob/develop/Documentation/ReleaseProcess.md">this process</a>. For Aztec-Android, releases are created via the <a href="https://github.com/wordpress-mobile/AztecEditor-Android/releases">GitHub releases page</a> by hitting the “Draft new release” button, put the tag name to be created in the tag version field and release title field, and also add the changelog to the release description. The binary assets (.zip, tar.gz files) are attached automatically after hitting “Publish release”.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>o Update Aztec version references within <code>gutenberg-mobile/RNTAztecView.podspec</code> and <code>gutenberg-mobile/gutenberg/packages/react-native-aztec/RNTAztecView.podspec</code> to the same, new <code>WordPress-Aztec-iOS</code> version.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":3} -->
