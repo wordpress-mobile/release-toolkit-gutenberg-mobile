@@ -52,6 +52,10 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
+<p>o Verify the WPAndroid PR build succeeds. If PR CI tasks include a 403 error related to an inability to resolve the `react-native-bridge` dependency, you must wait until the `ci/circleci: Build Android RN Bridge & Publish to Bintray` task completes in `gutenberg-mobile` and then restart the WPAndroid CI tasks.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
 <p>o Run the Optional Tests on both the WPiOS and WPAndroid PRs.</p>
 <!-- /wp:paragraph -->
 
