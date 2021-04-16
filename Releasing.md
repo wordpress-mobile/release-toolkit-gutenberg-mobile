@@ -79,6 +79,26 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":3} -->
+<h3>Release Testing</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>o Use the main WP apps to test the new changes in the PR</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>o Smoke test the main WP apps for <a href="https://github.com/wordpress-mobile/test-cases/tree/master/test-cases/gutenberg/writing-flow">general writing flow</a></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>o Test the Unsupported Block Editor on WP Apps (<a href="https://github.com/wordpress-mobile/test-cases/blob/trunk/test-cases/gutenberg/unsupported-block-editing.md#unsupported-block-editing---test-cases">see steps</a>).</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>o Sanity <a href="https://github.com/wordpress-mobile/test-cases/blob/trunk/test-suites/gutenberg/sanity-test-suites.md">test suites</a> for WP Apps should be completed for each platform. (See <a href="https://mobilegutenpagesp2.wordpress.com/sanity-testing-rotations/">testing schedule</a>)</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
 <h3>New Aztec Release</h3>
 <!-- /wp:heading -->
 
