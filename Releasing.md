@@ -96,7 +96,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Update Aztec version references within <code>gutenberg-mobile/RNTAztecView.podspec</code> and <code>gutenberg-mobile/gutenberg/packages/react-native-aztec/RNTAztecView.podspec</code> to the same, new <code>WordPress-Aztec-iOS</code> version.</p>
+<p>o Update Aztec version references within <code>gutenberg-mobile/RNTAztecView.podspec</code> and <code>gutenberg-mobile/gutenberg/packages/react-native-aztec/RNTAztecView.podspec</code> to the new <code>WordPress-Aztec-iOS</code> version.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":3} -->
