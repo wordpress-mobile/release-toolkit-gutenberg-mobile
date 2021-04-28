@@ -21,6 +21,7 @@ Gutenberg Mobile X.XX.X – Release Scenario
 ```
 
 For the body of the post, just copy this checklist and again replace all occurrences of `X.XX.X` with the applicable release number.
+
 <details><summary>Click to expand</summary>
 <p>
   
@@ -170,7 +171,6 @@ For the body of the post, just copy this checklist and again replace all occurre
 <p>o In WPAndroid, update the <code>gutenbergMobileVersion</code> in <code>build.gradle</code> to point to the <em>tag</em>.</p>
 <!-- /wp:paragraph -->
 
-
 <!-- wp:paragraph -->
 <p>o Re-run the Optional Tests on both the WPiOS and WPAndroid PRs.</p>
 <!-- /wp:paragraph -->
@@ -180,7 +180,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Once everything is merged, ping our friends in #platform9 and let them know we’ve merged our release so everything is right from our side to cut the main app releases.</p>
+<p>o Once everything is merged, ping our friends in #platform9 and let them know we’ve merged our release so everything is right from our side to cut the main app releases. If the release is a beta/hot fix, be sure to directly mention the relevant Excellence Wranglers for the release.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":3} -->
