@@ -21,6 +21,7 @@ Gutenberg Mobile X.XX.X – Release Scenario
 ```
 
 For the body of the post, just copy this checklist and again replace all occurrences of `X.XX.X` with the applicable release number.
+
 <details><summary>Click to expand</summary>
 <p>
   
@@ -55,7 +56,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Verify the WPAndroid PR build succeeds. If PR CI tasks include a 403 error related to an inability to resolve the `react-native-bridge` dependency, you must wait until the `ci/circleci: Build Android RN Bridge & Publish to Bintray` task completes in `gutenberg-mobile` and then restart the WPAndroid CI tasks.</p>
+<p>o Verify the WPAndroid PR build succeeds. If PR CI tasks include a 403 error related to an inability to resolve the <code>react-native-bridge</code> dependency, you must wait until the <code>Build Android RN Bridge & Publish to Bintray</code> task completes in <code>gutenberg-mobile</code> and then restart the WPAndroid CI tasks.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
@@ -169,7 +170,6 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- wp:paragraph -->
 <p>o In WPAndroid, update the <code>gutenbergMobileVersion</code> in <code>build.gradle</code> to point to the <em>tag</em>.</p>
 <!-- /wp:paragraph -->
-
 
 <!-- wp:paragraph -->
 <p>o Re-run the Optional Tests on both the WPiOS and WPAndroid PRs.</p>
