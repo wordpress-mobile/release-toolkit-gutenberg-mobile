@@ -180,7 +180,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Once everything is merged, ping our friends in #platform9 and let them know we’ve merged our release so everything is right from our side to cut the main app releases.</p>
+<p>o Once everything is merged, ping our friends in #platform9 and let them know we’ve merged our release so everything is right from our side to cut the main app releases. If the release is a beta/hot fix, be sure to directly mention the relevant Excellence Wranglers for the release.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":3} -->
