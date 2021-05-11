@@ -47,8 +47,8 @@ git checkout <GB_MOBILE_BRANCH_TO_GENERATE_PRS_FROM>
 Run the script: `./wp_gutenberg_ref_update_prs.sh`
 
 You will be prompted for:
-1. The local path to your gutenberg-mobile clone (default is sibling directory of script)
-2. The new branch name for your gutenberg-mobile branch that will be used for bundle updates (if branch already exists, script will fail)
+1. The local path to your gutenberg-mobile clone (press enter for default: sibling directory of script)
+2. The new branch name for your gutenberg-mobile branch that will be used for bundle updates (press enter for default: `$CURRENT_VERSION_NUMBER-$CURRENT_BRANCH-${CURRENT_HASH:0:6}`). Note if branch already exists, script will fail.
 3. The WordPress-Android branch to target (default is `develop`)
 4. The WordPress-iOS branch to target (default is `develop`)
 5. Whether to run `npm ci` in your gutenberg-mobile cloned directory before beginning
