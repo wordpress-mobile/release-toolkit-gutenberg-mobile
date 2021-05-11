@@ -83,6 +83,7 @@ fi
 # Ensure javascript dependencies are up-to-date
 read -r -p "Run 'npm ci' to ensure javascript dependencies are up-to-date? (y/n) " -n 1
 echo ""
+confirm_to_proceed "Script execution for creating WPApps PR's will take ~15-20 mins. Proceed? "
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     execute "npm" "ci"
 fi
