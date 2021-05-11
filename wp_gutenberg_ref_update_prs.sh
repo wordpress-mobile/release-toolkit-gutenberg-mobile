@@ -176,7 +176,7 @@ GB_MOBILE_PR_REF=$(git rev-parse HEAD)
 WP_APPS_PR_TITLE="Integrate changes from gutenberg-mobile branch $GUTENBERG_MOBILE_BRANCH"
 
 WP_APPS_PR_BODY="## Description
-This PR incorporates the $GUTENBERG_MOBILE_BRANCH branch of gutenberg-mobile.
+This PR incorporates the $GUTENBERG_MOBILE_BRANCH branch of gutenberg-mobile: $GB_MOBILE_PR_URL
 
 Release Submission Checklist
 
