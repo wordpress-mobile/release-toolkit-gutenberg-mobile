@@ -58,10 +58,12 @@ confirm_to_proceed "Are you sure you want to create WPApps PRs from the gutenber
 # Confirm branch is clean
 [[ -z "$(git status --porcelain)" ]] || { git status; abort "Uncommitted changes found. Aborting release script..."; }
 
-# Ask for new version number
+# Ask for a branch name
 CURRENT_VERSION_NUMBER=$(jq '.version' package.json --raw-output)
+DEFAULT_GB_MOBILE_BRANCH_NAME="$CURRENT_VERSION_NUMBER-$CURRENT_BRANCH-${CURRENT_HASH:0:6}"
 echo "Current Version Number:$CURRENT_VERSION_NUMBER"
-read -r -p "Enter a name for your gb-mobile branch: " BRANCH_NAME
+read -r -p "Enter a name for your gb-mobile branch[$DEFAULT_GB_MOBILE_BRANCH_NAME]: " BRANCH_NAME
+BRANCH_NAME=${BRANCH_NAME:-"$DEFAULT_GB_MOBILE_BRANCH_NAME"}
 if [[ -z "$BRANCH_NAME" ]]; then
     abort "Version number cannot be empty."
 fi
