@@ -35,7 +35,7 @@ brew install jq
 git clone git@github.com:wordpress-mobile/release-toolkit-gutenberg-mobile.git
 ```
 
-1. Local clone of the gutenberg-mobile repository, checked out to the specific branch that you would like to generate WordPress Apps Pull Requests for.
+3. Local clone of the gutenberg-mobile repository, checked out to the specific branch that you would like to generate WordPress Apps Pull Requests for.
 
 ```sh
 git clone git@github.com:wordpress-mobile/gutenberg-mobile.git

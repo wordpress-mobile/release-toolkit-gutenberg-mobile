@@ -10,7 +10,7 @@
 #    c) WordPress-Android: https://github.com/wordpress-mobile/WordPress-Android
 #    d) WordPress-iOS: https://github.com/wordpress-mobile/WordPress-iOS
 # 2. Insure that each of your forked repos contains the PR labels specified below:
-GUTENBERG_MOBILE_PR_LABEL="release-process"
+GUTENBERG_MOBILE_PR_LABEL="[Status] DO NOT MERGE"
 WPANDROID_PR_LABEL="gutenberg-mobile"
 WPIOS_PR_LABEL="Gutenberg integration"
 # 3. Ensure that each of your repos contains the target branch listed below:
@@ -50,13 +50,13 @@ gh auth status >/dev/null 2>&1 || abort "Error: You are not logged into any GitH
 # Check that jq is installed
 command -v jq >/dev/null || abort "Error: jq must be installed."
 
-## Check current branch is develop, trunk, or release/* branch
+## Check current branch is what we expect
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 CURRENT_HASH=$(git rev-parse HEAD)
 confirm_to_proceed "Are you sure you want to create WPApps PRs from the gutenberg-mobile '$CURRENT_BRANCH' branch, commit: $CURRENT_HASH ?"
 
 # Confirm branch is clean
-[[ -z "$(git status --porcelain)" ]] || { git status; abort "Uncommitted changes found. Aborting release script..."; }
+[[ -z "$(git status --porcelain)" ]] || { git status; abort "Uncommitted changes found. Aborting WP Integration script..."; }
 
 # Ask for a branch name
 CURRENT_VERSION_NUMBER=$(jq '.version' package.json --raw-output)
@@ -111,7 +111,7 @@ eval "$PRE_IOS_COMMAND"
 cd gutenberg
 if [[ -n "$(git status --porcelain)" ]]; then
     ohai "Commit changes from '$PRE_IOS_COMMAND'"
-    execute "git" "commit" "-a" "-m" "Release script: Update with changes from '$PRE_IOS_COMMAND'"
+    execute "git" "commit" "-a" "-m" "WP Integration script: Update with changes from '$PRE_IOS_COMMAND'"
 else
     ohai "There were no changes from '$PRE_IOS_COMMAND' to be committed."
 fi
@@ -121,7 +121,7 @@ cd ..
 if [[ -n "$(git status --porcelain)" ]]; then
     ohai "Commit updates to gutenberg submodule"
     execute "git" "add" "gutenberg"
-    execute "git" "commit" "-m" "Release script: Update gutenberg ref"
+    execute "git" "commit" "-m" "WP Integration script: Update gutenberg ref"
 else
     ohai "There were no changes from submodule update to be committed."
 fi
@@ -134,7 +134,7 @@ npm run bundle || abort "Error: 'npm bundle' failed.\nIf there is an error stati
 if [[ -n "$(git status --porcelain)" ]]; then
     ohai "Commit bundle changes"
     execute "git" "add" "bundle/"
-    execute "git" "commit" "-m" "Release script: Update bundle for: $BRANCH_NAME"
+    execute "git" "commit" "-m" "WP Integration script: Update bundle for: $BRANCH_NAME"
 else
     ohai "There were no changes from bundle update to be committed."
 fi
@@ -155,15 +155,14 @@ PR Submission Checklist
 - [ ] I have considered if this change warrants user-facing release notes and have added them to \`RELEASE-NOTES.txt\` if necessary."
 execute "git" "push" "-u" "origin" "HEAD"
 
-# Create Draft GB-Mobile Release PR in GitHub
+# Create GB-Mobile PR in GitHub
 GB_MOBILE_PR_URL=$(execute "gh" "pr" "create" \
 "--title" "App Integration for $GUTENBERG_MOBILE_BRANCH" \
 "--body" "$PR_BODY" \
 "--repo" "$MOBILE_REPO/gutenberg-mobile" \
 "--head" "$MOBILE_REPO:$GUTENBERG_MOBILE_BRANCH" \
 "--base" "$GUTENBERG_MOBILE_TARGET_BRANCH" \
-"--label" "$GUTENBERG_MOBILE_PR_LABEL" \
-"--draft")
+"--label" "$GUTENBERG_MOBILE_PR_LABEL" )
 
 cd gutenberg
 execute "git" "push" "-u" "origin" "HEAD"
@@ -181,7 +180,7 @@ WP_APPS_PR_TITLE="Integrate changes from gutenberg-mobile branch $GUTENBERG_MOBI
 WP_APPS_PR_BODY="## Description
 This PR incorporates the $GUTENBERG_MOBILE_BRANCH branch of gutenberg-mobile: $GB_MOBILE_PR_URL
 
-Release Submission Checklist
+Merge Submission Checklist
 
 - [ ] I have considered if this change warrants user-facing release notes and have added them to \`RELEASE-NOTES.txt\` if necessary."
 
@@ -218,8 +217,8 @@ execute "git" "commit" "-m" "Gutenberg ref update script: Update build.gradle gu
 ohai "Push integration branch"
 execute "git" "push" "-u" "origin" "HEAD"
 
-# Create Draft WPAndroid Release PR in GitHub
-ohai "Create Draft WPAndroid Release PR in GitHub"
+# Create Draft WPAndroid PR in GitHub
+ohai "Create Draft WPAndroid PR in GitHub"
 WP_ANDROID_PR_URL=$(execute "gh" "pr" "create" \
 "--title" "$WP_APPS_PR_TITLE" \
 "--body" "$WP_APPS_PR_BODY" --repo "$MOBILE_REPO/WordPress-Android" \
@@ -253,13 +252,13 @@ execute "rake" "dependencies"
 
 
 execute "git" "add" "Podfile" "Podfile.lock"
-execute "git" "commit" "-m" "Release script: Update gutenberg-mobile ref"
+execute "git" "commit" "-m" "WP Integration script: Update gutenberg-mobile ref"
 
 ohai "Push integration branch"
 execute "git" "push" "-u" "origin" "HEAD"
 
-# Create Draft WPiOS Release PR in GitHub
-ohai "Create Draft WPiOS Release PR in GitHub"
+# Create Draft WPiOS PR in GitHub
+ohai "Create Draft WPiOS PR in GitHub"
 WP_IOS_PR_URL=$(execute "gh" "pr" "create" \
 "--title" "$WP_APPS_PR_TITLE" \
 "--body" "$WP_APPS_PR_BODY" \
