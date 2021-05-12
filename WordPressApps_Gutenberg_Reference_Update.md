@@ -82,7 +82,7 @@ Prior to generating gutenberg mobile bundle we run a `npm run core preios` comma
 
 ### Why not just use the exising `./release_automation.sh` script for generating builds?
 
-The  `./release_automation.sh` includes extra checks for making sure that gutenberg-mobile branch is ready for generating a release. Some of these checks would prevent quickly running the script against a non release ready branch for quickly generating WPApps test PRs. See [here](https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/blob/d718e1c0732f1c422d427f0fbe0eaa968f978da9/release_automation.sh#L29).
+The  `./release_automation.sh` includes extra checks for making sure that gutenberg-mobile branch is ready for generating a release. Some of these checks would prevent quickly running the script against a non release ready branch for quickly generating WPApps test PRs. See [here](https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/blob/d718e1c0732f1c422d427f0fbe0eaa968f978da9/release_automation.sh#L29). Separate scripts for regular WP Apps integration versus gutenberg-mobile releases also allows for further optimization and experimentation with `./wp_gutenberg_ref_update_prs.sh` without breaking the release process.
 
 ### My WordPress-Android PR has failed CI for missing gutenberg-mobile bridge on S3, why?
 
