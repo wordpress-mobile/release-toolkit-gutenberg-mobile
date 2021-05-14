@@ -60,6 +60,10 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
+<p>o Verify that the localization strings files (<a href="https://github.com/wordpress-mobile/gutenberg-mobile/blob/develop/bundle/android/strings.xml">bundle/android/strings.xml</a>, <a href="https://github.com/wordpress-mobile/gutenberg-mobile/blob/develop/bundle/ios/GutenbergNativeTranslations.swift">bundle/ios/GutenbergNativeTranslations.swift</a>) have been generated properly. Check that we're not adding extra strings from non-native files and that we're not removing strings that are referenced in the code (more info can be found in this <a href="https://github.com/wordpress-mobile/gutenberg-mobile/issues/3466">issue</a>). <strong>If any issue is found, it will require manually modify the files and push them to the release branch.</strong></p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
 <p>o Run the Optional Tests on both the WPiOS and WPAndroid PRs.</p>
 <!-- /wp:paragraph -->
 
