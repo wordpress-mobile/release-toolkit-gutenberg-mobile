@@ -136,11 +136,11 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o If there were changes in Gutenberg repo, make sure to cherry-pick the changes that landed in the <code>trunk</code> branch back to the release branch and don't forget to run <code>npm run bundle</code> in gutenberg-mobile again if necessary.</p>
+<p>o If there were changes in gutenberg repo, make sure to cherry-pick the changes that landed in the <code>trunk</code> branch back to the release branch and don't forget to run <code>npm run bundle</code> in gutenberg-mobile again if necessary.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Add the new change to the "Extra PRs that Landed After the Release Was Cut" section of the gb-mobile PR description.</p>
+<p>o Add the new change to the "Extra PRs that Landed After the Release Was Cut" section of the gutenberg-mobile PR description.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
@@ -152,15 +152,15 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
-<p>o Make sure that the bundle files on the Gutenberg-Mobile release branch have been updated to include any changes to the release branch.</p>
+<p>o Make sure that the bundle files on the gutenberg-mobile release branch have been updated to include any changes to the release branch.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Merge the Gutenberg-Mobile PR to <code>trunk</code>. WARNING: Don’t merge the Gutenberg PR to <code>trunk</code> at this point.</p>
+<p>o Merge the gutenberg-mobile PR to <code>trunk</code>. WARNING: Don’t merge the gutenberg PR to <code>trunk</code> at this point.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Tag the head of Gutenberg release branch that the Gutenberg-Mobile release branch is pointing to with the <code>rnmobile/X.XX.X</code> tag.</p>
+<p>o Tag the head of gutenberg release branch that the gutenberg-mobile release branch is pointing to with the <code>rnmobile/X.XX.X</code> tag.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
@@ -180,7 +180,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Main apps PRs should be ready to merge to their develop now. Merge them or get them merged.</p>
+<p>o Main apps PRs should be ready to merge to their <code>develop</code> branches now. Merge them or get them merged.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
@@ -192,27 +192,27 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
-<p>o If there are any conflicts in the Gutenberg PR, merge <code>trunk</code> into it and resolve them.</p>
+<p>o If there are any conflicts in the gutenberg PR, merge <code>trunk</code> into it and resolve them.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Check if you can open a PR from <code>trunk</code> to <code>develop</code> in Gutenberg Mobile without any conflicts: https://github.com/wordpress-mobile/gutenberg-mobile/compare/develop...trunk. If there are any conflicts, create a branch from <code>trunk</code> with a name like <code>merge_release_X.XX.X_to_develop</code>, merge <code>develop</code> into it, resolve any conflicts.</p>
+<p>o Check if you can open a PR from <code>trunk</code> to <code>develop</code> in gutenberg-mobile without any conflicts: https://github.com/wordpress-mobile/gutenberg-mobile/compare/develop...trunk. If there are any conflicts, create a branch from <code>trunk</code> with a name like <code>merge_release_X.XX.X_to_develop</code>, merge <code>develop</code> into it, resolve any conflicts.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Open a PR from Gutenberg Mobile <code>trunk</code> (or <code>merge_release_X.XX.X_to_develop</code> branch) to <code>develop</code>.</p>
+<p>o Open a PR from gutenberg-mobile <code>trunk</code> (or <code>merge_release_X.XX.X_to_develop</code> branch) to <code>develop</code>.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Merge the Gutenberg PR to <code>trunk</code>.</p>
+<p>o Merge the gutenberg PR to <code>trunk</code>.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Update the Gutenberg reference in the Gutenberg Mobile PR so it points to the Gutenberg PR merge commit in <code>trunk</code>.</p>
+<p>o Update the <code>gutenberg</code> reference in the gutenberg-mobile PR so it points to the gutenberg PR merge commit in <code>trunk</code>.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Merge the Gutenberg Mobile PR to <code>develop</code>.</p>
+<p>o Merge the gutenberg-mobile PR to <code>develop</code>.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":3} -->
