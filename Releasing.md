@@ -44,7 +44,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Check that <code>gutenberg-mobile/RNTAztecView.podspec</code> and <code>gutenberg-mobile/gutenberg/packages/react-native-aztec/RNTAztecView.podspec</code> refer to the same <code>WordPress-Aztec-iOS</code> version and are pointing to a stable, tagged release (e.g. x.xx.x). If they are not, a new Aztec release may be required (see section below).</p>
+<p>o Check that <code>gutenberg-mobile/RNTAztecView.podspec</code> and <code>gutenberg-mobile/gutenberg/packages/react-native-aztec/RNTAztecView.podspec</code> refer to the same <code>WordPress-Aztec-iOS</code> version and are pointing to a stable, tagged release (e.g. 1.14.1). If they are not, a new Aztec release may be required (see section below).</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
@@ -196,11 +196,11 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Check if you can open a PR from <code>trunk</code> to <code>develop</code> in Gutenberg Mobile without any conflicts: https://github.com/wordpress-mobile/gutenberg-mobile/compare/develop...trunk. If there are any conflicts, create a branch from <code>trunk</code> with a name like <code>merge_release_x.xx.x_to_develop</code>, merge <code>develop</code> into it, resolve any conflicts.</p>
+<p>o Check if you can open a PR from <code>trunk</code> to <code>develop</code> in Gutenberg Mobile without any conflicts: https://github.com/wordpress-mobile/gutenberg-mobile/compare/develop...trunk. If there are any conflicts, create a branch from <code>trunk</code> with a name like <code>merge_release_X.XX.X_to_develop</code>, merge <code>develop</code> into it, resolve any conflicts.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Open a PR from Gutenberg Mobile <code>trunk</code> (or <code>merge_release_x.xx.x_to_develop</code> branch) to <code>develop</code>.</p>
+<p>o Open a PR from Gutenberg Mobile <code>trunk</code> (or <code>merge_release_X.XX.X_to_develop</code> branch) to <code>develop</code>.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
