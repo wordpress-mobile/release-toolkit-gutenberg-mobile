@@ -196,11 +196,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Check if you can open a PR from <code>trunk</code> to <code>develop</code> in gutenberg-mobile without any conflicts: https://github.com/wordpress-mobile/gutenberg-mobile/compare/develop...trunk. If there are any conflicts, create a branch from <code>trunk</code> with a name like <code>merge_release_X.XX.X_to_develop</code>, merge <code>develop</code> into it, resolve any conflicts.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>o Open a PR from gutenberg-mobile <code>trunk</code> (or <code>merge_release_X.XX.X_to_develop</code> branch) to <code>develop</code>.</p>
+<p>o In gutenberg-mobile, create a branch from <code>trunk</code> with a name like <code>merge_release_X.XX.X_to_develop</code> and open PR to <code>develop</code>. If there are any merge conflicts, merge <code>develop</code> into the PR and resolve them.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
@@ -208,7 +204,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Update the <code>gutenberg</code> reference in the gutenberg-mobile PR so it points to the gutenberg PR merge commit in <code>trunk</code>.</p>
+<p>o Update the <code>gutenberg</code> reference in the gutenberg-mobile <code>merge_release_X.XX.X_to_develop</code> PR so it points to merge commit in gutenberg <code>trunk</code> for the gutenberg PR merged in the previous task.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
