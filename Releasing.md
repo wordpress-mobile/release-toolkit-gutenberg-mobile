@@ -45,16 +45,8 @@ For the body of the post, just copy this checklist and again replace all occurre
 
 <!-- wp:quote -->
 <blockquote class="wp-block-quote"><p>Hey &lt;author>. We will cut the X.XX.X release on &lt;date>. I plan to circle back and bump this PR to the next milestone then, but please let me know if you'd rather us work to include this PR in X.XX.X. Thanks! </p></blockquote>
-<!-- /wp:quote -->
-
-<!-- wp:paragraph -->
-<p></p>
-<!-- /wp:paragraph --></div>
+<!-- /wp:quote --></div>
 <!-- /wp:group -->
-
-<!-- wp:paragraph -->
-<p>o Visit all opened PR's in gutenberg-mobile repo that are assigned to milestone X.XX.X and leave a message with options to (i) merge the PR as soon as possible, (ii) bump the PR to the next milestone, or (iii) remove the milestone from the PR.</p>
-<!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
 <p>o Verify that <code>gutenberg-mobile/RNTAztecView.podspec</code> and <code>gutenberg-mobile/gutenberg/packages/react-native-aztec/RNTAztecView.podspec</code> refer to the same <code>WordPress-Aztec-iOS</code> version and are pointing to a stable, tagged release (e.g. 1.14.1). If they are not, we may need to <a href="#create-a-new-aztec-release">create a new Aztec</a> release.</p>
