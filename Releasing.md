@@ -199,15 +199,15 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o <a href="https://github.com/wordpress-mobile/gutenberg-mobile/releases/new?tag=vX.XX.X&amp;target=trunk&amp;title=Release%20X.XX.X">Create a new gutenberg-mobile GitHub release</a>. Include a list of changes in the release description.</p>
+<p>o <a href="https://github.com/wordpress-mobile/gutenberg-mobile/releases/new?tag=vX.XX.X&amp;target=trunk&amp;title=Release%20X.XX.X">Create a new gutenberg-mobile GitHub Release</a>. Include a list of changes in the Release description.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o In WPiOS, update the reference to point to the <em>tag</em> of the release created in the previous task. </p>
+<p>o In WPiOS, update the reference to point to the <em>tag</em> of the Release created in the previous task. </p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o In WPAndroid, update the <code>gutenbergMobileVersion</code> in <code>build.gradle</code> to point to the <em>tag</em> used in the previous task. </p>
+<p>o In WPAndroid, update the <code>gutenbergMobileVersion</code> in <code>build.gradle</code> to point to the <em>tag</em> of the Release used in the previous task. </p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
