@@ -38,6 +38,20 @@ For the body of the post, just copy this checklist and again replace all occurre
 <h3>Create the Release</h3>
 <!-- /wp:heading -->
 
+<!-- wp:group -->
+<div class="wp-block-group"><!-- wp:paragraph -->
+<p>o Visit all open gutenberg-mobile PRs that are assigned to X.XX.X milestone and leave a comment with the following message: </p>
+<!-- /wp:paragraph -->
+
+<!-- wp:quote -->
+<blockquote class="wp-block-quote"><p>Hey &lt;author>. We will cut the X.XX.X release on &lt;date>. I plan to circle back and bump this PR to the next milestone then, but please let me know if you'd rather us work to include this PR in X.XX.X. Thanks! </p></blockquote>
+<!-- /wp:quote -->
+
+<!-- wp:paragraph -->
+<p></p>
+<!-- /wp:paragraph --></div>
+<!-- /wp:group -->
+
 <!-- wp:paragraph -->
 <p>o Visit all opened PR's in gutenberg-mobile repo that are assigned to milestone X.XX.X and leave a message with options to (i) merge the PR as soon as possible, (ii) bump the PR to the next milestone, or (iii) remove the milestone from the PR.</p>
 <!-- /wp:paragraph -->
@@ -78,9 +92,15 @@ For the body of the post, just copy this checklist and again replace all occurre
 <p>o Mark all 4 PRs ready for review and request review from your release wrangler buddy.</p>
 <!-- /wp:paragraph -->
 
-<!-- wp:paragraph -->
-<p>o Message any related Slack channels to inform that the gutenberg-mobile release is now cut and any new WPiOS and WPAndroid changes having related gutenberg-mobile or gutenberg parts should now be merged to <code>gutenberg/after_X.XX.X</code> branches on WPiOS and WPAndroid until their own releases are cut next week.</p>
+<!-- wp:group -->
+<div class="wp-block-group"><!-- wp:paragraph -->
+<p>o Post the following message to the #mobile-gutenberg and #mobile-gutenberg-platform Slack channels: </p>
 <!-- /wp:paragraph -->
+
+<!-- wp:quote -->
+<blockquote class="wp-block-quote"><p>⚠️ The gutenberg-mobile X.XX.X release branches are now cut. Please do not merge any Gutenberg-related changes into the WPiOS or WPAndroid <code>develop</code> branches until <em>after</em> the main apps cut their own releases next week. If you'd like to merge changes now, merge them into the <code>gutenberg/after_X.XX.X</code> branches. </p></blockquote>
+<!-- /wp:quote --></div>
+<!-- /wp:group -->
 
 <!-- wp:paragraph -->
 <p>o If this is a release for inclusion in the frozen WPiOS and WPAndroid release branches (i.e. this is a point-release, e.g. X.XX.2), ping the directly responsible individual handing the release of each platform of the main apps.</p>
@@ -163,27 +183,31 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
-<p>o Make sure that the bundle files on the gutenberg-mobile release branch have been updated to include any changes to the release branch.</p>
+<p>o Verify the <code>gutenberg</code> ref within the gutenberg-mobile release branch is pointed to the latest commit in the gutenberg release branch.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Merge the gutenberg-mobile PR to <code>trunk</code>. WARNING: Do not merge the gutenberg PR into <code>trunk</code> at this point.</p>
+<p>o Create and push a <code>rnmobile/X.XX.X</code> git tag for the head of gutenberg release branch. </p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Tag the head of gutenberg release branch that the gutenberg-mobile release branch is pointing to with the <code>rnmobile/X.XX.X</code> tag.</p>
+<p>o Ensure that the bundle files are updated to include any changes to the release branch by running <code>npm run bundle</code> in gutenberg-mobile release branch and committing any changes. </p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o <a href="https://github.com/wordpress-mobile/gutenberg-mobile/releases/new?tag=vX.XX.X&amp;target=trunk&amp;title=Release%20X.XX.X">Create a new GitHub release</a> pointing to the tag. Include a list of changes in the release description.</p>
+<p>o Merge the <strong>gutenberg-mobile</strong> PR to <code>trunk</code>. WARNING: Do not merge the <strong>gutenberg</strong> PR into <code>trunk</code> at this point.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o In WPiOS, update the reference to point to the <em>tag</em>.</p>
+<p>o <a href="https://github.com/wordpress-mobile/gutenberg-mobile/releases/new?tag=vX.XX.X&amp;target=trunk&amp;title=Release%20X.XX.X">Create a new gutenberg-mobile GitHub release</a>. Include a list of changes in the release description.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o In WPAndroid, update the <code>gutenbergMobileVersion</code> in <code>build.gradle</code> to point to the <em>tag</em>.</p>
+<p>o In WPiOS, update the reference to point to the <em>tag</em> of the release created in the previous task. </p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>o In WPAndroid, update the <code>gutenbergMobileVersion</code> in <code>build.gradle</code> to point to the <em>tag</em> used in the previous task. </p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
@@ -194,9 +218,15 @@ For the body of the post, just copy this checklist and again replace all occurre
 <p>o Main apps PRs should be ready to merge to their <code>develop</code> branches now. Merge them or get them merged.</p>
 <!-- /wp:paragraph -->
 
-<!-- wp:paragraph -->
-<p>o Once everything is merged, ping our friends in #platform9 and let them know we’ve merged our release so everything is right from our side to cut the main app releases. If the release is a beta/hot fix, be sure to directly mention the relevant Excellence Wranglers for the release.</p>
+<!-- wp:group -->
+<div class="wp-block-group"><!-- wp:paragraph -->
+<p>o Once everything is merged, send the following message to our friends in the #platform9 Slack channel. If the release is a beta/hot fix, be sure to directly mention the relevant Excellence Wranglers for the release.</p>
 <!-- /wp:paragraph -->
+
+<!-- wp:quote -->
+<blockquote class="wp-block-quote"><p>Hey team. I wanted to let you know that the mobile Gutenberg team has finished integrating the X.XX.X Gutenberg release into the WPiOS and WPAndroid app release branches. The integration is ready for the next release cut/build creation when you are available. Please let me know if you have any questions. Thanks! </p></blockquote>
+<!-- /wp:quote --></div>
+<!-- /wp:group -->
 
 <!-- wp:heading {"level":3} -->
 <h3>Sync the Release to Development Branches</h3>
