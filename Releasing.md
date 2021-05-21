@@ -44,7 +44,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:quote -->
-<blockquote class="wp-block-quote"><p>Hey &lt;author>. We will cut the X.XX.X release on &lt;date>. I plan to circle back and bump this PR to the next milestone then, but please let me know if you'd rather us work to include this PR in X.XX.X. Thanks! </p></blockquote>
+<blockquote class="wp-block-quote"><p>Hey [author]. We will cut the X.XX.X release on [date]. I plan to circle back and bump this PR to the next milestone then, but please let me know if you'd rather us work to include this PR in X.XX.X. Thanks! </p></blockquote>
 <!-- /wp:quote --></div>
 <!-- /wp:group -->
 
