@@ -86,7 +86,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 
 <!-- wp:group -->
 <div class="wp-block-group"><!-- wp:paragraph -->
-<p>o Post the following message to the #mobile-gutenberg and #mobile-gutenberg-platform Slack channels: </p>
+<p>o If this is a scheduled release (e.g. X.XX.0) and not a beta/hot fix (e.g. X.XX.2), post the following message to the #mobile-gutenberg and #mobile-gutenberg-platform Slack channels: </p>
 <!-- /wp:paragraph -->
 
 <!-- wp:quote -->
@@ -95,7 +95,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:group -->
 
 <!-- wp:paragraph -->
-<p>o If this is a release for inclusion in the frozen WPiOS and WPAndroid release branches (i.e. this is a point-release, e.g. X.XX.2), ping the directly responsible individual handing the release of each platform of the main apps.</p>
+<p>o If this is a release for inclusion in the frozen WPiOS and WPAndroid release branches (i.e. this is a beta/hot fix, e.g. X.XX.2), ping the directly responsible individual handing the release of each platform of the main apps.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":3} -->
@@ -127,7 +127,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
-<p>ℹ️ If <code>gutenberg-mobile/RNTAztecView.podspec</code> and <code>gutenberg-mobile/gutenberg/packages/react-native-aztec/RNTAztecView.podspec</code> refer to a commit SHA instead of a stable release (e.g. <code>1.14.1</code>) or refer to <em>different</em> versions, the steps in this section may need to be completed. </p>
+<p>ℹ️ If <code>gutenberg-mobile/RNTAztecView.podspec</code> and <code>gutenberg-mobile/gutenberg/packages/react-native-aztec/RNTAztecView.podspec</code> refer to a commit SHA instead of a stable release (e.g. 1.14.1) or refer to <em>different</em> versions, the steps in this section may need to be completed. </p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
@@ -212,7 +212,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 
 <!-- wp:group -->
 <div class="wp-block-group"><!-- wp:paragraph -->
-<p>o Once everything is merged, send the following message to our friends in the #platform9 Slack channel. If the release is a beta/hot fix, be sure to directly mention the relevant Excellence Wranglers for the release.</p>
+<p>o Once everything is merged, send the following message to our friends in the #platform9 Slack channel. If the release is a beta/hot fix (e.g. X.XX.2), be sure to directly mention the relevant Excellence Wranglers for the release.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:quote -->
