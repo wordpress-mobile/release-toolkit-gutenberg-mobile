@@ -282,7 +282,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Pass the baton. Ping the dev who is responsible for the next release.</p>
+<p>o If this is a scheduled release (e.g. X.XX.0), message the next release wrangler in the <code>#mobile-gutenberg-platform</code> Slack channel <strong>providing them with a tentative schedule</strong> for the next release. This will help ensure a smooth hand off and sets expectations for when they should begin their work. </p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
