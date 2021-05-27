@@ -35,6 +35,14 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":3} -->
+<h3>Before the Release</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>o Midway through the week of the release, create installable builds for WPiOS and WPAndroid based off the current <code>develop</code> branch and complete the <a href="https://github.com/wordpress-mobile/test-cases/tree/master/test-cases/gutenberg/writing-flow">general writing flow test cases</a>. </p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
 <h3>Create the Release</h3>
 <!-- /wp:heading -->
 
