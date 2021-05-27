@@ -57,7 +57,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 
 <!-- wp:group -->
 <div class="wp-block-group"><!-- wp:paragraph -->
-<p>o Visit all open gutenberg-mobile PRs that are assigned to X.XX.X milestone and leave a comment with the following message: </p>
+<p>o Visit all open gutenberg-mobile PRs that are assigned to X.XX.X milestone and leave a comment with a message similar to the following: </p>
 <!-- /wp:paragraph -->
 
 <!-- wp:quote -->
@@ -103,7 +103,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 
 <!-- wp:group -->
 <div class="wp-block-group"><!-- wp:paragraph -->
-<p>o If this is a scheduled release (e.g. X.XX.0) and not a beta/hot fix (e.g. X.XX.2), post the following message to the #mobile-gutenberg and #mobile-gutenberg-platform Slack channels: </p>
+<p>o If this is a scheduled release (e.g. X.XX.0) and not a beta/hot fix (e.g. X.XX.2), post a message similar to the following to the <code>#mobile-gutenberg</code> and <code>#mobile-gutenberg-platform</code> Slack channels: </p>
 <!-- /wp:paragraph -->
 
 <!-- wp:quote -->
@@ -229,7 +229,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 
 <!-- wp:group -->
 <div class="wp-block-group"><!-- wp:paragraph -->
-<p>o Once everything is merged, send the following message to our friends in the #platform9 Slack channel. If the release is a beta/hot fix (e.g. X.XX.2), be sure to directly mention the relevant Excellence Wranglers for the release.</p>
+<p>o Once everything is merged, send a message similar to the following to our friends in the <code>#platform9</code> Slack channel. If the release is a beta/hot fix (e.g. X.XX.2), be sure to directly mention the relevant Excellence Wranglers for the release.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:quote -->
