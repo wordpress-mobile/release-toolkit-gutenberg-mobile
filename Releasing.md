@@ -94,6 +94,10 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
+<p>o Once the installable builds are ready, perform a quick smoke test of the editor on both iOS and Android to verify it launches without crash. We will perform additional testing after the main apps cut their releases. </p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
 <p>o Fill in the missing parts of the gutenberg-mobile PR description.</p>
 <!-- /wp:paragraph -->
 
@@ -113,30 +117,6 @@ For the body of the post, just copy this checklist and again replace all occurre
 
 <!-- wp:paragraph -->
 <p>o If this is a release for inclusion in the frozen WPiOS and WPAndroid release branches (i.e. this is a beta/hot fix, e.g. X.XX.2), ping the directly responsible individual handing the release of each platform of the main apps.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:heading {"level":3} -->
-<h3>Test the Release</h3>
-<!-- /wp:heading -->
-
-<!-- wp:paragraph -->
-<p>ℹ️ Use the main WP apps to complete each the tasks below for both iOS and Android. </p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>o Test the new changes that are included in the release PR.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>o Complete the <a href="https://github.com/wordpress-mobile/test-cases/tree/master/test-cases/gutenberg/writing-flow">general writing flow test cases</a>.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>o Complete the <a href="https://github.com/wordpress-mobile/test-cases/blob/trunk/test-cases/gutenberg/unsupported-block-editing.md#unsupported-block-editing---test-cases">Unsupported Block Editor test cases</a>.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>o Verify the <a href="https://mobilegutenpagesp2.wordpress.com/sanity-testing-rotations/">scheduled team members</a> completed the <a href="https://github.com/wordpress-mobile/test-cases/blob/trunk/test-suites/gutenberg/sanity-test-suites.md">sanity test suites</a>.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":3} -->
@@ -271,6 +251,30 @@ For the body of the post, just copy this checklist and again replace all occurre
 
 <!-- wp:paragraph -->
 <p>o Update the <code>gutenberg/after_X.XX.X</code> branches and open a PR against <code>develop</code>. If the branches are empty we’ll just delete them. The PR can actually get created as soon as something gets merged to the <code>gutenberg/after_X.XX.X</code> branches. Merge the <code>gutenberg/after_X.XX.X</code> PR(s) only <em>AFTER</em> the main apps have cut their release branches.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3>Test the Release</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>ℹ️ Use the main WP apps to complete each the tasks below for both iOS and Android. </p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>o Test the new changes that are included in the release PR.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>o Complete the <a href="https://github.com/wordpress-mobile/test-cases/tree/master/test-cases/gutenberg/writing-flow">general writing flow test cases</a>.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>o Complete the <a href="https://github.com/wordpress-mobile/test-cases/blob/trunk/test-cases/gutenberg/unsupported-block-editing.md#unsupported-block-editing---test-cases">Unsupported Block Editor test cases</a>.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>o Verify the <a href="https://mobilegutenpagesp2.wordpress.com/sanity-testing-rotations/">scheduled team members</a> completed the <a href="https://github.com/wordpress-mobile/test-cases/blob/trunk/test-suites/gutenberg/sanity-test-suites.md">sanity test suites</a>.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":3} -->
