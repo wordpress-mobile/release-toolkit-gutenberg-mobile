@@ -229,7 +229,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 
 <!-- wp:group -->
 <div class="wp-block-group"><!-- wp:paragraph -->
-<p>o Once everything is merged, send a message similar to the following to our friends in the <code>#platform9</code> Slack channel. If the release is a beta/hot fix (e.g. X.XX.2), be sure to directly mention the relevant Excellence Wranglers for the release and modify the message as needed.</p>
+<p>o Once everything is merged, send a message similar to the following to our friends in the <code>#platform9</code> Slack channel. If the release is a beta/hot fix (e.g. X.XX.2), be sure to directly mention the relevant Excellence Wranglers for the release and modify the following template as needed.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:quote -->
