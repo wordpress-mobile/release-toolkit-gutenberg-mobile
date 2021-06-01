@@ -77,6 +77,16 @@ For the body of the post, just copy this checklist and again replace all occurre
 <p>o Review the <a href="https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/blob/develop/Releasing.md">release script instructions</a>. In your clone of the release scripts, run the script via:  <code>./release_automation.sh</code>. This creates the gutenberg and gutenberg-mobile release PRs as well as WPAndroid and WPiOS integration PRs.</p>
 <!-- /wp:paragraph -->
 
+<!-- wp:group -->
+<div class="wp-block-group"><!-- wp:paragraph -->
+<p>o If this is a scheduled release (e.g. X.XX.0) and not a beta/hot fix (e.g. X.XX.2), post a message similar to the following to the <code>#mobile-gutenberg</code> and <code>#mobile-gutenberg-platform</code> Slack channels: </p>
+<!-- /wp:paragraph -->
+
+<!-- wp:quote -->
+<blockquote class="wp-block-quote"><p>⚠️ The gutenberg-mobile X.XX.X release branches are now cut. Please do not merge any Gutenberg-related changes into the WPiOS or WPAndroid <code>develop</code> branches until <em>after</em> the main apps cut their own releases next week. If you'd like to merge changes now, merge them into the <code>gutenberg/after_X.XX.X</code> branches. </p></blockquote>
+<!-- /wp:quote --></div>
+<!-- /wp:group -->
+
 <!-- wp:paragraph -->
 <p>o Verify the WPAndroid PR build succeeds. If PR CI tasks include a 403 error related to an inability to resolve the <code>react-native-bridge</code> dependency, you must wait for the <code>Build Android RN Bridge &amp; Publish to S3</code> task to succeed in gutenberg-mobile and then restart the WPAndroid CI tasks.</p>
 <!-- /wp:paragraph -->
@@ -104,16 +114,6 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- wp:paragraph -->
 <p>o Mark all 4 PRs ready for review and request review from your release wrangler buddy.</p>
 <!-- /wp:paragraph -->
-
-<!-- wp:group -->
-<div class="wp-block-group"><!-- wp:paragraph -->
-<p>o If this is a scheduled release (e.g. X.XX.0) and not a beta/hot fix (e.g. X.XX.2), post a message similar to the following to the <code>#mobile-gutenberg</code> and <code>#mobile-gutenberg-platform</code> Slack channels: </p>
-<!-- /wp:paragraph -->
-
-<!-- wp:quote -->
-<blockquote class="wp-block-quote"><p>⚠️ The gutenberg-mobile X.XX.X release branches are now cut. Please do not merge any Gutenberg-related changes into the WPiOS or WPAndroid <code>develop</code> branches until <em>after</em> the main apps cut their own releases next week. If you'd like to merge changes now, merge them into the <code>gutenberg/after_X.XX.X</code> branches. </p></blockquote>
-<!-- /wp:quote --></div>
-<!-- /wp:group -->
 
 <!-- wp:paragraph -->
 <p>o If this is a release for inclusion in the frozen WPiOS and WPAndroid release branches (i.e. this is a beta/hot fix, e.g. X.XX.2), ping the directly responsible individual handing the release of each platform of the main apps.</p>
