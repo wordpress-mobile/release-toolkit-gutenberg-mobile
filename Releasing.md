@@ -77,6 +77,16 @@ For the body of the post, just copy this checklist and again replace all occurre
 <p>o Review the <a href="https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/blob/develop/Releasing.md">release script instructions</a>. In your clone of the release scripts, run the script via:  <code>./release_automation.sh</code>. This creates the gutenberg and gutenberg-mobile release PRs as well as WPAndroid and WPiOS integration PRs.</p>
 <!-- /wp:paragraph -->
 
+<!-- wp:group -->
+<div class="wp-block-group"><!-- wp:paragraph -->
+<p>o If this is a scheduled release (e.g. X.XX.0) and not a beta/hot fix (e.g. X.XX.2), post a message similar to the following to the <code>#mobile-gutenberg</code> and <code>#mobile-gutenberg-platform</code> Slack channels: </p>
+<!-- /wp:paragraph -->
+
+<!-- wp:quote -->
+<blockquote class="wp-block-quote"><p>⚠️ The gutenberg-mobile X.XX.X release branches are now cut. Please do not merge any Gutenberg-related changes into the WPiOS or WPAndroid <code>develop</code> branches until <em>after</em> the main apps cut their own releases next week. If you'd like to merge changes now, merge them into the <code>gutenberg/after_X.XX.X</code> branches. </p></blockquote>
+<!-- /wp:quote --></div>
+<!-- /wp:group -->
+
 <!-- wp:paragraph -->
 <p>o Verify the WPAndroid PR build succeeds. If PR CI tasks include a 403 error related to an inability to resolve the <code>react-native-bridge</code> dependency, you must wait for the <code>Build Android RN Bridge &amp; Publish to S3</code> task to succeed in gutenberg-mobile and then restart the WPAndroid CI tasks.</p>
 <!-- /wp:paragraph -->
@@ -94,6 +104,10 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
+<p>o Once the installable builds are ready, perform a quick smoke test of the editor on both iOS and Android to verify it launches without crashing. We will perform additional testing after the main apps cut their releases. </p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
 <p>o Fill in the missing parts of the gutenberg-mobile PR description.</p>
 <!-- /wp:paragraph -->
 
@@ -101,42 +115,8 @@ For the body of the post, just copy this checklist and again replace all occurre
 <p>o Mark all 4 PRs ready for review and request review from your release wrangler buddy.</p>
 <!-- /wp:paragraph -->
 
-<!-- wp:group -->
-<div class="wp-block-group"><!-- wp:paragraph -->
-<p>o If this is a scheduled release (e.g. X.XX.0) and not a beta/hot fix (e.g. X.XX.2), post a message similar to the following to the <code>#mobile-gutenberg</code> and <code>#mobile-gutenberg-platform</code> Slack channels: </p>
-<!-- /wp:paragraph -->
-
-<!-- wp:quote -->
-<blockquote class="wp-block-quote"><p>⚠️ The gutenberg-mobile X.XX.X release branches are now cut. Please do not merge any Gutenberg-related changes into the WPiOS or WPAndroid <code>develop</code> branches until <em>after</em> the main apps cut their own releases next week. If you'd like to merge changes now, merge them into the <code>gutenberg/after_X.XX.X</code> branches. </p></blockquote>
-<!-- /wp:quote --></div>
-<!-- /wp:group -->
-
 <!-- wp:paragraph -->
 <p>o If this is a release for inclusion in the frozen WPiOS and WPAndroid release branches (i.e. this is a beta/hot fix, e.g. X.XX.2), ping the directly responsible individual handing the release of each platform of the main apps.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:heading {"level":3} -->
-<h3>Test the Release</h3>
-<!-- /wp:heading -->
-
-<!-- wp:paragraph -->
-<p>ℹ️ Use the main WP apps to complete each the tasks below for both iOS and Android. </p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>o Test the new changes that are included in the release PR.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>o Complete the <a href="https://github.com/wordpress-mobile/test-cases/tree/master/test-cases/gutenberg/writing-flow">general writing flow test cases</a>.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>o Complete the <a href="https://github.com/wordpress-mobile/test-cases/blob/trunk/test-cases/gutenberg/unsupported-block-editing.md#unsupported-block-editing---test-cases">Unsupported Block Editor test cases</a>.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>o Verify the <a href="https://mobilegutenpagesp2.wordpress.com/sanity-testing-rotations/">scheduled team members</a> completed the <a href="https://github.com/wordpress-mobile/test-cases/blob/trunk/test-suites/gutenberg/sanity-test-suites.md">sanity test suites</a>.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":3} -->
@@ -271,6 +251,30 @@ For the body of the post, just copy this checklist and again replace all occurre
 
 <!-- wp:paragraph -->
 <p>o Update the <code>gutenberg/after_X.XX.X</code> branches and open a PR against <code>develop</code>. If the branches are empty we’ll just delete them. The PR can actually get created as soon as something gets merged to the <code>gutenberg/after_X.XX.X</code> branches. Merge the <code>gutenberg/after_X.XX.X</code> PR(s) only <em>AFTER</em> the main apps have cut their release branches.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3>Test the Release</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>ℹ️ Use the main WP apps to complete each the tasks below for both iOS and Android. </p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>o Test the new changes that are included in the release PR.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>o Complete the <a href="https://github.com/wordpress-mobile/test-cases/tree/master/test-cases/gutenberg/writing-flow">general writing flow test cases</a>.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>o Complete the <a href="https://github.com/wordpress-mobile/test-cases/blob/trunk/test-cases/gutenberg/unsupported-block-editing.md#unsupported-block-editing---test-cases">Unsupported Block Editor test cases</a>.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>o Verify the <a href="https://mobilegutenpagesp2.wordpress.com/sanity-testing-rotations/">scheduled team members</a> completed the <a href="https://github.com/wordpress-mobile/test-cases/blob/trunk/test-suites/gutenberg/sanity-test-suites.md">sanity test suites</a>.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":3} -->
