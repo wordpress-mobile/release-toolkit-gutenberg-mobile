@@ -104,7 +104,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Once the installable builds are ready, perform a quick smoke test of the editor on both iOS and Android to verify it launches without crash. We will perform additional testing after the main apps cut their releases. </p>
+<p>o Once the installable builds are ready, perform a quick smoke test of the editor on both iOS and Android to verify it launches without crashing. We will perform additional testing after the main apps cut their releases. </p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
