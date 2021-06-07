@@ -12,7 +12,7 @@ This is useful in case you want to use an unreleased version of the bundle in th
 
 # Release Timeline
 
-Currently, we are [experimenting with syncing the Gutenberg Mobile release with the main app release schedule](https://mobilegutenberg.wordpress.com/2021/03/10/proposed-experiment-align-gutenberg-mobile-releases-with-the-main-apps-code-freeze-date/). We are also [experimenting with performing manual tests every week](https://mobilegutenberg.wordpress.com/2021/03/18/proposal-schedule-weekly-manual-testing-sessions/), with a round of "smoke" test before cutting the release and a full round of tests after the release has been integrated into the main apps. A typical Gutenberg Mobile release schedule might look like the following:
+Currently, we are experimenting with syncing the Gutenberg Mobile release with the main app release schedule (p9ugOq-1LE-p2). We are also experimenting with performing manual tests every week (p9ugOq-1MA-p2), with a round of "smoke" test before cutting the release and a full round of tests after the release has been integrated into the main apps. A typical Gutenberg Mobile release schedule might look like the following:
 
 - Tuesday of release week: perform a round of "smoke" tests.
 - Friday of release week: create and integrate the release in the main apps.
