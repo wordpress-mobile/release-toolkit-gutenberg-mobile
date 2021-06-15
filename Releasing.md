@@ -274,7 +274,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Verify the <a href="https://mobilegutenpagesp2.wordpress.com/sanity-testing-rotations/">scheduled team members</a> completed the <a href="https://github.com/wordpress-mobile/test-cases/blob/trunk/test-suites/gutenberg/sanity-test-suites.md">sanity test suites</a>.</p>
+<p>o Verify the <a href="https://manakinp2.wordpress.com/team-rotations/sanity-testing-rotations/">scheduled team members</a> completed the <a href="https://github.com/wordpress-mobile/test-cases/blob/trunk/test-suites/gutenberg/sanity-test-suites.md">sanity test suites</a>.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":3} -->
