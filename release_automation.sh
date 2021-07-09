@@ -364,9 +364,7 @@ WP_ANDROID_PR_URL=$(execute "gh" "pr" "create" \
 ohai "WPAndroid PR Created: $WP_ANDROID_PR_URL"
 echo ""
 
-#####
-# Success!
-#####
+
 
 echo "Main apps PRs created"
 echo "==========="
