@@ -74,7 +74,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Review the <a href="https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/blob/develop/Releasing.md">release script instructions</a>. In your clone of the release scripts, run the script via:  <code>./release_automation.sh</code>. This creates the gutenberg and gutenberg-mobile release PRs as well as WPAndroid and WPiOS integration PRs.</p>
+<p>o Review the <a href="https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/blob/develop/Releasing.md">release script instructions</a>. In your clone of the release scripts, run the script via:  <code>./release_automation.sh</code>. This creates the gutenberg and gutenberg-mobile release PRs as well as WPAndroid and WPiOS integration PRs.</p>. Note: You might want to wait a bit before confirming WPAndroid PR creation so gutenberg-mobile can have enough time to finish the <code>Build Android RN Bridge &amp; Publish to S3</code> job on CI which is needed by WPAndroid CI.
 <!-- /wp:paragraph -->
 
 <!-- wp:group -->
@@ -184,7 +184,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Merge the <strong>gutenberg-mobile</strong> PR to <code>trunk</code>. WARNING: Do not merge the <strong>gutenberg</strong> PR into <code>trunk</code> at this point.</p>
+<p>o Merge the <strong>gutenberg-mobile</strong> PR to <code>trunk</code>. Use "Create a merge commit" option when merging, otherwise there could be conflicts between <code>trunk</code> and release branch in the next release. WARNING: Do not merge the <strong>gutenberg</strong> PR into <code>trunk</code> at this point.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
