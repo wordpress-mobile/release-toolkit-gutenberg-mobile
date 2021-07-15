@@ -16,7 +16,13 @@ brew install jq
 
 ## Usage
 
-Run the script: `./release_automation.sh`
+### Release Script
+- Run the script: `./release_automation.sh`
+- See [Releasing.md](./Releasing.md) for more details
+
+### WordPress Gutenberg Reference Update Automation
+- Run the script: `./wp_gutenberg_ref_update_prs.sh`
+- See [WordPressApps_Gutenberg_Reference_Update.md](./WordPressApps_Gutenberg_Reference_Update.md) for more details
 
 ## Testing
 
