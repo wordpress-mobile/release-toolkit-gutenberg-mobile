@@ -110,6 +110,10 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- wp:paragraph -->
 <p>o Fill in the missing parts of the gutenberg-mobile PR description.</p>
 <!-- /wp:paragraph -->
+  
+<!-- wp:paragraph -->
+<p>o In both <code>RELEASE-NOTES.txt</code> and <code>gutenberg/packages/react-native-editor/CHANGELOG.md</code>, replace <code>Unreleased</code> section with the release version and create a new <code>Unreleased</code> section</p>
+<!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
 <p>o Mark all 4 PRs ready for review and request review from your release wrangler buddy.</p>
