@@ -94,6 +94,10 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- wp:paragraph -->
 <p>o Verify the localization strings files (<a href="https://github.com/wordpress-mobile/gutenberg-mobile/blob/develop/bundle/android/strings.xml">bundle/android/strings.xml</a>, <a href="https://github.com/wordpress-mobile/gutenberg-mobile/blob/develop/bundle/ios/GutenbergNativeTranslations.swift">bundle/ios/GutenbergNativeTranslations.swift</a>) have been generated properly. Check that we're not adding extra strings from non-native files and that we're not removing strings that are referenced in the code (more info can be found in this <a href="https://github.com/wordpress-mobile/gutenberg-mobile/issues/3466">issue</a>). <strong>If any issue is found, it will require manually modifying the files and push them to the release branch.</strong> If no strings are updated, it is expected to not see those files modified.</p>
 <!-- /wp:paragraph -->
+  
+<!-- wp:paragraph -->
+<p>o In both <code>RELEASE-NOTES.txt</code> and <code>gutenberg/packages/react-native-editor/CHANGELOG.md</code>, replace <code>Unreleased</code> section with the release version and create a new <code>Unreleased</code> section.</p>
+<!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
 <p>o Run the Optional Tests on both the WPiOS and WPAndroid PRs.</p>
@@ -109,10 +113,6 @@ For the body of the post, just copy this checklist and again replace all occurre
 
 <!-- wp:paragraph -->
 <p>o Fill in the missing parts of the gutenberg-mobile PR description.</p>
-<!-- /wp:paragraph -->
-  
-<!-- wp:paragraph -->
-<p>o In both <code>RELEASE-NOTES.txt</code> and <code>gutenberg/packages/react-native-editor/CHANGELOG.md</code>, replace <code>Unreleased</code> section with the release version and create a new <code>Unreleased</code> section.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
