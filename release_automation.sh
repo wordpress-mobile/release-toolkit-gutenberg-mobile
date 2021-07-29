@@ -261,6 +261,57 @@ Release Submission Checklist
 
 WP_APPS_INTEGRATION_BRANCH="gutenberg/integrate_release_$VERSION_NUMBER"
 
+#####
+# WPiOS PR
+#####
+
+read -r -p "Do you want to target $WPIOS_TARGET_BRANCH branch for WPiOS PR? (y/n) " -n 1
+echo ""
+if [[ $REPLY =~ ^[Nn]$ ]]; then
+    read -r -p "Enter the branch name you want to target. Make sure a branch with this name already exists in WPiOS repository: " WPIOS_TARGET_BRANCH
+fi
+
+TEMP_WP_IOS_DIRECTORY=$(mktemp -d)
+ohai "Clone WordPress-iOS into '$TEMP_WP_IOS_DIRECTORY'"
+execute "git" "clone" "-b" "$WPIOS_TARGET_BRANCH" "--depth=1" "git@github.com:$MOBILE_REPO/WordPress-iOS.git" "$TEMP_WP_IOS_DIRECTORY"
+
+cd "$TEMP_WP_IOS_DIRECTORY"
+
+ohai "Create after_x.xx.x branch in WordPress-iOS"
+execute "git" "switch" "-c" "gutenberg/after_$VERSION_NUMBER"
+
+execute "git" "push" "-u" "origin" "HEAD"
+
+ohai "Create release branch in WordPress-iOS"
+execute "git" "switch" "-c" "gutenberg/integrate_release_$VERSION_NUMBER"
+
+ohai "Update GitHub organization and gutenberg-mobile ref"
+test -f "Podfile" || abort "Error: Could not find Podfile"
+sed -i'.orig' -E "s/wordpress-mobile(\/gutenberg-mobile)/$MOBILE_REPO\1/" Podfile || abort "Error: Failed updating GitHub organization in Podfile"
+sed -i'.orig' -E "s/gutenberg :(commit|tag) => '(.*)'/gutenberg :commit => '$GB_MOBILE_PR_REF'/" Podfile || abort "Error: Failed updating gutenberg ref in Podfile"
+execute "bundle" "exec" "pod" "repo" "update"
+execute "rake" "dependencies"
+
+
+execute "git" "add" "Podfile" "Podfile.lock"
+execute "git" "commit" "-m" "Release script: Update gutenberg-mobile ref"
+
+ohai "Push integration branch"
+execute "git" "push" "-u" "origin" "HEAD"
+
+# Create Draft WPiOS Release PR in GitHub
+ohai "Create Draft WPiOS Release PR in GitHub"
+WP_IOS_PR_URL=$(execute "gh" "pr" "create" \
+"--title" "$WP_APPS_PR_TITLE" \
+"--body" "$WP_APPS_PR_BODY" \
+"--repo" "$MOBILE_REPO/WordPress-iOS" \
+"--head" "$MOBILE_REPO:$WP_APPS_INTEGRATION_BRANCH" \
+"--base" "$WPIOS_TARGET_BRANCH" \
+"--label" "$WPIOS_PR_LABEL" \
+"--draft")
+
+ohai "WPiOS PR Created: $WP_IOS_PR_URL"
+echo ""
 
 #####
 # WPAndroid PR
@@ -315,56 +366,6 @@ ohai "WPAndroid PR Created: $WP_ANDROID_PR_URL"
 echo ""
 
 
-#####
-# WPiOS PR
-#####
-
-read -r -p "Do you want to target $WPIOS_TARGET_BRANCH branch for WPiOS PR? (y/n) " -n 1
-echo ""
-if [[ $REPLY =~ ^[Nn]$ ]]; then
-    read -r -p "Enter the branch name you want to target. Make sure a branch with this name already exists in WPiOS repository: " WPIOS_TARGET_BRANCH
-fi
-
-TEMP_WP_IOS_DIRECTORY=$(mktemp -d)
-ohai "Clone WordPress-iOS into '$TEMP_WP_IOS_DIRECTORY'"
-execute "git" "clone" "-b" "$WPIOS_TARGET_BRANCH" "--depth=1" "git@github.com:$MOBILE_REPO/WordPress-iOS.git" "$TEMP_WP_IOS_DIRECTORY"
-
-cd "$TEMP_WP_IOS_DIRECTORY"
-
-ohai "Create after_x.xx.x branch in WordPress-iOS"
-execute "git" "switch" "-c" "gutenberg/after_$VERSION_NUMBER"
-
-execute "git" "push" "-u" "origin" "HEAD"
-
-ohai "Create release branch in WordPress-iOS"
-execute "git" "switch" "-c" "gutenberg/integrate_release_$VERSION_NUMBER"
-
-ohai "Update GitHub organization and gutenberg-mobile ref"
-test -f "Podfile" || abort "Error: Could not find Podfile"
-sed -i'.orig' -E "s/wordpress-mobile(\/gutenberg-mobile)/$MOBILE_REPO\1/" Podfile || abort "Error: Failed updating GitHub organization in Podfile"
-sed -i'.orig' -E "s/gutenberg :(commit|tag) => '(.*)'/gutenberg :commit => '$GB_MOBILE_PR_REF'/" Podfile || abort "Error: Failed updating gutenberg ref in Podfile"
-execute "bundle" "exec" "pod" "repo" "update"
-execute "rake" "dependencies"
-
-execute "git" "add" "Podfile" "Podfile.lock"
-execute "git" "commit" "-m" "Release script: Update gutenberg-mobile ref"
-
-ohai "Push integration branch"
-execute "git" "push" "-u" "origin" "HEAD"
-
-# Create Draft WPiOS Release PR in GitHub
-ohai "Create Draft WPiOS Release PR in GitHub"
-WP_IOS_PR_URL=$(execute "gh" "pr" "create" \
-"--title" "$WP_APPS_PR_TITLE" \
-"--body" "$WP_APPS_PR_BODY" \
-"--repo" "$MOBILE_REPO/WordPress-iOS" \
-"--head" "$MOBILE_REPO:$WP_APPS_INTEGRATION_BRANCH" \
-"--base" "$WPIOS_TARGET_BRANCH" \
-"--label" "$WPIOS_PR_LABEL" \
-"--draft")
-
-ohai "WPiOS PR Created: $WP_IOS_PR_URL"
-echo ""
 
 echo "Main apps PRs created"
 echo "==========="

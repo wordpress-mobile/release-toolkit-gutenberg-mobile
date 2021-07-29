@@ -52,18 +52,6 @@ function check_ios_aztec_is_release_version() {
         result="A release version for WordPress-Aztec-iOS was not found in $podspec_file"
     fi
 
-    podfile="$GB_MOBILE_PATH/gutenberg/packages/react-native-editor/ios/Podfile"
-    commented_out_reference_in_podfile=$(grep -E "# *pod 'WordPress-Aztec-iOS'" "$podfile")
-    if [[ -z "$commented_out_reference_in_podfile" ]]; then
-        message="The developer version of WordPress-Aztec-iOS was not commented out in $podfile"
-        if [[ -z "$result" ]]; then
-            result="$message"
-        else
-            result="${result}\n${message}"
-        fi
-
-    fi
-
     echo "$result"
 }
 
