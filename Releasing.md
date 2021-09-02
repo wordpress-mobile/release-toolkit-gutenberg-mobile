@@ -112,7 +112,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Fill in the missing parts of the gutenberg-mobile PR description.</p>
+<p>o Fill in the missing parts of the gutenberg-mobile PR description. When filling in the "Changes" section, link to the most descriptive GitHub issue for any given change and consider adding a short description. Testers rely on this section to gather more details about changes in a release.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
