@@ -312,7 +312,7 @@ It's best practice to use the automation script (mentioned in the release templa
 
 ### When
 
-On Fridays, the week before the main apps (WPiOS & WPAndroid) have cut their releases, every 2 weeks.
+On Thursdays, the week before the main apps (WPiOS & WPAndroid) have cut their releases, every 2 weeks.
 
 ### Branches
 
