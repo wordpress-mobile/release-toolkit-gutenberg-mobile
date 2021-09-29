@@ -271,6 +271,9 @@ if [[ $REPLY =~ ^[Nn]$ ]]; then
     read -r -p "Enter the branch name you want to target. Make sure a branch with this name already exists in WPiOS repository: " WPIOS_TARGET_BRANCH
 fi
 
+ohai "Update the spec repos located at ~/.cocoapods/repos"
+execute "pod" "repo" "update"
+
 TEMP_WP_IOS_DIRECTORY=$(mktemp -d)
 ohai "Clone WordPress-iOS into '$TEMP_WP_IOS_DIRECTORY'"
 execute "git" "clone" "-b" "$WPIOS_TARGET_BRANCH" "--depth=1" "git@github.com:$MOBILE_REPO/WordPress-iOS.git" "$TEMP_WP_IOS_DIRECTORY"
