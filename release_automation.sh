@@ -66,6 +66,11 @@ gh auth status >/dev/null 2>&1 || abort "Error: You are not logged into any GitH
 # Check that jq is installed
 command -v jq >/dev/null || abort "Error: jq must be installed."
 
+# Updating the local spec repos benefits both Gutenberg and WPiOS which use CocoaPods
+# This avoids the scenario where the script aborts due to a 'CocoaPods could not find compatible versions for pod' error.
+ohai "Update the spec repos located at ~/.cocoapods/repos"
+execute "pod" "repo" "update"
+
 # Check that Aztec versions are set to release versions
 aztec_version_problems="$(check_android_and_ios_aztec_versions)"
 if [[ -n "$aztec_version_problems" ]]; then
@@ -270,9 +275,6 @@ echo ""
 if [[ $REPLY =~ ^[Nn]$ ]]; then
     read -r -p "Enter the branch name you want to target. Make sure a branch with this name already exists in WPiOS repository: " WPIOS_TARGET_BRANCH
 fi
-
-ohai "Update the spec repos located at ~/.cocoapods/repos"
-execute "pod" "repo" "update"
 
 TEMP_WP_IOS_DIRECTORY=$(mktemp -d)
 ohai "Clone WordPress-iOS into '$TEMP_WP_IOS_DIRECTORY'"
