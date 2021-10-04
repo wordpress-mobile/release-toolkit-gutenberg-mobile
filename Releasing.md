@@ -74,7 +74,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Review the <a href="https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/blob/develop/Releasing.md">release script instructions</a>. In your clone of the release scripts, run the script via:  <code>./release_automation.sh</code>. This creates the gutenberg and gutenberg-mobile release PRs as well as WPAndroid and WPiOS integration PRs.</p>. Note: You might want to wait a bit before confirming WPAndroid PR creation so gutenberg-mobile can have enough time to finish the <code>Build Android RN Bridge &amp; Publish to S3</code> job on CI which is needed by WPAndroid CI.
+<p>o Review the <a href="https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/blob/develop/Releasing.md">release script instructions</a>. In your clone of the release scripts, run the script via:  <code>./release_automation.sh</code>. This creates the gutenberg and gutenberg-mobile release PRs as well as WPAndroid and WPiOS integration PRs.<br><br><strong>Note:</strong> You might want to wait a bit before confirming WPAndroid PR creation so gutenberg-mobile can have enough time to finish the <code>Build Android RN Bridge &amp; Publish to S3</code> job on CI which is needed by WPAndroid CI.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:group -->
