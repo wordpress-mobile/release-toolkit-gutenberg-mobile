@@ -47,14 +47,6 @@ For the body of the post, just copy this checklist and again replace all occurre
 <h3>Before the Release</h3>
 <!-- /wp:heading -->
 
-<!-- wp:paragraph -->
-<p>o Midway through the week of the release, create installable builds for WPiOS and WPAndroid based off the current <code>develop</code> branch and complete the <a href="https://github.com/wordpress-mobile/test-cases/tree/master/test-cases/gutenberg/writing-flow">general writing flow test cases</a>. </p>
-<!-- /wp:paragraph -->
-
-<!-- wp:heading {"level":3} -->
-<h3>Create the Release</h3>
-<!-- /wp:heading -->
-
 <!-- wp:group -->
 <div class="wp-block-group"><!-- wp:paragraph -->
 <p>o Visit all open gutenberg-mobile PRs that are assigned to X.XX.X milestone and leave a comment with a message similar to the following: </p>
@@ -64,6 +56,14 @@ For the body of the post, just copy this checklist and again replace all occurre
 <blockquote class="wp-block-quote"><p>Hey [author]. We will cut the X.XX.X release on [date]. I plan to circle back and bump this PR to the next milestone then, but please let me know if you'd rather us work to include this PR in X.XX.X. Thanks! </p></blockquote>
 <!-- /wp:quote --></div>
 <!-- /wp:group -->
+
+<!-- wp:paragraph -->
+<p>o Midway through the week of the release, create installable builds for WPiOS and WPAndroid based off the current <code>develop</code> branch and complete the <a href="https://github.com/wordpress-mobile/test-cases/tree/master/test-cases/gutenberg/writing-flow">general writing flow test cases</a>. </p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3>Create the Release</h3>
+<!-- /wp:heading -->
 
 <!-- wp:paragraph -->
 <p>o Verify that <code>gutenberg-mobile/RNTAztecView.podspec</code> and <code>gutenberg-mobile/gutenberg/packages/react-native-aztec/RNTAztecView.podspec</code> refer to the same <code>WordPress-Aztec-iOS</code> version and are pointing to a stable, tagged release (e.g. 1.14.1). If they are not, we may need to <a href="#create-a-new-aztec-release">create a new Aztec</a> release.</p>
