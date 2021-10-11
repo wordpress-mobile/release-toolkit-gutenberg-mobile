@@ -44,12 +44,12 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":3} -->
-<h3>Before the Release</h3>
+<h3>Before the Release (Tuesday and Wednesday)</h3>
 <!-- /wp:heading -->
 
 <!-- wp:group -->
 <div class="wp-block-group"><!-- wp:paragraph -->
-<p>o Visit all open gutenberg-mobile PRs that are assigned to X.XX.X milestone and leave a comment with a message similar to the following: </p>
+<p>o Visit all open gutenberg-mobile PRs that are assigned to X.XX.X milestone and leave a comment with a message similar to the following by Tuesday: </p>
 <!-- /wp:paragraph -->
 
 <!-- wp:quote -->
@@ -58,11 +58,11 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:group -->
 
 <!-- wp:paragraph -->
-<p>o Midway through the week of the release, create installable builds for WPiOS and WPAndroid based off the current <code>develop</code> branch and complete the <a href="https://github.com/wordpress-mobile/test-cases/tree/master/test-cases/gutenberg/writing-flow">general writing flow test cases</a>. </p>
+<p>o Midway through the week of the release on Wednesday, create installable builds for WPiOS and WPAndroid based off the current <code>develop</code> branch and complete the <a href="https://github.com/wordpress-mobile/test-cases/tree/master/test-cases/gutenberg/writing-flow">general writing flow test cases</a>. </p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":3} -->
-<h3>Create the Release</h3>
+<h3>Create the Release (Thursday)</h3>
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
@@ -172,7 +172,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":3} -->
-<h3>Integrate the Release </h3>
+<h3>Integrate the Release (Friday or earlier)</h3>
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
@@ -246,7 +246,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":3} -->
-<h3>Clean Up Pending Work</h3>
+<h3>Clean Up Pending Work (After main apps cut)</h3>
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
