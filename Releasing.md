@@ -14,8 +14,8 @@ This is useful in case you want to use an unreleased version of the bundle in th
 
 Currently, we are experimenting with syncing the Gutenberg Mobile release with the main app release schedule (p9ugOq-1LE-p2). We are also experimenting with performing manual tests every week (p9ugOq-1MA-p2), with a round of "smoke" test before cutting the release and a full round of tests after the release has been integrated into the main apps. A typical Gutenberg Mobile release schedule might look like the following:
 
-- Tuesday of release week: perform a round of "smoke" tests.
-- Friday of release week: create and integrate the release in the main apps.
+- Tuesday of release week: perform a round of "smoke" tests and message all targeted PRs that the release will be cut on Thursday.
+- Thursday of release week: start process to cut the release and integrate it into the main apps. (Main apps are cut upcoming Monday)
 - Tuesday after release week: perform full round of writing flow and sanity tests.
 - Remainder of main app release period: monitor main app release P2 posts for issues found.
 
