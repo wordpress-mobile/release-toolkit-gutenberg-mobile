@@ -12,12 +12,115 @@ This is useful in case you want to use an unreleased version of the bundle in th
 
 # Release Timeline
 
-Currently, we are experimenting with syncing the Gutenberg Mobile release with the main app release schedule (p9ugOq-1LE-p2). We are also experimenting with performing manual tests every week (p9ugOq-1MA-p2), with a round of "smoke" test before cutting the release and a full round of tests after the release has been integrated into the main apps. A typical Gutenberg Mobile release schedule might look like the following:
+We are experimenting with syncing the Gutenberg Mobile release with the main app release schedule (p9ugOq-1LE-p2). We are also experimenting with performing manual tests every week (p9ugOq-1MA-p2), with a round of "smoke" test before cutting the release and a full round of tests after the release has been integrated into the main apps. A typical Gutenberg Mobile release schedule should look like this:
 
-- Tuesday of release week: perform a round of "smoke" tests.
-- Friday of release week: create and integrate the release in the main apps.
-- Tuesday after release week: perform full round of writing flow and sanity tests.
-- Remainder of main app release period: monitor main app release P2 posts for issues found.
+----------
+
+<dl>
+  <dt>Week 1, Tuesday</dt>
+  <dd>* Perform a round of "smoke" tests</dd>
+
+  <dt>Week 1, Thursday</dt>
+  <dd>* Create and integrate the release in the main apps</dd>
+
+  <dt>Week 2, Tuesday</dt>
+  <dd>* Perform full round of writing flow and sanity tests</dd>
+
+  <dt>Weeks 2-3 (remainder of main app release period)</dt>
+  <dd>
+    <ul>
+      <li>Wrangle any needed betafixes</li>
+      <li>Monitor main app release P2 posts for issues</li>
+    </ul>
+  </dd>
+
+  <dt>Week 3, Monday</dt>
+  <dd>Notify wranglers of the next release that they're up (this is "Week 1" for them)</dd>
+</dl>
+
+-----------
+
+### Week 1, Tuesday
+* Perform a round of "smoke" tests
+
+### Week 1, Thursday
+* Create and integrate the release in the main apps
+
+### Week 2, Tuesday
+* Perform full round of writing flow and sanity tests
+
+### Weeks 2-3 (remainder of main app release period)
+* Wrangle any needed betafixes
+* Monitor main app release P2 posts for issues
+
+### Week 3, Monday
+* Notify wranglers of the next release that they're up (this is "Week 1" for them)
+
+----------
+
+#### Week 1, Tuesday
+* Perform a round of "smoke" tests
+
+#### Week 1, Thursday
+* Create and integrate the release in the main apps
+
+#### Week 2, Tuesday
+* Perform full round of writing flow and sanity tests
+
+#### Weeks 2-3 (remainder of main app release period)
+* Wrangle any needed betafixes
+* Monitor main app release P2 posts for issues
+
+#### Week 3, Monday
+* Notify wranglers of the next release that they're up (this is "Week 1" for them)
+
+----------
+
+##### Week 1, Tuesday
+* Perform a round of "smoke" tests
+
+##### Week 1, Thursday
+* Create and integrate the release in the main apps
+
+##### Week 2, Tuesday
+* Perform full round of writing flow and sanity tests
+
+##### Weeks 2-3 (remainder of main app release period)
+* Wrangle any needed betafixes
+* Monitor main app release P2 posts for issues
+
+##### Week 3, Monday
+* Notify wranglers of the next release that they're up (this is "Week 1" for them)
+
+----------
+
+###### Week 1, Tuesday
+* Perform a round of "smoke" tests
+
+###### Week 1, Thursday
+* Create and integrate the release in the main apps
+
+###### Week 2, Tuesday
+* Perform full round of writing flow and sanity tests
+
+###### Weeks 2-3 (remainder of main app release period)
+* Wrangle any needed betafixes
+* Monitor main app release P2 posts for issues
+
+###### Week 3, Monday
+* Notify wranglers of the next release that they're up (this is "Week 1" for them)
+
+----------
+
+- **Week 1, Tuesday:** perform a round of "smoke" tests
+- **Week 1, Thursday:** create and integrate the release in the main apps
+- **Week 2, Tuesday:** perform full round of writing flow and sanity tests
+- **Weeks 2-3 (remainder of main app release period):**
+  - Wrangle any needed betafixes
+  - Monitor main app release P2 posts for issues
+- **Week 3, Monday:** notify wranglers of the next release that they're up (this is "Week 1" for them)
+
+Additional details are contained in the Release Checklist Template discussed below.
 
 # Release Checklist Template
 
@@ -58,7 +161,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:group -->
 
 <!-- wp:paragraph -->
-<p>o Midway through the week of the release, create installable builds for WPiOS and WPAndroid based off the current <code>develop</code> branch and complete the <a href="https://github.com/wordpress-mobile/test-cases/tree/master/test-cases/gutenberg/writing-flow">general writing flow test cases</a>. </p>
+<p>o On Tuesday of the week of the release, create installable builds for WPiOS and WPAndroid based off the current <code>develop</code> branch and complete the <a href="https://github.com/wordpress-mobile/test-cases/tree/master/test-cases/gutenberg/writing-flow">general writing flow test cases</a>. </p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":3} -->
