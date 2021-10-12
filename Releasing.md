@@ -10,15 +10,6 @@ npm run bundle
 
 This is useful in case you want to use an unreleased version of the bundle in the apps. For instance, on a PR that's a work in progress, you might want to include to a specific gutenberg-mobile branch in the apps with an updated bundle so reviewers can see the latest changes before approving them (and releasing a new version).
 
-# Release Timeline
-
-Currently, we are experimenting with syncing the Gutenberg Mobile release with the main app release schedule (p9ugOq-1LE-p2). We are also experimenting with performing manual tests every week (p9ugOq-1MA-p2), with a round of "smoke" test before cutting the release and a full round of tests after the release has been integrated into the main apps. A typical Gutenberg Mobile release schedule might look like the following:
-
-- Tuesday of release week: perform a round of "smoke" tests and message all targeted PRs that the release will be cut on Thursday.
-- Thursday of release week: start process to cut the release and integrate it into the main apps. (Main apps are cut upcoming Monday)
-- Tuesday after release week: perform full round of writing flow and sanity tests.
-- Remainder of main app release period: monitor main app release P2 posts for issues found.
-
 # Release Checklist Template
 
 When you are ready to cut a new release, use the following template.
