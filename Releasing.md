@@ -98,10 +98,6 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- wp:paragraph -->
 <p>o Verify the WPAndroid PR build succeeds. If PR CI tasks include a 403 error related to an inability to resolve the <code>react-native-bridge</code> dependency, you must wait for the <code>Build Android RN Bridge &amp; Publish to S3</code> task to succeed in gutenberg-mobile and then restart the WPAndroid CI tasks.</p>
 <!-- /wp:paragraph -->  
-  
-<!-- wp:paragraph -->
-<p>o Run the Optional Tests on both the WPiOS and WPAndroid PRs.</p>
-<!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
 <p>o Trigger an installable build on WPiOS PR.</p>
@@ -165,10 +161,6 @@ For the body of the post, just copy this checklist and again replace all occurre
 
 <!-- wp:paragraph -->
 <p>o Add the new change to the "Extra PRs that Landed After the Release Was Cut" section of the gutenberg-mobile PR description.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>o Re-run the Optional Tests on both the WPiOS and WPAndroid PRs.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":3} -->
