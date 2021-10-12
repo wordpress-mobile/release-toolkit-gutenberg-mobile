@@ -10,15 +10,6 @@ npm run bundle
 
 This is useful in case you want to use an unreleased version of the bundle in the apps. For instance, on a PR that's a work in progress, you might want to include to a specific gutenberg-mobile branch in the apps with an updated bundle so reviewers can see the latest changes before approving them (and releasing a new version).
 
-# Release Timeline
-
-Currently, we are experimenting with syncing the Gutenberg Mobile release with the main app release schedule (p9ugOq-1LE-p2). We are also experimenting with performing manual tests every week (p9ugOq-1MA-p2), with a round of "smoke" test before cutting the release and a full round of tests after the release has been integrated into the main apps. A typical Gutenberg Mobile release schedule might look like the following:
-
-- Tuesday of release week: perform a round of "smoke" tests.
-- Friday of release week: create and integrate the release in the main apps.
-- Tuesday after release week: perform full round of writing flow and sanity tests.
-- Remainder of main app release period: monitor main app release P2 posts for issues found.
-
 # Release Checklist Template
 
 When you are ready to cut a new release, use the following template.
@@ -44,7 +35,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":3} -->
-<h3>Before the Release</h3>
+<h3>Before the Release (Tuesday)</h3>
 <!-- /wp:heading -->
 
 <!-- wp:group -->
@@ -58,11 +49,11 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:group -->
 
 <!-- wp:paragraph -->
-<p>o Midway through the week of the release, create installable builds for WPiOS and WPAndroid based off the current <code>develop</code> branch and complete the <a href="https://github.com/wordpress-mobile/test-cases/tree/master/test-cases/gutenberg/writing-flow">general writing flow test cases</a>. </p>
+<p>o Create installable builds for WPiOS and WPAndroid based off the current <code>develop</code> branch and complete the <a href="https://github.com/wordpress-mobile/test-cases/tree/master/test-cases/gutenberg/writing-flow">general writing flow test cases</a>. </p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":3} -->
-<h3>Create the Release</h3>
+<h3>Create the Release (Thursday)</h3>
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
@@ -172,7 +163,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":3} -->
-<h3>Integrate the Release </h3>
+<h3>Integrate the Release (Thursday)</h3>
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
@@ -246,7 +237,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":3} -->
-<h3>Clean Up Pending Work</h3>
+<h3>Clean Up Pending Work (After main apps cut)</h3>
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
@@ -279,6 +270,10 @@ For the body of the post, just copy this checklist and again replace all occurre
 
 <!-- wp:paragraph -->
 <p>o Verify the <a href="https://manakinp2.wordpress.com/team-rotations/sanity-testing-rotations/">scheduled team members</a> completed the <a href="https://github.com/wordpress-mobile/test-cases/blob/trunk/test-suites/gutenberg/sanity-test-suites.md">sanity test suites</a>.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>For the remainder of the main app release period, monitor main app release P2 posts for issues found.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":3} -->
