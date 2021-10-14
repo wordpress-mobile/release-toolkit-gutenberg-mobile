@@ -196,11 +196,19 @@ For the body of the post, just copy this checklist and again replace all occurre
 
 <!-- wp:group -->
 <div class="wp-block-group"><!-- wp:paragraph -->
-<p>o Once everything is merged, send a message similar to the following to our friends in the <code>#platform9</code> Slack channel. If the release is a beta/hot fix (e.g. X.XX.2), be sure to directly mention the relevant Excellence Wranglers for the release and modify the following template as needed.</p>
-<!-- /wp:paragraph -->
-
+<p>o Once everything is merged, send a heads up to our friends in the <code>#platform9</code> Slack channel. If the release is for the frozen WPiOS and WPAndroid release branches (i.e. this is a beta/hot fix, e.g. X.XX.2), the message will look similar to the following:</p>
+<!-- /wp:paragraph -->  
+  
 <!-- wp:quote -->
 <blockquote class="wp-block-quote"><p>Hey team. I wanted to let you know that the mobile Gutenberg team has finished integrating the X.XX.X Gutenberg release into the WPiOS and WPAndroid `develop` branches. The integration is ready for the next release cut/build creation when you are available. Please let me know if you have any questions. Thanks! </p></blockquote>
+<!-- /wp:quote -->
+  
+<!-- wp:paragraph -->
+<p>o If the release is a beta/hot fix (e.g. X.XX.2), be sure to directly mention the relevant Excellence Wranglers for the release and modify the following template, similar to the following:</p>
+<!-- /wp:paragraph -->  
+  
+<!-- wp:quote -->
+<blockquote class="wp-block-quote"><p>Hey team. I wanted to let you know that the mobile Gutenberg team has finished integrating the X.XX.X Gutenberg release into the WPiOS and WPAndroid `release/XX.X` branches, ready for a new beta when you are available. Please let me know if you have any questions. Thanks! </p></blockquote>
 <!-- /wp:quote --></div>
 <!-- /wp:group -->
 
