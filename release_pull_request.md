@@ -35,7 +35,6 @@ No extra PRs yet. 🎉
 ## Release Submission Checklist
 
 - [ ] Verify Items from test plan have been completed
-- [ ] Approve and run optional Android and iOS UI tests
 - [ ] Check if `RELEASE-NOTES.txt` is updated with all the changes that made it to the release. Replace `Unreleased` section with the release version and create a new `Unreleased` section.
 - [ ] Check if `gutenberg/packages/react-native-editor/CHANGELOG.md` is updated with all the changes that made it to the release. Replace `## Unreleased` with the release version and create a new `## Unreleased`.
 - [ ] Bundle package of the release is updated.
