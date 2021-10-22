@@ -187,10 +187,6 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Re-run the Optional Tests on both the WPiOS and WPAndroid PRs.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
 <p>o Main apps PRs should be ready to merge to their <code>develop</code> branches now. Merge them or get them merged.</p>
 <!-- /wp:paragraph -->
 
