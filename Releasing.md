@@ -289,9 +289,36 @@ For the body of the post, just copy this checklist and again replace all occurre
 
 ## Best practices
 
-It's best practice to use the automation script (mentioned in the release template above) for all releases types (regular, betafix, hotfix). When wrangling a betafix or hotfix, it's important to merge the fix to Gutenberg `trunk` independently of the release process. When the release is cut (by the automation script) the commit(s) that make up the betafix or hotfix should then be cherry-picked onto the Gutenberg release branch.
+It's best practice to use the automation script (mentioned in the release template above) for all releases types (alpha, regular, betafix, hotfix). When wrangling a betafix or hotfix, it's important to merge the fix to Gutenberg `trunk` independently of the release process. When the release is cut (by the automation script) the commit(s) that make up the betafix or hotfix should then be cherry-picked onto the Gutenberg release branch.
 
-## 1. Regular
+## 1. Alpha
+
+### When
+
+Whenever a build is needed for testing (usually a few days prior to a Regular release)
+
+### Branches
+
+For example, when the next release will be `1.11.0`.
+
+| Repo             | Cut From | Branch Name                               |
+| ---------------- | -------- | ----------------------------------------- |
+| gutenberg        | trunk    | rnmobile/release_1.11.0-alpha1            |
+| gutenberg-mobile | develop  | release/1.11.0-alpha1                     |
+| WPAndroid        | develop  | gutenberg/integrate_release_1.11.0-alpha1 |
+| WPiOS            | develop  | gutenberg/integrate_release_1.11.0-alpha1 |
+
+### Automation script differences
+
+Compared to a Regular release, the differences here are:
+- When the script asks for the new version number, don't forget to add the `-alpha` suffix (e.g. `1.11.0-alpha1`).
+- All PRs created by the release script should be edited to clarify that they are temporary and will be deleted when testing is finished.
+
+### Release checklist template differences
+
+The release checklist is not used for alpha releases. When testing is finished, please close all PRs and delete all branches created by the script.
+
+## 2. Regular
 
 ### When
 
@@ -308,7 +335,7 @@ For example when releasing gutenberg-mobile `1.11.0`.
 | WPAndroid        | develop  | gutenberg/integrate_release_1.11.0 | develop         |
 | WPiOS            | develop  | gutenberg/integrate_release_1.11.0 | develop         |
 
-## 2. Betafix
+## 3. Betafix
 
 ### When
 
@@ -338,7 +365,7 @@ At the same time there could also be a regular release going on for example for 
 1. Include `Betafix` in the heading.
 1. `after_X.XX.X` branches can be ignored.
 
-## 3. Hotfix
+## 4. Hotfix
 
 ### When
 
