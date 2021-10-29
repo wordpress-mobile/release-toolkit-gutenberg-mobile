@@ -320,7 +320,7 @@ Compared to a Regular release, the differences here are:
 
 ### Release checklist template differences
 
-The release checklist is not used for alpha releases. When testing is finished, please delete all PRs created by the script.
+The release checklist is not used for alpha releases. When testing is finished, please close all PRs and delete all branches created by the script.
 
 ## 2. Regular
 
