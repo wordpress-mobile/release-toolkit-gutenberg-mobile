@@ -305,12 +305,12 @@ Whenever a build is needed for testing (usually a few days prior to a Regular re
 
 For example, when the next release will be `1.11.0`.
 
-| Repo             | Cut From | Branch Name                               | Merging To      |
-| ---------------- | -------- | ----------------------------------------- | --------------- |
-| gutenberg        | trunk    | rnmobile/release_1.11.0-alpha1            | (do not merge)  |
-| gutenberg-mobile | develop  | release/1.11.0-alpha1                     | (do not merge)  |
-| WPAndroid        | develop  | gutenberg/integrate_release_1.11.0-alpha1 | (do not merge)  |
-| WPiOS            | develop  | gutenberg/integrate_release_1.11.0-alpha1 | (do not merge)  |
+| Repo             | Cut From | Branch Name                               |
+| ---------------- | -------- | ----------------------------------------- |
+| gutenberg        | trunk    | rnmobile/release_1.11.0-alpha1            |
+| gutenberg-mobile | develop  | release/1.11.0-alpha1                     |
+| WPAndroid        | develop  | gutenberg/integrate_release_1.11.0-alpha1 |
+| WPiOS            | develop  | gutenberg/integrate_release_1.11.0-alpha1 |
 
 ### Automation script differences
 
