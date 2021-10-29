@@ -315,8 +315,8 @@ For example, when the next release will be `1.11.0`.
 ### Automation script differences
 
 Compared to a Regular release, the differences here are:
+- When the script asks for the new version number, don't forget to add the `-alpha` suffix (e.g. `1.11.0-alpha1`).
 - All PRs created by the release script should be edited to clarify that they are temporary and will be deleted when testing is finished.
-- 
 
 ### Release checklist template differences
 
