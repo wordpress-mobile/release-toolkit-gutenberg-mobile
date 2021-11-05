@@ -203,7 +203,7 @@ fi
 issue_title="Release checklist for v$version_number ($release_type)"
 issue_label="release checklist,$release_type release"
 issue_assignee="@me"
-issue_body="This checklist is for the $release_type release v$version_number. $checklist_message $release_checklist_template"
+issue_body="This checklist is for the $release_type release v$version_number."$'\n\n *Release date:**'"$release_date"$'\n'"$checklist_message"$'\n'"$release_checklist_template"
 
 if [[ -n "$debug_template" ]]; then
   echo $issue_body

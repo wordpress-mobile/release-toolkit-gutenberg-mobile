@@ -28,7 +28,7 @@ Thanks!
 
 <!-- /scheduled_release_only -->
 
-### Create the Release {{release_date}}
+### Create the Release ({{release_date}})
 
 - [ ] [Verify Aztec is up to date](#).
 - [ ] Run `./release_automation.sh`from the release toolkit to generate the main apps integration PRs [\*](#).
@@ -43,7 +43,7 @@ Thanks!
 
 <!-- optional_incoming_changes -->
 
-### Integrate the Release {{release_date}}
+### Integrate the Release ({{release_date}})
 
 - [ ] Verify `gutenberg` ref within the gutenberg-mobile release branch is pointing to the [latest commit](#) in Gutenberg release branch.
 - [ ] Create and push a `rnmobile/{{version_number}}` git tag for the head of [Gutenberg release branch](https://github.com/WordPress/gutenberg/branches/all?query=rnmobile%2Frelease).
