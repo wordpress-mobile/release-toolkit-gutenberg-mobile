@@ -63,6 +63,6 @@ function confirm_to_proceed() {
     read -r -p "$1 (y/n) " -n 1
     echo ""
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        abort "Aborting release..."
+        abort "Aborting..."
     fi
 }
