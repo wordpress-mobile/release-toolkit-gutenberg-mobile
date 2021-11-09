@@ -171,9 +171,9 @@ if [[ -z "$version_number" ]]; then
   # Ask for new version number
   current_version_number=$(jq '.version' package.json --raw-output)
   version_array=($(awk -F. '{$1=$1} 1' <<<"${current_version_number}"))
-  default_version_number="${version_array[0]}.${version_array[1]}.$((version_array[2] + 1))"
+  default_version_number="${version_array[0]}.$((version_array[1] + 1)).${version_array[2]}"
 
-  read -r -p "Enter the new version number[$default_version_number]: " version_number
+  read -r -p "Enter the new version number [$default_version_number]: " version_number
   echo ""
   version_number=${version_number:-$default_version_number}
 
@@ -189,7 +189,7 @@ if [[ -z "$release_date" && "$release_type" == "scheduled" ]]; then
     if command -v dateround &> /dev/null; then
       default_release_date=$(dateround today Thurs)
 
-      read -r -p "Enter the release date (YYYY-MM-DD)[$default_release_date]: " release_date
+      read -r -p "Enter the release date (YYYY-MM-DD) [$default_release_date]: " release_date
       release_date=${release_date:-$default_release_date}
     else
       read -r -p "Enter the release date (YYYY-MM-DD): " release_date
