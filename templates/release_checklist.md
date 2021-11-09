@@ -4,7 +4,7 @@
 
 ## Pre release
 
-- [ ] Review [Release process notes](#)
+- [ ] Clone or update the [release toolkit](https://href.li/?https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile) and review the [release script instructions](https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/blob/develop/Releasing.md).
 - [ ] [Notifiy open Gutenberg Mobile PRs assigned to {{version_number}} milestone]({{milestone_url}}).
 <details>
 <summary>Message Template</summary>
@@ -21,8 +21,9 @@ Thanks!
 </p>
 </details>
 
-- [ ] Create WPiOS and WPAndroid builds from `develop` and complete the [general writing flow tests](https://href.li/?https://github.com/wordpress-mobile/test-cases/tree/master/test-cases/gutenberg/writing-flow).
-- [ ] Clone or update the [release toolkit](https://href.li/?https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile) and review the [release script instructions](https://href.li/?https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/blob/develop/Releasing.md).
+- [ ] Create WPiOS and WPAndroid builds from `develop`
+- [ ] [Perform general writing flow tests on Android](https://github.com/wordpress-mobile/test-cases/tree/master/test-cases/gutenberg/writing-flow).
+- [ ] [Perform general writing flow tests on iOS](https://github.com/wordpress-mobile/test-cases/tree/master/test-cases/gutenberg/writing-flow).
 
 <!-- /scheduled_release_only -->
 
@@ -34,7 +35,7 @@ On {{release_date}}:
 
 <!-- /scheduled_release_only -->
 
-- [ ] [Verify Aztec is up to date](#).
+- [ ] [Verify Aztec is up to date](https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/blob/develop/Releasing.md#handling-aztec-updates).
 - [ ] Run `./release_automation.sh` from the release toolkit to generate the main apps integration PRs [\*](#).
 - [ ] Notify team that the release has been cut.
 <details>
@@ -51,7 +52,7 @@ If you’d like to merge changes now, merge them into the `gutenberg/after_{{ver
 </p>
 </details>
 
-- [ ] [Verify localization string files have been generated properly](https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/blob/develop/Releasing.md#verify-localization-strings).
+- [ ] [Verify localization string files have been generated properly](https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/blob/develop/Releasing.md).
 - [ ] Update `Unreleased` section in [`RELEASE-NOTES.txt`](https://github.com/wordpress-mobile/gutenberg-mobile/blob/develop/RELEASE-NOTES.txt) and [`gutenberg/../CHANGELOG.md`](https://github.com/WordPress/gutenberg/blob/trunk/packages/react-native-editor/CHANGELOG.md). Add a new `Unreleased` section after updating the release notes.
 - [ ] Perform quick smoke test of the editor on both iOS and Android builds
 - [ ] Update [Gutenberg Mobile PR](https://github.com/wordpress-mobile/gutenberg-mobile/pulls?q=is%3Apr+is%3Aopen+label%3Arelease-process) description. Make sure the "Changes" section informs testers on what is in the release.
@@ -119,17 +120,17 @@ Use the main WP apps to complete the following tests:
 
 #### iOS
 
-- [ ] Test new [changes in the release](https://github.com/wordpress-mobile/gutenberg-mobile/blob/develop/RELEASE-NOTES.txt)
-- [ ] Complete the [general writing flow tests].(https://github.com/wordpress-mobile/test-cases/tree/master/test-cases/gutenberg/writing-flow
-- [ ] Complete the [Unsupported Block Editor test cases](https://github.com/wordpress-mobile/test-cases/blob/trunk/test-cases/gutenberg/unsupported-block-editing.md#unsupported-block-editing---test-cases).
-- [ ] Complete the [Sanity Tests](https://href.li/?https://github.com/wordpress-mobile/test-cases/blob/trunk/test-suites/gutenberg/sanity-test-suites.md)
+- [ ] Test new [changes in the release](https://github.com/wordpress-mobile/gutenberg-mobile/blob/HEAD/RELEASE-NOTES.txt)
+- [ ] Complete the [general writing flow tests].(https://github.com/wordpress-mobile/test-cases/tree/HEAD/test-cases/gutenberg/writing-flow
+- [ ] Complete the [Unsupported Block Editor test cases](https://github.com/wordpress-mobile/test-cases/blob/HEAD/test-cases/gutenberg/unsupported-block-editing.md#unsupported-block-editing---test-cases).
+- [ ] Complete the [Sanity Tests](https://github.com/wordpress-mobile/test-cases/blob/HEAD/test-suites/gutenberg/sanity-test-suites.md)
 
 #### Android
 
 - [ ] Test new [changes in the release](https://github.com/wordpress-mobile/gutenberg-mobile/blob/develop/RELEASE-NOTES.txt)
-- [ ] Complete the [general writing flow tests].(https://github.com/wordpress-mobile/test-cases/tree/master/test-cases/gutenberg/writing-flow
-- [ ] Complete the [Unsupported Block Editor test cases](https://github.com/wordpress-mobile/test-cases/blob/trunk/test-cases/gutenberg/unsupported-block-editing.md#unsupported-block-editing---test-cases).
-- [ ] Complete the [Sanity Tests](https://href.li/?https://github.com/wordpress-mobile/test-cases/blob/trunk/test-suites/gutenberg/sanity-test-suites.md)
+- [ ] Complete the [general writing flow tests].(https://github.com/wordpress-mobile/test-cases/tree/HEAD/test-cases/gutenberg/writing-flow
+- [ ] Complete the [Unsupported Block Editor test cases](https://github.com/wordpress-mobile/test-cases/blob/HEAD/test-cases/gutenberg/unsupported-block-editing.md#unsupported-block-editing---test-cases).
+- [ ] Complete the [Sanity Tests](https://href.li/?https://github.com/wordpress-mobile/test-cases/blob/HEAD/test-suites/gutenberg/sanity-test-suites.md)
 
 ## Finish the Release
 

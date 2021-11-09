@@ -162,13 +162,11 @@ Before creating the release, make sure Aztec is up to date. Verify `[gutenberg-m
 
 The `./release_automation.sh` will verify if the Aztec version is correct. If not run `./release_checklist.sh -a -i {release issue id}` to update the release checklist.
 
-## Updating Aztec
-
-### Aztec iOS
+### Updating Aztec iOS
 
 Follow [this process](https://github.com/wordpress-mobile/AztecEditor-iOS/blob/develop/Documentation/ReleaseProcess.md) for iOS. Afterwards update Aztec version references within `gutenberg-mobile/RNTAztecView.podspec` and `gutenberg-mobile/gutenberg/packages/react-native-aztec/RNTAztecView.podspec` to the new WordPress-Aztec-iOS version.
 
-### Aztec Android
+### Updating Aztec Android
 
 For Android, release are created via releases. Go to [AztecEditor-Android/releases](https://github.com/wordpress-mobile/AztecEditor-Android/releases) and draft a new release with the new version tag. Use the version for the release title and add the changelog as the descriptions. The binaries are created when the release is published.
 
