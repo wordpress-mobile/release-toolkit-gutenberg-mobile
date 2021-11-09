@@ -209,9 +209,9 @@ popd >/dev/null
 checklist_template=$(sed -e "s/{{version_number}}/${version_number}/g" -e "s/{{release_date}}/${release_date}/g" -e "s/{{milestone_url}}/${milestone_url//\//\\/}/g" $checklist_template_path)
 
 if [[ $release_type == "beta" || $release_type == "hotfix" ]]; then
-  release_checklist_template=$(sed "/scheduled_release_only/,/\/scheduled_release_only/d" <<< "$checklist_template")
+  release_checklist_template=$(sed "/<!-- scheduled_release_only -->/,/<!-- \/scheduled_release_only -->/d" <<< "$checklist_template")
 else
-  release_checklist_template=$(sed "/non_scheduled_release_only/,/\/non_scheduled_release_only/d" <<< "$checklist_template")
+  release_checklist_template=$(sed "/<!-- non_scheduled_release_only-->/,/<!-- \/non_scheduled_release_only -->/d" <<< "$checklist_template")
 fi
 
 if [[ -n "$include_aztec_steps" ]]; then
@@ -223,7 +223,7 @@ fi
 issue_title="Release checklist for v$version_number ($release_type)"
 issue_label="release checklist,$release_type release"
 issue_assignee="@me"
-issue_body="This checklist is for the $release_type release v$version_number."$'\n\n **Release date:** '"$release_date"$'\n'"$checklist_message"$'\n'"$release_checklist_template"
+issue_body=$'# Release Checklist\n'"This checklist is for the $release_type release v$version_number."$'\n\n **Release date:** '"$release_date"$'\n'"$checklist_message"$'\n'"$release_checklist_template"
 
 if [[ -n "$debug_template" ]]; then
   echo $issue_body
