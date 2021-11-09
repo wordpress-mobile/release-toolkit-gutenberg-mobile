@@ -17,7 +17,6 @@ include_aztec_steps=""
 include_incoming_changes=""
 debug_template=""
 auto_confirm=""
-silence_output=""
 
 while getopts "t:v:d:g:m:i:axhuy" opt; do
   case ${opt} in
@@ -96,7 +95,7 @@ if [[ -n "$issue_number" ]]; then
     abort "Nothing to update, please set the -a or -u flags to include Aztec or Incomming Changes steps."
   fi
   pushd "$gb_mobile_path" >/dev/null
-    issue_json=$(gh issue view $issue_number --json 'title,url')
+    issue_json=$(gh issue view "$issue_number" --json 'title,url')
     issue_title=$(jq '.title' <<< "$issue_json")
     issue_url=$(jq '.url' <<< "$issue_json")
 
@@ -105,7 +104,7 @@ if [[ -n "$issue_number" ]]; then
 
     # Pulling the body from the gh call above i.e. with --json 'body,title,url'
     # strips the newlines from the body. The call below does not.
-    issue_body=$(gh issue view $issue_number --json 'body' --jq '.body')
+    issue_body=$(gh issue view "$issue_number" --json 'body' --jq '.body')
 
     issue_comment="Issue updated:"
 
@@ -144,8 +143,8 @@ if [[ -n "$issue_number" ]]; then
       confirm_to_proceed "$confirm_message"$'\n\n'
     fi
 
-    gh issue comment $issue_number --body "$issue_comment">/dev/null
-    gh issue edit $issue_number --body "$issue_body"
+    gh issue comment "$issue_number" --body "$issue_comment">/dev/null
+    gh issue edit "$issue_number" --body "$issue_body"
   popd >/dev/null
 
   exit 0;
@@ -154,7 +153,7 @@ fi
 
 
 if [[ -z "$release_type" ]]; then
-  default_release_TYPE="scheduled"
+  default_release_type="scheduled"
 
   read -r -p "Please enter release type: scheduled|beta|hotfix [$default_release_type]:" release_type
   release_type=${release_type:-$default_release_type}
@@ -170,7 +169,8 @@ if [[ -z "$version_number" ]]; then
 
   # Ask for new version number
   current_version_number=$(jq '.version' package.json --raw-output)
-  version_array=($(awk -F. '{$1=$1} 1' <<<"${current_version_number}"))
+  #version_array=($(awk -F. '{$1=$1} 1' <<< "${current_version_number}"))
+  IFS='.' read -ar version_array <<< "$current_version_number"
   default_version_number="${version_array[0]}.$((version_array[1] + 1)).${version_array[2]}"
 
   read -r -p "Enter the new version number [$default_version_number]: " version_number
@@ -206,7 +206,7 @@ pushd "$gb_mobile_path" >/dev/null
   milestone_url=${milestone_url:-$default_milestone_url}
 popd >/dev/null
 
-checklist_template=$(sed -e "s/{{version_number}}/${version_number}/g" -e "s/{{release_date}}/${release_date}/g" -e "s/{{milestone_url}}/${milestone_url//\//\\/}/g" $checklist_template_path)
+checklist_template=$(sed -e "s/{{version_number}}/${version_number}/g" -e "s/{{release_date}}/${release_date}/g" -e "s/{{milestone_url}}/${milestone_url//\//\\/}/g" "$checklist_template_path")
 
 if [[ $release_type == "beta" || $release_type == "hotfix" ]]; then
   release_checklist_template=$(sed "/<!-- scheduled_release_only -->/,/<!-- \/scheduled_release_only -->/d" <<< "$checklist_template")
@@ -226,7 +226,7 @@ issue_assignee="@me"
 issue_body=$'# Release Checklist\n'"This checklist is for the $release_type release v$version_number."$'\n\n **Release date:** '"$release_date"$'\n'"$checklist_message"$'\n'"$release_checklist_template"
 
 if [[ -n "$debug_template" ]]; then
-  echo $issue_body
+  echo "$issue_body"
   exit 0;
 fi
 
