@@ -7,7 +7,7 @@
 ### Pre release
 
 - [ ] Review [Release process notes](#)
-- [ ] [Notifiy open Gutenberg Mobile PRs assigned to {{version_number}} milestone](#).
+- [ ] [Notifiy open Gutenberg Mobile PRs assigned to {{version_number}} milestone]({{milestone_url}}).
 <details>
 <summary>Message Template</summary>
 <p>
@@ -28,22 +28,39 @@ Thanks!
 
 <!-- /scheduled_release_only -->
 
-### Create the Release ({{release_date}})
+### Create the Release
+
+On {{release_date}}:
 
 - [ ] [Verify Aztec is up to date](#).
-- [ ] Run `./release_automation.sh`from the release toolkit to generate the main apps integration PRs [\*](#).
-- [ ] [Notify team that the release has been cut.](#) ([message template](#))
+- [ ] Run `./release_automation.sh` from the release toolkit to generate the main apps integration PRs [\*](#).
+- [ ] Notify team that the release has been cut.
+<details>
+<summary>Message Template</summary>
+<p>
+
+```markdown
+⚠️ The gutenberg-mobile {{release_version}} release branches are now cut. Please do not merge any Gutenberg-related changes into the WPiOS or WPAndroid develop branches until after the main apps cut their own releases next week. If you’d like to merge changes now, merge them into the gutenberg/after\_{{release_version}} branches.
+```
+
+</p>
+</details>
 - [ ] [Verify localization string files have been generated properly](#).
-- [ ] [Update `Unreleased`](#) section in [`RELEASE-NOTES.txt`](#) and [`gutenberg/../CHANGELOG.md`](#)
-- [ ] [Perform quick smoke test of the editor on both iOS and Android builds.](#)
-- [ ] Update [Gutenberg Mobile PR](#) description. Make sure the "Changes" section [informs testers on what is in the release.](#)
+- [ ] Update `Unreleased` section in [`RELEASE-NOTES.txt`](https://github.com/wordpress-mobile/gutenberg-mobile/blob/develop/RELEASE-NOTES.txt) and [`gutenberg/../CHANGELOG.md`](https://github.com/WordPress/gutenberg/blob/trunk/packages/react-native-editor/CHANGELOG.md). Add a new `Unreleased` section after updating the release notes.
+- [ ] Perform quick smoke test of the editor on both iOS and Android builds
+- [ ] Update [Gutenberg Mobile PR](https://github.com/wordpress-mobile/gutenberg-mobile/pulls?q=is%3Apr+is%3Aopen+label%3Arelease-process) description. Make sure the "Changes" section informs testers on what is in the release.
 - [ ] Mark all 4 PRs ready for review.
+<!-- non_scheduled_release_only -->
+- [ ] **Beta/Hot Fix*** Notify the team members directly resposible for handling the releases of WPiOS and WPAndroid.
+<!-- /non_schduled_release_only -->
 
 <!-- optional_aztec_release -->
 
 <!-- optional_incoming_changes -->
 
-### Integrate the Release ({{release_date}})
+### Integrate the Release
+
+On {{release_date}}:
 
 - [ ] Verify `gutenberg` ref within the gutenberg-mobile release branch is pointing to the [latest commit](#) in Gutenberg release branch.
 - [ ] Create and push a `rnmobile/{{version_number}}` git tag for the head of [Gutenberg release branch](https://github.com/WordPress/gutenberg/branches/all?query=rnmobile%2Frelease).
@@ -59,7 +76,7 @@ Thanks!
 <p>
 
 ```markdown
-
+Hey team. I wanted to let you know that the mobile Gutenberg team has finished integrating the {{release_version}} Gutenberg release into the WPiOS and WPAndroid `develop` branches. The integration is ready for the next release cut/build creation when you are available. Please let me know if you have any questions. Thanks!
 ```
 
 </p>
@@ -68,5 +85,43 @@ Thanks!
 
 ### Sync Release
 
-- [ ] Merge Guteberg release PR to `gutenberg/trunk`.
-- [ ] [Merge release changes back to `gutenberg-mobile/develop`](#) e.g. `trunk -> merge_release_{{version_number}}_to_develop -> develop`
+- [ ] Merge release changes back to `gutenberg-mobile/develop` e.g. `trunk -> merge_release_{{version_number}}_to_develop -> develop`
+- [ ] Reslove any conflicts and merge `gutenberg/rnmobile/release_{{release_version}}` PR to `gutenberg/trunk`.
+- [ ] Update `gutenberg` reference in `gutenberg-mobile/merge_release_{{version_number}}_to_develop` to point to `gutenberg/trunk`.
+- [ ] Merge `gutenberg-mobile/merge_release_{{version_number}}_to_develop` PR to `gutenberg/develop`.
+
+### Clean Up Pending Work
+
+⚠️ This section may only be completed after the main apps cut their own release branches.
+
+- [ ] Open a PR to merge `gutenberg/after_{{version_number}}` into `gutenberg-mobile/develop`.
+- [ ] Merge or Close`gutenberg/after_{{version_number}}` **AFTER** the main apps have cut release branches.
+
+### Test the Release
+
+Use the main WP apps to complete the following tests:
+
+#### iOS
+
+- [ ] Test new [changes in the release](https://github.com/wordpress-mobile/gutenberg-mobile/blob/develop/RELEASE-NOTES.txt)
+- [ ] Complete the [general writing flow tests].(https://github.com/wordpress-mobile/test-cases/tree/master/test-cases/gutenberg/writing-flow
+- [ ] Complete the [Unsupported Block Editor test cases](https://github.com/wordpress-mobile/test-cases/blob/trunk/test-cases/gutenberg/unsupported-block-editing.md#unsupported-block-editing---test-cases).
+- [ ] Complete the [Sanity Tests](https://href.li/?https://github.com/wordpress-mobile/test-cases/blob/trunk/test-suites/gutenberg/sanity-test-suites.md)
+
+#### Android
+
+- [ ] Test new [changes in the release](https://github.com/wordpress-mobile/gutenberg-mobile/blob/develop/RELEASE-NOTES.txt)
+- [ ] Complete the [general writing flow tests].(https://github.com/wordpress-mobile/test-cases/tree/master/test-cases/gutenberg/writing-flow
+- [ ] Complete the [Unsupported Block Editor test cases](https://github.com/wordpress-mobile/test-cases/blob/trunk/test-cases/gutenberg/unsupported-block-editing.md#unsupported-block-editing---test-cases).
+- [ ] Complete the [Sanity Tests](https://href.li/?https://github.com/wordpress-mobile/test-cases/blob/trunk/test-suites/gutenberg/sanity-test-suites.md)
+
+### Finish the Release
+
+<!-- non_scheduled_release_only -->
+
+- [ ] Update Release Incident Document with any fixes occurred after the release branches were cut.
+  <!-- /non_scheduled_release_only -->
+  <!-- scheduled_release_only -->
+- [ ] Notify the next release wranglers with a **tentive schedule** for the next release.
+<!-- /scheduled_release_only -->
+- [ ] Celebrate! 🎉

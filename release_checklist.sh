@@ -8,7 +8,7 @@ source ./release_utils.sh
 command -v gh >/dev/null || abort "Error: The Github CLI must be installed."
 
 release_type=""
-release_date=" "
+release_date=""
 version_number=""
 gb_mobile_path=""
 checklist_message=""
@@ -74,63 +74,12 @@ while getopts "t:v:d:g:m:i:axhuy" opt; do
 done
 shift $((OPTIND -1))
 
-# If including an existing github issue, look for adding aztec or incoming changes checklists
-if [[ -n "$issue_number" ]]; then
-
-  if [[ -z "$include_aztec_steps" && -z "$include_incoming_changes" ]]; then
-    abort "Nothing to update, please set the -a or -u flags to include Aztec or Incomming Changes steps."
-  fi
-
-  issue_json=$(gh issue view $issue_number --json 'body,title,url')
-  issue_title=$(jq '.title' <<< "$issue_json")
-  issue_url=$(jq '.url' <<< "$issue_json")
-
-
-  confirm_message="Ready to update $issue_title $issue_url"
-  issue_body=$(jq '.body' <<< "$issue_json")
-  issue_comment="Issue updated:"
-
-  if [[ -n "$include_aztec_steps" ]]; then
-    aztec_checklist_template=$(<"$script_path/templates/release_checklist_update_aztec.md")
-    aztec_checklist_template=${aztec_checklist_template//$'\n'/\\n}
-    issue_body=$(sed -e "s/.*optional_aztec_release.*/$aztec_checklist_template/" <<< "$issue_body")
-    issue_comment="$issue_comment"$'\n\n- Added Aztec Release Checklist'
-    confirm_message="$confirm_message"$'\n\n- Add Aztec Release Checklist'
-  fi
-
-  if [[ -n "$include_incoming_changes" ]]; then
-    incoming_change_note=$checklist_message
-    if [[ -n "$incoming_change_note" ]]; then
-      incoming_change_note="**Update:** $checklist_message"
-    fi
-    incoming_changes_template=$(sed -e "s/{{incoming_change_note}}/${incoming_change_note}/g" "$script_path/templates/release_checklist_update_incoming.md")
-    incoming_changes_template=${incoming_changes_template//$'\n'/\\n}
-
-    issue_body=$(sed -e "s/.*optional_incoming_changes.*/${incoming_changes_template}/" <<< "$issue_body")
-    issue_comment="$issue_comment"$'\n\n- Added Incoming Changes Checklist'
-    confirm_message="$confirm_message"$'\n\n- Add Incoming Changes Checklist'
-  fi
-
-  if [[ -n "$checklist_message" ]]; then
-    issue_comment="$issue_comment"$'\n\n'"$checklist_message"
-  fi
-
-  if [[ -z "$auto_confirm" ]]; then
-    echo ""
-    confirm_to_proceed "$confirm_message ?"
-  fi
-  gh issue comment $issue_number --body "$issue_comment">/dev/null
-  gh issue edit $issue_number --body "$issue_body"
-
-  exit 0;
-fi
-
 if [[ -z "$gb_mobile_path" ]]; then
   # Ask for path to gutenberg-mobile directory
   # (default is sibling directory of gutenberg-mobile-release-toolkit)
-  default_gb_MOBILE_LOCATION="$script_path/../gutenberg-mobile"
-  read -r -p "Please enter the path to the gutenberg-mobile directory [$default_gb_MOBILE_LOCATION]:" gb_mobile_path
-  gb_mobile_path=${gb_mobile_path:-"$default_gb_MOBILE_LOCATION"}
+  default_gb_mobile_location="$script_path/../gutenberg-mobile"
+  read -r -p "Please enter the path to the gutenberg-mobile directory [$default_gb_mobile_location]:" gb_mobile_path
+  gb_mobile_path=${gb_mobile_path:-"$default_gb_mobile_location"}
   echo ""
 else
   gb_mobile_path="$script_path/$gb_mobile_path"
@@ -140,11 +89,75 @@ if [[ ! "$gb_mobile_path" == *gutenberg-mobile ]]; then
     abort "Error path does not end with gutenberg-mobile"
 fi
 
+# If including an existing github issue, look for adding aztec or incoming changes checklists
+if [[ -n "$issue_number" ]]; then
+
+  if [[ -z "$include_aztec_steps" && -z "$include_incoming_changes" ]]; then
+    abort "Nothing to update, please set the -a or -u flags to include Aztec or Incomming Changes steps."
+  fi
+  pushd "$gb_mobile_path" >/dev/null
+    issue_json=$(gh issue view $issue_number --json 'title,url')
+    issue_title=$(jq '.title' <<< "$issue_json")
+    issue_url=$(jq '.url' <<< "$issue_json")
+
+
+    confirm_message="Ready to update $issue_title $issue_url ?"
+
+    # Pulling the body from the gh call above i.e. with --json 'body,title,url'
+    # strips the newlines from the body. The call below does not.
+    issue_body=$(gh issue view $issue_number --json 'body' --jq '.body')
+
+    issue_comment="Issue updated:"
+
+    if [[ -n "$include_aztec_steps" ]]; then
+      aztec_checklist_template=$(<"$script_path/templates/release_checklist_update_aztec.md")
+      aztec_checklist_template=${aztec_checklist_template//$'\n'/\\n}
+      issue_body=$(sed -e "s/.*optional_aztec_release.*/$aztec_checklist_template/" <<< "$issue_body")
+      issue_comment="$issue_comment"$'\n\n- Added Aztec Release Checklist'
+      confirm_message="$confirm_message"$'\n\n- Add Aztec Release Checklist'
+    fi
+
+    if [[ -n "$include_incoming_changes" ]]; then
+      incoming_change_note=$checklist_message
+      if [[ -n "$incoming_change_note" ]]; then
+        incoming_change_note="**Update:** $checklist_message"
+      fi
+      incoming_changes_template=$(sed -e "s/{{incoming_change_note}}/${incoming_change_note}/g" "$script_path/templates/release_checklist_update_incoming.md")
+      incoming_changes_template=${incoming_changes_template//$'\n'/\\n}
+
+      issue_body=$(sed -e "s/.*optional_incoming_changes.*/${incoming_changes_template}/" <<< "$issue_body")
+      issue_comment="$issue_comment"$'\n\n- Added Incoming Changes Checklist'
+      confirm_message="$confirm_message"$'\n\n- Add Incoming Changes Checklist'
+    fi
+
+    if [[ -n "$checklist_message" ]]; then
+      issue_comment="$issue_comment"$'\n\n'"$checklist_message"
+    fi
+
+    if [[ -n "$debug_template" ]]; then
+      echo "$issue_body"
+      exit 0
+    fi
+
+    if [[ -z "$auto_confirm" ]]; then
+      echo ""
+      confirm_to_proceed "$confirm_message"$'\n\n'
+    fi
+
+    gh issue comment $issue_number --body "$issue_comment">/dev/null
+    gh issue edit $issue_number --body "$issue_body"
+  popd >/dev/null
+
+  exit 0;
+fi
+
+
+
 if [[ -z "$release_type" ]]; then
   default_release_TYPE="scheduled"
 
-  read -r -p "Please enter release type: scheduled|beta|hotfix [$default_release_TYPE]:" release_type
-  release_type=${release_type:-$default_release_TYPE}
+  read -r -p "Please enter release type: scheduled|beta|hotfix [$default_release_type]:" release_type
+  release_type=${release_type:-$default_release_type}
   echo ""
 fi
 
@@ -186,7 +199,14 @@ fi
 
 checklist_template_path="$script_path/templates/release_checklist.md"
 
-checklist_template=$(sed -e "s/{{version_number}}/${version_number}/g" -e "s/{{release_date}}/${release_date}/g" $checklist_template_path)
+pushd "$gb_mobile_path" >/dev/null
+  milestone_url=$(gh api  --method GET repos/:owner/:repo/milestones --jq ".[0].html_url")
+  default_milestone_url="https://wordpress-mobile/gutenber-mobile/milestones"
+
+  milestone_url=${milestone_url:-$default_milestone_url}
+popd >/dev/null
+
+checklist_template=$(sed -e "s/{{version_number}}/${version_number}/g" -e "s/{{release_date}}/${release_date}/g" -e "s/{{milestone_url}}/${milestone_url//\//\\/}/g" $checklist_template_path)
 
 if [[ $release_type == "beta" || $release_type == "hotfix" ]]; then
   release_checklist_template=$(sed "/scheduled_release_only/,/\/scheduled_release_only/d" <<< "$checklist_template")
@@ -203,7 +223,7 @@ fi
 issue_title="Release checklist for v$version_number ($release_type)"
 issue_label="release checklist,$release_type release"
 issue_assignee="@me"
-issue_body="This checklist is for the $release_type release v$version_number."$'\n\n *Release date:**'"$release_date"$'\n'"$checklist_message"$'\n'"$release_checklist_template"
+issue_body="This checklist is for the $release_type release v$version_number."$'\n\n **Release date:** '"$release_date"$'\n'"$checklist_message"$'\n'"$release_checklist_template"
 
 if [[ -n "$debug_template" ]]; then
   echo $issue_body
@@ -215,4 +235,8 @@ if [[ -z "$auto_confirm" ]]; then
   confirm_to_proceed "Ready to create '$issue_title' issue ?"
 fi
 
-gh issue create --title "$issue_title" --body "$issue_body" --assignee "$issue_assignee" --label "$issue_label"
+pushd "$gb_mobile_path" >/dev/null
+
+  gh issue create --title "$issue_title" --body "$issue_body" --assignee "$issue_assignee" --label "$issue_label"
+
+popd >/dev/null
