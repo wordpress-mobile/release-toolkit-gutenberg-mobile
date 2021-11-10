@@ -217,6 +217,7 @@ checklist_template=$(sed \
 -e "s/{{release_date}}/${release_date}/g" \
 -e "s/{{release_type}}/${release_type}/g" \
 -e "s/{{main_apps_branch}}/${main_apps_branch}/g" \
+-e "s/{{before_release_date}}/$(date '+%Y-%m-%d')/g" \
 -e "s/{{milestone_url}}/${milestone_url//\//\\/}/g" "$checklist_template_path")
 
 if [[ $release_type == "beta" || $release_type == "hotfix" ]]; then

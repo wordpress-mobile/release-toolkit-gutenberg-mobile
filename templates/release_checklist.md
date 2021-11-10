@@ -2,9 +2,9 @@
 
 <!-- scheduled_release_only -->
 
-## Pre release
+## Before the Release ({{before_release_date}})
 
-- [ ] Clone or update the [release toolkit](https://href.li/?https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile) and review the [release script instructions](https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/blob/develop/Releasing.md).
+- [ ] Review the [release documentation](https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/blob/develop/Releasing.md).
 - [ ] [Notifiy open Gutenberg Mobile PRs assigned to {{gb_mobile_version}} milestone]({{milestone_url}}).
 <details>
 <summary>Message Template</summary>
@@ -20,7 +20,7 @@ Thanks!
 
 </p>
 </details>
-
+- [ ] Clone or update the [release toolkit](https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile)
 - [ ] Create WPiOS and WPAndroid builds from `develop`.
 - [ ] [Perform general writing flow tests on Android](https://github.com/wordpress-mobile/test-cases/tree/master/test-cases/gutenberg/writing-flow).
 - [ ] [Perform general writing flow tests on iOS](https://github.com/wordpress-mobile/test-cases/tree/master/test-cases/gutenberg/writing-flow).
@@ -62,7 +62,7 @@ If you’d like to merge changes now, merge them into the `gutenberg/after_{{gb_
 
 <!-- optional_incoming_changes -->
 
-## Integrate the Release ({{relese_date}})
+## Integrate the Release ({{release_date}})
 
 - [ ] Verify `gutenberg` ref within the gutenberg-mobile release branch is pointing to the [latest commit](#) in Gutenberg release branch.
 - [ ] Create and push a `rnmobile/{{gb_mobile_version}}` git tag for the head of [Gutenberg release branch](https://github.com/WordPress/gutenberg/branches/all?query=rnmobile%2Frelease).
