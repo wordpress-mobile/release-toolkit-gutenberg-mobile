@@ -120,7 +120,7 @@ Use the main WP apps to complete the following tests:
 
 #### iOS
 
-- [ ] Test new [changes in the release](https://github.com/wordpress-mobile/gutenberg-mobile/blob/HEAD/RELEASE-NOTES.txt)
+- [ ] Test new [changes in the release](https://github.com/wordpress-mobile/gutenberg-mobile/blob/HEAD/RELEASE-NOTES.txt).
 - [ ] Complete the [general writing flow tests](https://github.com/wordpress-mobile/test-cases/tree/HEAD/test-cases/gutenberg/writing-flow).
 - [ ] Complete the [Unsupported Block Editor test cases](https://github.com/wordpress-mobile/test-cases/blob/HEAD/test-cases/gutenberg/unsupported-block-editing.md#unsupported-block-editing---test-cases).
 - [ ] Complete the [Sanity Tests](https://github.com/wordpress-mobile/test-cases/blob/HEAD/test-suites/gutenberg/sanity-test-suites.md)
