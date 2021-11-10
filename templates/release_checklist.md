@@ -112,7 +112,7 @@ Please let me know if you have any questions. Thanks!
 ⚠️ This section may only be completed after the main apps cut their own release branches.
 
 - [ ] Open a PR to merge `gutenberg/after_{{version_number}}` into `gutenberg-mobile/develop`.
-- [ ] Merge or Close`gutenberg/after_{{version_number}}` **AFTER** the main apps have cut release branches.
+- [ ] Merge or close `gutenberg/after_{{version_number}}` only **AFTER** the main apps have cut release branches.
 
 ## Test the Release
 
