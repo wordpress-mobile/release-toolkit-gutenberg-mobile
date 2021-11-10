@@ -17,7 +17,7 @@ The checklist will be published as an issue on the [Gutenberg Mobile GitHub repo
 
 The script will generate a checklist for each of the [release types](#different-types-of-releases).
 
-With out any arguemnts, the script will prompt for all the checklist options. You can use command line options to skip the prompts. To see the full list of options, run
+Without any arguments, the script will prompt for all the checklist options. You can use command line options to skip the prompts. To see the full list of options, run:
 
 ```
 ./release-checklist.sh -h
