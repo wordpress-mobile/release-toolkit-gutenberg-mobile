@@ -211,7 +211,7 @@ checklist_template=$(sed -e "s/{{version_number}}/${version_number}/g" -e "s/{{r
 if [[ $release_type == "beta" || $release_type == "hotfix" ]]; then
   release_checklist_template=$(sed "/<!-- scheduled_release_only -->/,/<!-- \/scheduled_release_only -->/d" <<< "$checklist_template")
 else
-  release_checklist_template=$(sed "/<!-- non_scheduled_release_only-->/,/<!-- \/non_scheduled_release_only -->/d" <<< "$checklist_template")
+  release_checklist_template=$(sed "/<!-- non_scheduled_release_only -->/,/<!-- \/non_scheduled_release_only -->/d" <<< "$checklist_template")
 fi
 
 if [[ -n "$include_aztec_steps" ]]; then
