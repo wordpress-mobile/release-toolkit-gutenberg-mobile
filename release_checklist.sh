@@ -157,7 +157,7 @@ fi
 if [[ -z "$release_type" ]]; then
   default_release_type="scheduled"
 
-  read -r -p "Please enter release type: scheduled|beta|hotfix [$default_release_type]:" release_type
+  read -r -p "Please enter release type: scheduled|beta|hotfix [$default_release_type]: " release_type
   release_type=${release_type:-$default_release_type}
   echo ""
 fi
@@ -172,7 +172,12 @@ if [[ -z "$gb_mobile_version" ]]; then
   # Ask for new version number
   current_gb_mobile_version=$(jq '.version' package.json --raw-output)
   IFS='.' read -r -a version_array <<< "$current_gb_mobile_version"
-  default_gb_mobile_version="${version_array[0]}.$((version_array[1] + 1)).${version_array[2]}"
+
+  if [[ "$release_type" == "scheduled" ]]; then
+    default_gb_mobile_version="${version_array[0]}.$((version_array[1] + 1)).${version_array[2]}"
+  else
+    default_gb_mobile_version="${version_array[0]}.${version_array[1]}.$((version_array[2] + 1))"
+  fi
 
   read -r -p "Enter the new version number [$default_gb_mobile_version]: " gb_mobile_version
   echo ""
