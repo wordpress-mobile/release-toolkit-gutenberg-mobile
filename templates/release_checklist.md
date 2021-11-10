@@ -27,7 +27,7 @@ Thanks!
 
 <!-- /scheduled_release_only -->
 
-## Create the Release
+## Create the Release ({{release_date}})
 
 <!-- scheduled_release_only -->
 
