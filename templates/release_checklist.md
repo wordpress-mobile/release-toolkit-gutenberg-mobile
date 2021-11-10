@@ -150,7 +150,7 @@ Use the main WP apps to complete the following tests:
 
 <!-- scheduled_release_only -->
 
-- [ ] Notify the next release wranglers with a **tentive schedule** for the next release.
+- [ ] Notify the next release wranglers with a **tentative schedule** for the next release.
 
 <!-- /scheduled_release_only -->
 
