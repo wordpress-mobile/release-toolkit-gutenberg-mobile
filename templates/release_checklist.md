@@ -21,7 +21,7 @@ Thanks!
 </p>
 </details>
 
-- [ ] Create WPiOS and WPAndroid builds from `develop`
+- [ ] Create WPiOS and WPAndroid builds from `develop`.
 - [ ] [Perform general writing flow tests on Android](https://github.com/wordpress-mobile/test-cases/tree/master/test-cases/gutenberg/writing-flow).
 - [ ] [Perform general writing flow tests on iOS](https://github.com/wordpress-mobile/test-cases/tree/master/test-cases/gutenberg/writing-flow).
 
