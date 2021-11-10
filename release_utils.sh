@@ -66,3 +66,52 @@ function confirm_to_proceed() {
         abort "Aborting..."
     fi
 }
+
+GB_MOBILE_PATH=""
+
+verify_gb_mobile_path() {
+     # Verify the path is valid
+    gb_package_name=$(jq '.name' "$1/package.json" --raw-output)
+    if [[ "$gb_package_name" != "gutenberg-mobile" ]]; then
+        GB_MOBILE_PATH=""
+        abort "Could not find a valid gutenberg-mobile package.json at $1"
+    fi
+}
+
+set_gb_mobile_path() {
+
+    if [[ -n "${1-}" ]]; then
+        verify_gb_mobile_path "$1"
+
+        GB_MOBILE_PATH="$1"
+        return
+    fi
+
+    if [[ -n "$GB_MOBILE_PATH" ]]; then
+        return
+    fi
+
+
+    # Ask for path to gutenberg-mobile directory
+    default_gb_mobile_location="$(pwd)/../gutenberg-mobile"
+    read -r -p "Please enter the path to the gutenberg-mobile directory [$default_gb_mobile_location]:" gb_mobile_path
+    gb_mobile_path=${gb_mobile_path:-"$default_gb_mobile_location"}
+    echo ""
+
+    verify_gb_mobile_path "$gb_mobile_path"
+
+    GB_MOBILE_PATH="$gb_mobile_path"
+}
+
+pushd_gb_mobile() {
+    set_gb_mobile_path
+
+    if [[ -z "$GB_MOBILE_PATH" ]]; then
+        abort "Unable to move to gutenberg mobile path"
+    fi
+    pushd $GB_MOBILE_PATH > /dev/null
+}
+
+popd_gb_mobile() {
+    popd > /dev/null
+}

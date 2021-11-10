@@ -11,7 +11,6 @@ release_type=""
 release_date=""
 gb_mobile_version=""
 main_apps_version=""
-gb_mobile_path=""
 issue_note=""
 issue_number=""
 include_aztec_steps=""
@@ -46,7 +45,7 @@ while getopts "t:v:d:g:m:i:axhuy" opt; do
       release_date=$OPTARG
       ;;
     g )
-      gb_mobile_path=$OPTARG
+      set_gb_mobile_path $OPTARG
       ;;
     m )
       main_apps_version=$OPTARG
@@ -69,7 +68,6 @@ while getopts "t:v:d:g:m:i:axhuy" opt; do
     y )
       auto_confirm="true"
       ;;
-
     \? )
       echo "Invalid Option: -$OPTARG" 1>&2
       exit 1
@@ -78,20 +76,6 @@ while getopts "t:v:d:g:m:i:axhuy" opt; do
 done
 shift $((OPTIND -1))
 
-if [[ -z "$gb_mobile_path" ]]; then
-  # Ask for path to gutenberg-mobile directory
-  # (default is sibling directory of gutenberg-mobile-release-toolkit)
-  default_gb_mobile_location="$script_path/../gutenberg-mobile"
-  read -r -p "Please enter the path to the gutenberg-mobile directory [$default_gb_mobile_location]:" gb_mobile_path
-  gb_mobile_path=${gb_mobile_path:-"$default_gb_mobile_location"}
-  echo ""
-else
-  gb_mobile_path="$script_path/$gb_mobile_path"
-fi
-
-if [[ ! "$gb_mobile_path" == *gutenberg-mobile ]]; then
-    abort "Error path does not end with gutenberg-mobile"
-fi
 
 # If including an existing github issue, look for adding aztec or incoming changes checklists
 if [[ -n "$issue_number" ]]; then
@@ -99,7 +83,7 @@ if [[ -n "$issue_number" ]]; then
   if [[ -z "$include_aztec_steps" && -z "$include_incoming_changes" ]]; then
     abort "Nothing to update, please set the -a or -u flags to include Aztec or Incomming Changes steps."
   fi
-  pushd "$gb_mobile_path" >/dev/null
+  pushd_gb_mobile
     issue_json=$(gh issue view "$issue_number" --json 'title,url')
     issue_title=$(jq '.title' <<< "$issue_json")
     issue_url=$(jq '.url' <<< "$issue_json")
@@ -149,7 +133,7 @@ if [[ -n "$issue_number" ]]; then
 
     gh issue comment "$issue_number" --body "$issue_comment">/dev/null
     gh issue edit "$issue_number" --body "$issue_body"
-  popd >/dev/null
+  popd_gb_mobile
 
   exit 0;
 fi
@@ -167,7 +151,7 @@ if [[ ! "$release_type" == "scheduled" && ! "$release_type" == "beta" && ! "$rel
 fi
 
 if [[ -z "$gb_mobile_version" ]]; then
-  pushd "$gb_mobile_path" >/dev/null
+  pushd_gb_mobile
 
   # Ask for new version number
   current_gb_mobile_version=$(jq '.version' package.json --raw-output)
@@ -187,7 +171,7 @@ if [[ -z "$gb_mobile_version" ]]; then
       abort "Version number cannot be empty."
   fi
 
-  popd >/dev/null
+  popd_gb_mobile
 fi
 
 # Propmt for release date if scheduled release
@@ -209,7 +193,6 @@ main_apps_branch="develop"
 if [[  "$release_type" != "scheduled" ]]; then
   if [[ -z "$main_apps_version" ]]; then
     read -r -p "Enter the main apps version: " main_apps_version
-    main_apps_version=${main_apps_version:-$default_main_apps_version}
 
     if [[ -z "$main_apps_version" ]]; then
       abort "Version number cannot be empty."
@@ -222,12 +205,12 @@ fi
 
 checklist_template_path="$script_path/templates/release_checklist.md"
 
-pushd "$gb_mobile_path" >/dev/null
+pushd_gb_mobile
   milestone_url=$(gh api  --method GET repos/:owner/:repo/milestones --jq ".[0].html_url")
   default_milestone_url="https://wordpress-mobile/gutenber-mobile/milestones"
 
   milestone_url=${milestone_url:-$default_milestone_url}
-popd >/dev/null
+popd_gb_mobile
 
 checklist_template=$(sed \
 -e "s/{{gb_mobile_version}}/${gb_mobile_version}/g" \
@@ -263,8 +246,8 @@ if [[ -z "$auto_confirm" ]]; then
   confirm_to_proceed "Ready to create '$issue_title' issue ?"
 fi
 
-pushd "$gb_mobile_path" >/dev/null
+pushd_gb_mobile
 
   gh issue create --title "$issue_title" --body "$issue_body" --assignee "$issue_assignee" --label "$issue_label"
 
-popd >/dev/null
+popd_gb_mobile
