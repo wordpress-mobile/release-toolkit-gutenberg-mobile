@@ -9,9 +9,10 @@ command -v gh >/dev/null || abort "Error: The Github CLI must be installed."
 
 release_type=""
 release_date=""
-version_number=""
+gb_mobile_version=""
+main_apps_version=""
 gb_mobile_path=""
-checklist_message=""
+issue_note=""
 issue_number=""
 include_aztec_steps=""
 include_incoming_changes=""
@@ -22,23 +23,24 @@ while getopts "t:v:d:g:m:i:axhuy" opt; do
   case ${opt} in
     h )
       echo "options:"
-      echo "   -t release type. accepts scheduled|beta|hotfix"
-      echo "   -v release version"
-      echo "   -d release date in YYYY-MM-DD format. Only used to generate scheduled release checklists"
-      echo "   -g relative path to guteberg mobile"
-      echo "   -m additional message"
-      echo "   -i existing issue to update"
-      echo "   -a include aztec steps"
-      echo "   -u include incomming steps"
-      echo "   -x echo out generated template with out sending to github"
-      echo "   -y auto confirm creating gh calls"
+      echo "   -t Release type. accepts scheduled|beta|hotfix"
+      echo "   -v Gutenberg Mobile release version"
+      echo "   -m Mobile app version"
+      echo "   -d Release date in YYYY-MM-DD format. Only used to generate scheduled release checklists"
+      echo "   -g Relative path to guteberg mobile"
+      echo "   -n Issue note"
+      echo "   -i Existing issue to update"
+      echo "   -a Include aztec steps"
+      echo "   -u Include incomming steps"
+      echo "   -x Echo out generated template with out sending to github"
+      echo "   -y Auto confirm creating gh calls"
       exit 0
       ;;
     t )
       release_type=$OPTARG
      ;;
     v )
-      version_number=$OPTARG
+      gb_mobile_version=$OPTARG
       ;;
     d )
       release_date=$OPTARG
@@ -47,10 +49,13 @@ while getopts "t:v:d:g:m:i:axhuy" opt; do
       gb_mobile_path=$OPTARG
       ;;
     m )
-      checklist_message=$OPTARG
+      main_apps_version=$OPTARG
       ;;
     i )
       issue_number=$OPTARG
+      ;;
+    n )
+      issue_note=$OPTARG
       ;;
     a )
       include_aztec_steps="true"
@@ -99,7 +104,6 @@ if [[ -n "$issue_number" ]]; then
     issue_title=$(jq '.title' <<< "$issue_json")
     issue_url=$(jq '.url' <<< "$issue_json")
 
-
     confirm_message="Ready to update $issue_title $issue_url ?"
 
     # Pulling the body from the gh call above i.e. with --json 'body,title,url'
@@ -117,9 +121,9 @@ if [[ -n "$issue_number" ]]; then
     fi
 
     if [[ -n "$include_incoming_changes" ]]; then
-      incoming_change_note=$checklist_message
+      incoming_change_note=$issue_note
       if [[ -n "$incoming_change_note" ]]; then
-        incoming_change_note="**Update:** $checklist_message"
+        incoming_change_note="**Update:** $issue_note"
       fi
       incoming_changes_template=$(sed -e "s/{{incoming_change_note}}/${incoming_change_note}/g" "$script_path/templates/release_checklist_update_incoming.md")
       incoming_changes_template=${incoming_changes_template//$'\n'/\\n}
@@ -129,8 +133,8 @@ if [[ -n "$issue_number" ]]; then
       confirm_message="$confirm_message"$'\n\n- Add Incoming Changes Checklist'
     fi
 
-    if [[ -n "$checklist_message" ]]; then
-      issue_comment="$issue_comment"$'\n\n'"$checklist_message"
+    if [[ -n "$issue_note" ]]; then
+      issue_comment="$issue_comment"$'\n\n'"$issue_note"
     fi
 
     if [[ -n "$debug_template" ]]; then
@@ -150,8 +154,6 @@ if [[ -n "$issue_number" ]]; then
   exit 0;
 fi
 
-
-
 if [[ -z "$release_type" ]]; then
   default_release_type="scheduled"
 
@@ -164,20 +166,19 @@ if [[ ! "$release_type" == "scheduled" && ! "$release_type" == "beta" && ! "$rel
     abort "Error release type must be scheduled|beta|hotfix, you entered '$release_type'"
 fi
 
-if [[ -z "$version_number" ]]; then
+if [[ -z "$gb_mobile_version" ]]; then
   pushd "$gb_mobile_path" >/dev/null
 
   # Ask for new version number
-  current_version_number=$(jq '.version' package.json --raw-output)
-  #version_array=($(awk -F. '{$1=$1} 1' <<< "${current_version_number}"))
-  IFS='.' read -ar version_array <<< "$current_version_number"
-  default_version_number="${version_array[0]}.$((version_array[1] + 1)).${version_array[2]}"
+  current_gb_mobile_version=$(jq '.version' package.json --raw-output)
+  IFS='.' read -r -a version_array <<< "$current_gb_mobile_version"
+  default_gb_mobile_version="${version_array[0]}.$((version_array[1] + 1)).${version_array[2]}"
 
-  read -r -p "Enter the new version number [$default_version_number]: " version_number
+  read -r -p "Enter the new version number [$default_gb_mobile_version]: " gb_mobile_version
   echo ""
-  version_number=${version_number:-$default_version_number}
+  gb_mobile_version=${gb_mobile_version:-$default_gb_mobile_version}
 
-  if [[ -z "$version_number" ]]; then
+  if [[ -z "$gb_mobile_version" ]]; then
       abort "Version number cannot be empty."
   fi
 
@@ -197,6 +198,23 @@ if [[ -z "$release_date" && "$release_type" == "scheduled" ]]; then
     echo ""
 fi
 
+main_apps_branch="develop"
+
+# Prompt for the main apps version if this is a non-scheduled release
+if [[  "$release_type" != "scheduled" ]]; then
+  if [[ -z "$main_apps_version" ]]; then
+    read -r -p "Enter the main apps version: " main_apps_version
+    main_apps_version=${main_apps_version:-$default_main_apps_version}
+
+    if [[ -z "$main_apps_version" ]]; then
+      abort "Version number cannot be empty."
+    fi
+
+    echo ""
+  fi
+  main_apps_branch="release\/$main_apps_version"
+fi
+
 checklist_template_path="$script_path/templates/release_checklist.md"
 
 pushd "$gb_mobile_path" >/dev/null
@@ -206,7 +224,12 @@ pushd "$gb_mobile_path" >/dev/null
   milestone_url=${milestone_url:-$default_milestone_url}
 popd >/dev/null
 
-checklist_template=$(sed -e "s/{{version_number}}/${version_number}/g" -e "s/{{release_date}}/${release_date}/g" -e "s/{{milestone_url}}/${milestone_url//\//\\/}/g" "$checklist_template_path")
+checklist_template=$(sed \
+-e "s/{{gb_mobile_version}}/${gb_mobile_version}/g" \
+-e "s/{{release_date}}/${release_date}/g" \
+-e "s/{{release_type}}/${release_type}/g" \
+-e "s/{{main_apps_branch}}/${main_apps_branch}/g" \
+-e "s/{{milestone_url}}/${milestone_url//\//\\/}/g" "$checklist_template_path")
 
 if [[ $release_type == "beta" || $release_type == "hotfix" ]]; then
   release_checklist_template=$(sed "/<!-- scheduled_release_only -->/,/<!-- \/scheduled_release_only -->/d" <<< "$checklist_template")
@@ -220,10 +243,10 @@ if [[ -n "$include_aztec_steps" ]]; then
   release_checklist_template=$(sed -e "s/.*optional_aztec_release.*/$aztec_checklist_template/" <<< "$release_checklist_template")
 fi
 
-issue_title="Release checklist for v$version_number ($release_type)"
+issue_title="Release checklist for v$gb_mobile_version ($release_type)"
 issue_label="release checklist,$release_type release"
 issue_assignee="@me"
-issue_body=$'# Release Checklist\n'"This checklist is for the $release_type release v$version_number."$'\n\n **Release date:** '"$release_date"$'\n'"$checklist_message"$'\n'"$release_checklist_template"
+issue_body=$'# Release Checklist\n'"This checklist is for the $release_type release v$gb_mobile_version."$'\n\n **Release date:** '"$release_date"$'\n'"$issue_note"$'\n'"$release_checklist_template"
 
 if [[ -n "$debug_template" ]]; then
   echo "$issue_body"

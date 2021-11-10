@@ -5,16 +5,16 @@
 ## Pre release
 
 - [ ] Clone or update the [release toolkit](https://href.li/?https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile) and review the [release script instructions](https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/blob/develop/Releasing.md).
-- [ ] [Notifiy open Gutenberg Mobile PRs assigned to {{version_number}} milestone]({{milestone_url}}).
+- [ ] [Notifiy open Gutenberg Mobile PRs assigned to {{gb_mobile_version}} milestone]({{milestone_url}}).
 <details>
 <summary>Message Template</summary>
 <p>
 
 ```markdown
 Hello!
-We will cut the {{version_number}} release on {{release_date}}.
+We will cut the {{gb_mobile_version}} release on {{release_date}}.
 I plan to circle back and bump this PR to the next milestone then,
-but please let me know if you’d rather us work to include this PR in {{version_number}}.
+but please let me know if you’d rather us work to include this PR in {{gb_mobile_version}}.
 Thanks!
 ```
 
@@ -29,12 +29,6 @@ Thanks!
 
 ## Create the Release ({{release_date}})
 
-<!-- scheduled_release_only -->
-
-On {{release_date}}:
-
-<!-- /scheduled_release_only -->
-
 - [ ] [Verify Aztec is up to date](https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/blob/develop/Releasing.md#handling-aztec-updates).
 - [ ] Run `./release_automation.sh` from the release toolkit to generate the main apps integration PRs [\*](#).
 - [ ] Notify team that the release has been cut.
@@ -43,10 +37,10 @@ On {{release_date}}:
 <p>
 
 ```markdown
-⚠️ The gutenberg-mobile {{version_number}} release branches are now cut.
+⚠️ The gutenberg-mobile {{gb_mobile_version}} release branches are now cut.
 Please do not merge any Gutenberg-related changes into the WPiOS or WPAndroid
 develop branches until after the main apps cut their own releases next week.
-If you’d like to merge changes now, merge them into the `gutenberg/after_{{version_number}}` branches.
+If you’d like to merge changes now, merge them into the `gutenberg/after_{{gb_mobile_version}}` branches.
 ```
 
 </p>
@@ -68,30 +62,26 @@ If you’d like to merge changes now, merge them into the `gutenberg/after_{{ver
 
 <!-- optional_incoming_changes -->
 
-## Integrate the Release
-
-<!-- scheduled_release_only -->
-
-On {{release_date}}:
-
-<!-- /scheduled_release_only -->
+## Integrate the Release ({{relese_date}})
 
 - [ ] Verify `gutenberg` ref within the gutenberg-mobile release branch is pointing to the [latest commit](#) in Gutenberg release branch.
-- [ ] Create and push a `rnmobile/{{version_number}}` git tag for the head of [Gutenberg release branch](https://github.com/WordPress/gutenberg/branches/all?query=rnmobile%2Frelease).
+- [ ] Create and push a `rnmobile/{{gb_mobile_version}}` git tag for the head of [Gutenberg release branch](https://github.com/WordPress/gutenberg/branches/all?query=rnmobile%2Frelease).
 - [ ] [Update bundles in the Gutenberg Mobile release branch](#).
 - [ ] Merge **gutenberg-mobile** PR to `trunk` [using the "Create a merge commit" option](#). **WARNING** do **not** merge gutenberg PR to `trunk` yet.
 - [ ] [Create a new Gutenberg moble release](#).
 - [ ] [Update Gutenberg mobile references in the main apps](#).
 - [ ] Re-run optional tests on main apps PRs.
-- [ ] Merge main apps PSs to the respective `develop` branches.
-- [ ] Notify team that the release is now in the main apps `develop` branches
+- [ ] Merge main apps PRs to the respective {{main_apps_branch}} branches.
+- [ ] Notify team that the release is now in the main apps {{main_apps_branch}} branches.
+
+<!-- scheduled_release_only -->
 <details>
 <summary>Message Template</summary>
 <p>
 
 ```markdown
 Hey team. I wanted to let you know that the mobile Gutenberg team has finished integrating
-the {{version_number}} Gutenberg release into the WPiOS and WPAndroid `develop` branches.
+the {{gb_mobile_version}} Gutenberg release into the WPiOS and WPAndroid `develop` branches.
 The integration is ready for the next release cut/build creation when you are available.
 Please let me know if you have any questions. Thanks!
 ```
@@ -99,20 +89,38 @@ Please let me know if you have any questions. Thanks!
 </p>
 
 </details>
+<!-- /scheduled_release_only -->
+
+<!-- non_scheduled_release_only -->
+<details>
+<summary>Message Template</summary>
+<p>
+
+```markdown
+Hey team. I wanted to let you know that the mobile Gutenberg team has finished integrating
+the {{gb_mobile_version}} Gutenberg release into the WPiOS and WPAndroid `{{main_apps_branch}}` branches,
+ready for a new {{release_type}} when you are available.
+Please let me know if you have any questions. Thanks!
+```
+
+</p>
+
+</details>
+<!-- non_scheduled_release_only -->
 
 ## Sync Release
 
-- [ ] Merge release changes back to `gutenberg-mobile/develop` e.g. `trunk -> merge_release_{{version_number}}_to_develop -> develop`
-- [ ] Reslove any conflicts and merge `gutenberg/rnmobile/release_{{release_version}}` PR to `gutenberg/trunk`.
-- [ ] Update `gutenberg` reference in `gutenberg-mobile/merge_release_{{version_number}}_to_develop` to point to `gutenberg/trunk`.
-- [ ] Merge `gutenberg-mobile/merge_release_{{version_number}}_to_develop` PR to `gutenberg/develop`.
+- [ ] Merge release changes back to `gutenberg-mobile/develop` e.g. `trunk -> merge_release_{{gb_mobile_version}}_to_develop -> develop`
+- [ ] Reslove any conflicts and merge `gutenberg/rnmobile/release_{{gb_mobile_version}}` PR to `gutenberg/trunk`.
+- [ ] Update `gutenberg` reference in `gutenberg-mobile/merge_release_{{gb_mobile_version}}_to_develop` to point to `gutenberg/trunk`.
+- [ ] Merge `gutenberg-mobile/merge_release_{{gb_mobile_version}}_to_develop` PR to `gutenberg/develop`.
 
 ## Clean Up Pending Work
 
 ⚠️ This section may only be completed after the main apps cut their own release branches.
 
-- [ ] Open a PR to merge `gutenberg/after_{{version_number}}` into `gutenberg-mobile/develop`.
-- [ ] Merge or close `gutenberg/after_{{version_number}}` only **AFTER** the main apps have cut release branches.
+- [ ] Open a PR to merge `gutenberg/after_{{gb_mobile_version}}` into `gutenberg-mobile/develop`.
+- [ ] Merge or close `gutenberg/after_{{gb_mobile_version}}` only **AFTER** the main apps have cut release branches.
 
 ## Test the Release
 
