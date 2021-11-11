@@ -18,7 +18,7 @@ include_incoming_changes=""
 debug_template=""
 auto_confirm=""
 
-while getopts "t:v:d:g:m:i:axhuy" opt; do
+while getopts "t:v:d:g:m:i:n:axhuy" opt; do
   case ${opt} in
     h )
       echo "options:"
@@ -212,11 +212,17 @@ fi
 checklist_template_path="$script_path/templates/release_checklist.md"
 
 pushd_gb_mobile
-  milestone_url=$(gh api  --method GET repos/:owner/:repo/milestones --jq ".[0].html_url")
+  # Get the release milestone
+  json_query=$'.[] | select(.title|test("'"$gb_mobile_version"'"))'
+  release_milestone=$(gh api --method GET repos/:owner/:repo/milestones --jq "$json_query")
+  milestone_url=$(echo "$release_milestone" | jq -r '.html_url')
+  milestone_name=$(echo "$release_milestone" | jq -r '.title')
+
   default_milestone_url="https://wordpress-mobile/gutenber-mobile/milestones"
 
   milestone_url=${milestone_url:-$default_milestone_url}
 popd_gb_mobile
+
 
 checklist_template=$(sed \
 -e "s/{{gb_mobile_version}}/${gb_mobile_version}/g" \
@@ -255,6 +261,6 @@ fi
 
 pushd_gb_mobile
 
-  gh issue create --title "$issue_title" --body "$issue_body" --assignee "$issue_assignee" --label "$issue_label"
+  gh issue create --title "$issue_title" --body "$issue_body" --assignee "$issue_assignee" --label "$issue_label" --milestone "$milestone_name"
 
 popd_gb_mobile
