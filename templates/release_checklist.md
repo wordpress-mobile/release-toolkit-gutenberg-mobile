@@ -73,7 +73,7 @@ If you’d like to merge changes now, merge them into the `gutenberg/after_{{gb_
 - [ ] Verify `gutenberg` ref within the gutenberg-mobile release branch is pointing to the [latest commit](#) in Gutenberg release branch.
 - [ ] Create and push a `rnmobile/{{gb_mobile_version}}` git tag for the head of [Gutenberg release branch](https://github.com/WordPress/gutenberg/branches/all?query=rnmobile%2Frelease).
 - [ ] [Update bundles in the Gutenberg Mobile release branch](#).
-- [ ] Merge **gutenberg-mobile** PR to `trunk` [using the "Create a merge commit" option](#). **WARNING** do **not** merge gutenberg PR to `trunk` yet.
+- [ ] Merge **gutenberg-mobile** PR to `trunk` using the "Create a merge commit" option. **WARNING** do **not** merge gutenberg PR to `trunk` yet.
 - [ ] [Create a new Gutenberg mobile release](#).
 - [ ] [Update Gutenberg mobile references in the main apps](#).
 - [ ] Re-run optional tests on main apps PRs.
