@@ -143,6 +143,7 @@ if [[ -z "$release_type" ]]; then
 
   read -r -p "Please enter release type: scheduled|beta|hotfix [$default_release_type]: " release_type
   release_type=${release_type:-$default_release_type}
+  echo "Using '$release_type' release type"
   echo ""
 fi
 
