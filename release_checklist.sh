@@ -147,7 +147,7 @@ if [[ -z "$release_type" ]]; then
 fi
 
 if [[ ! "$release_type" == "scheduled" && ! "$release_type" == "beta" && ! "$release_type" == "hotfix" ]]; then
-    abort "Error release type must be scheduled|beta|hotfix, you entered '$release_type'"
+    abort "Release type must be scheduled|beta|hotfix, you entered '$release_type'"
 fi
 
 if [[ -z "$gb_mobile_version" ]]; then
