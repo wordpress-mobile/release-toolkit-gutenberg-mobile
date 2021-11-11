@@ -26,7 +26,7 @@ while getopts "t:v:d:g:m:i:axhuy" opt; do
       echo "   -v Gutenberg Mobile release version"
       echo "   -m Mobile app version"
       echo "   -d Release date in YYYY-MM-DD format. Only used to generate scheduled release checklists"
-      echo "   -g Relative path to guteberg mobile"
+      echo "   -g Relative path to Gutenberg Mobile"
       echo "   -n Issue note"
       echo "   -i Existing issue to update"
       echo "   -a Include aztec steps"
