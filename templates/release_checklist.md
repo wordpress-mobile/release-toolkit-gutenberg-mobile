@@ -28,7 +28,12 @@ Thanks!
 
 <!-- /scheduled_release_only -->
 
+<!-- scheduled_release_only -->
 ## Create the Release ({{release_date}})
+<!-- /scheduled_release_only -->
+<!-- non_scheduled_release_only -->
+## Create the Release
+<!-- /non_scheduled_release_only -->
 
 - [ ] [Verify Aztec is up to date](https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/blob/develop/Releasing.md#handling-aztec-updates).
 - [ ] Run `./release_automation.sh` from the release toolkit to generate the main apps integration PRs [\*](#).
