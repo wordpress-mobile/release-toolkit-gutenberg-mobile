@@ -3,7 +3,7 @@
 {{incoming_change_note}}
 
 - [ ] Verify `gutenberg` submodule is current and the `gutenberg` release branch has been updated.
-- [ ] Cherry pick any changes in the `gutenberg\/trunk` branch back to the `gutenberg-mobile` release branch and update the bundles (i.e. `rpm run bundle`).
+- [ ] Cherry-pick the changes that landed in the `gutenberg` `trunk` branch back to the `gutenberg-mobile` release branch and update the bundles (i.e. `npm run bundle`).
 - [ ] Update the "Extra PRs that Landed After the Release Was Cut" section of the gutenberg-mobile release PR description.
 
 <!-- optional_incoming_changes -->
