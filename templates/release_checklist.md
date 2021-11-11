@@ -60,7 +60,7 @@ If you’d like to merge changes now, merge them into the `gutenberg/after_{{gb_
 
 <!-- non_scheduled_release_only -->
 
-- [ ] Notify the team members directly resposible for handling the releases of WPiOS and WPAndroid.
+- [ ] Notify the team members directly responsible for handling the releases of WPiOS and WPAndroid.
 
 <!-- /non_scheduled_release_only -->
 
