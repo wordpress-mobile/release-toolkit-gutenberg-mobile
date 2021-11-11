@@ -184,7 +184,12 @@ if [[ -z "$release_date" && "$release_type" == "scheduled" ]]; then
     else
       read -r -p "Enter the release date (YYYY-MM-DD): " release_date
     fi
+    echo "Using '$release_date' as the release date"
     echo ""
+
+    if [[ -z "$release_date" ]]; then
+      abort "Release date cannot be empty."
+    fi
 fi
 
 main_apps_branch="develop"
