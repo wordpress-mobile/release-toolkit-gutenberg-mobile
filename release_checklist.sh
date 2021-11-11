@@ -31,7 +31,7 @@ while getopts "t:v:d:g:m:i:axhuy" opt; do
       echo "   -i Existing issue to update"
       echo "   -a Include aztec steps"
       echo "   -u Include incomming steps"
-      echo "   -x Echo out generated template with out sending to github"
+      echo "   -x Echo out the generated template without sending to Github"
       echo "   -y Auto confirm creating gh calls"
       exit 0
       ;;
