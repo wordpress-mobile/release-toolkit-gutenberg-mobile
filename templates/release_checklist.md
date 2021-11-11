@@ -46,7 +46,7 @@ If you’d like to merge changes now, merge them into the `gutenberg/after_{{gb_
 </p>
 </details>
 
-- [ ] [Verify localization string files have been generated properly](https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/blob/develop/Releasing.md).
+- [ ] [Verify localization string files have been generated properly](https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/blob/develop/Releasing.md#verify-localization-strings).
 - [ ] Update `Unreleased` section in [`RELEASE-NOTES.txt`](https://github.com/wordpress-mobile/gutenberg-mobile/blob/develop/RELEASE-NOTES.txt) and [`gutenberg/../CHANGELOG.md`](https://github.com/WordPress/gutenberg/blob/trunk/packages/react-native-editor/CHANGELOG.md). Add a new `Unreleased` section after updating the release notes.
 - [ ] Perform quick smoke test of the editor on both iOS and Android builds
 - [ ] Update [Gutenberg Mobile PR](https://github.com/wordpress-mobile/gutenberg-mobile/pulls?q=is%3Apr+is%3Aopen+label%3Arelease-process) description. Make sure the "Changes" section informs testers on what is in the release.
