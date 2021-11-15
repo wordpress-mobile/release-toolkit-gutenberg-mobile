@@ -84,6 +84,24 @@ If you’d like to merge changes now, merge them into the `gutenberg/after_{{gb_
 
 <!-- optional_aztec_release -->
 
+<!-- non_scheduled_release_only -->
+
+## Test the Release
+
+Use the main WP apps to complete the following tests:
+
+#### iOS
+
+- [ ] Test {{release_type}} related changes.
+- [ ] Complete the [general writing flow tests](https://github.com/wordpress-mobile/test-cases/tree/HEAD/test-cases/gutenberg/writing-flow).
+
+#### Android
+
+- [ ] Test {{release_type}} related changes.
+- [ ] Complete the [general writing flow tests](https://github.com/wordpress-mobile/test-cases/tree/HEAD/test-cases/gutenberg/writing-flow).
+
+<!-- /non_scheduled_release_only -->
+
 <!-- optional_incoming_changes -->
 
 ## Integrate the Release ({{release_date}})
@@ -146,6 +164,8 @@ Please let me know if you have any questions. Thanks!
 - [ ] Open a PR to merge `gutenberg/after_{{gb_mobile_version}}` into `gutenberg-mobile/develop`.
 - [ ] Merge or close `gutenberg/after_{{gb_mobile_version}}` only **AFTER** the main apps have cut release branches.
 
+<!-- scheduled_release_only -->
+
 ## Test the Release
 
 Use the main WP apps to complete the following tests:
@@ -154,15 +174,17 @@ Use the main WP apps to complete the following tests:
 
 - [ ] Test new [changes in the release](https://github.com/wordpress-mobile/gutenberg-mobile/blob/HEAD/RELEASE-NOTES.txt).
 - [ ] Complete the [general writing flow tests](https://github.com/wordpress-mobile/test-cases/tree/HEAD/test-cases/gutenberg/writing-flow).
-- [ ] Complete the [Unsupported Block Editor test cases](https://github.com/wordpress-mobile/test-cases/blob/HEAD/test-cases/gutenberg/unsupported-block-editing.md#unsupported-block-editing---test-cases).
-- [ ] Complete the [Sanity Tests](https://github.com/wordpress-mobile/test-cases/blob/HEAD/test-suites/gutenberg/sanity-test-suites.md)
+- [ ] Complete the [unsupported block editor test cases](https://github.com/wordpress-mobile/test-cases/blob/HEAD/test-cases/gutenberg/unsupported-block-editing.md#unsupported-block-editing---test-cases).
+- [ ] Complete the [sanity Tests](https://github.com/wordpress-mobile/test-cases/blob/HEAD/test-suites/gutenberg/sanity-test-suites.md)
 
 #### Android
 
 - [ ] Test new [changes in the release](https://github.com/wordpress-mobile/gutenberg-mobile/blob/develop/RELEASE-NOTES.txt).
 - [ ] Complete the [general writing flow tests](https://github.com/wordpress-mobile/test-cases/tree/HEAD/test-cases/gutenberg/writing-flow).
-- [ ] Complete the [Unsupported Block Editor test cases](https://github.com/wordpress-mobile/test-cases/blob/HEAD/test-cases/gutenberg/unsupported-block-editing.md#unsupported-block-editing---test-cases).
-- [ ] Complete the [Sanity Tests](https://href.li/?https://github.com/wordpress-mobile/test-cases/blob/HEAD/test-suites/gutenberg/sanity-test-suites.md)
+- [ ] Complete the [unsupported block editor test cases](https://github.com/wordpress-mobile/test-cases/blob/HEAD/test-cases/gutenberg/unsupported-block-editing.md#unsupported-block-editing---test-cases).
+- [ ] Complete the [sanity tests](https://href.li/?https://github.com/wordpress-mobile/test-cases/blob/HEAD/test-suites/gutenberg/sanity-test-suites.md)
+
+<!-- /scheduled_release_only -->
 
 ## Finish the Release
 
