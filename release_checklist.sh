@@ -221,8 +221,8 @@ pushd_gb_mobile
   default_milestone_url="https://wordpress-mobile/gutenber-mobile/milestones"
 
   milestone_url=${milestone_url:-$default_milestone_url}
-popd_gb_mobile
 
+popd_gb_mobile
 
 checklist_template=$(sed \
 -e "s/{{gb_mobile_version}}/${gb_mobile_version}/g" \
@@ -247,7 +247,7 @@ fi
 issue_title="Release checklist for v$gb_mobile_version ($release_type)"
 issue_label="release checklist,$release_type release"
 issue_assignee="@me"
-issue_body=$'# Release Checklist\n'"This checklist is for the $release_type release v$gb_mobile_version."$'\n\n **Release date:** '"$release_date"$'\n'"$issue_note"$'\n'"$release_checklist_template"
+issue_body=$'# Release Checklist\n'"This checklist is for the $release_type release v$gb_mobile_version."$'\n\n'"$issue_note"$'\n'"$release_checklist_template"
 
 if [[ -n "$debug_template" ]]; then
   echo "$issue_body"
@@ -260,7 +260,8 @@ if [[ -z "$auto_confirm" ]]; then
 fi
 
 pushd_gb_mobile
+  issue_url=$(gh issue create --title "$issue_title" --body "$issue_body" --assignee "$issue_assignee" --label "$issue_label" --milestone "$milestone_name" | tail -1)
 
-  gh issue create --title "$issue_title" --body "$issue_body" --assignee "$issue_assignee" --label "$issue_label" --milestone "$milestone_name"
-
+  echo "Github issue created: $issue_url"
+  echo ""
 popd_gb_mobile
