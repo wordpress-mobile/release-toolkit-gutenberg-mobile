@@ -19,8 +19,9 @@ include_aztec_steps=""
 include_incoming_changes=""
 debug_template=""
 auto_confirm=""
+wrangler_handle=""
 
-while getopts "t:v:d:g:m:i:n:axhuy" opt; do
+while getopts "t:v:d:g:m:i:n:b:axhuy" opt; do
   case ${opt} in
     h )
       echo "options:"
@@ -35,6 +36,7 @@ while getopts "t:v:d:g:m:i:n:axhuy" opt; do
       echo "   -u Include incoming steps"
       echo "   -x Echo out the generated template without sending to Github"
       echo "   -y Auto confirm creating gh calls"
+      echo "   -b Wrangler buddy github handle"
       exit 0
       ;;
     t )
@@ -69,6 +71,9 @@ while getopts "t:v:d:g:m:i:n:axhuy" opt; do
       ;;
     y )
       auto_confirm="true"
+      ;;
+    b )
+      wrangler_handle=$OPTARG
       ;;
     \? )
       echo "Invalid Option: -$OPTARG" 1>&2
@@ -226,12 +231,24 @@ pushd_gb_mobile
 
 popd_gb_mobile
 
+if [[ -n "$issue_note" ]]; then
+  issue_note="**Note:** $issue_note"$'\n'
+fi
+
+release_wranglers='@'"$(git config user.name)"
+
+if [[ -n "$wrangler_handle" ]]; then
+  release_wranglers="$release_wranglers, @$wrangler_handle"
+fi
+
 checklist_template=$(sed \
 -e "s/{{gb_mobile_version}}/${gb_mobile_version}/g" \
 -e "s/{{release_date}}/${release_date}/g" \
 -e "s/{{release_type}}/${release_type}/g" \
 -e "s/{{main_apps_branch}}/${main_apps_branch}/g" \
 -e "s/{{before_release_date}}/$(date '+%Y-%m-%d')/g" \
+-e "s/{{issue_note}}/${issue_note}/g" \
+-e "s/{{release_wranglers}}/${release_wranglers}/g" \
 -e "s/{{milestone_url}}/${milestone_url//\//\\/}/g" "$checklist_template_path")
 
 if [[ $release_type == "beta" || $release_type == "hotfix" ]]; then
@@ -248,8 +265,8 @@ fi
 
 issue_title="Release checklist for v$gb_mobile_version ($release_type)"
 issue_label="release checklist,$release_type release"
-issue_assignee="@me"
-issue_body=$'# Release Checklist\n'"This checklist is for the $release_type release v$gb_mobile_version."$'\n\n'"$issue_note"$'\n'"$release_checklist_template"
+issue_body=$"$release_checklist_template"
+
 
 if [[ -n "$debug_template" ]]; then
   echo "$issue_body"
@@ -262,7 +279,7 @@ if [[ -z "$auto_confirm" ]]; then
 fi
 
 pushd_gb_mobile
-  issue_url=$(gh issue create --title "$issue_title" --body "$issue_body" --assignee "$issue_assignee" --label "$issue_label" --milestone "$milestone_name" | tail -1)
+  issue_url=$(gh issue create --title "$issue_title" --body "$issue_body" --assignee "${release_wranglers//@/}" --label "$issue_label" --milestone "$milestone_name" | tail -1)
 
   echo "Github issue created: $issue_url"
   echo ""
