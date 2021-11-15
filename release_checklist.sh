@@ -1,11 +1,13 @@
 #!/bin/bash
 set -euo pipefail
 
+source ./release_utils.sh
 script_path="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-source ./release_utils.sh
+! verify_gh_version "v2.2.0"; gh_verified=$?
+! verify_jq_version "jq-1.6"; jq_verified=$?
 
-command -v gh >/dev/null || abort "Error: The Github CLI must be installed."
+( [[ $gh_verified -eq "0" ]] || [[ $jq_verified -eq "0" ]] ) && exit 1
 
 release_type=""
 release_date=""

@@ -115,3 +115,19 @@ pushd_gb_mobile() {
 popd_gb_mobile() {
     popd > /dev/null
 }
+
+verify_command_version() {
+    [[ "$(printf '%s\n' $2 $3 | sort -V | head -n1)" == "$2" ]] && return
+    printf "\n${tty_red}%s${tty_reset}\n"  "$1 is unavailable or out of date, please install $1 at or above '$2'"
+    false
+}
+
+verify_gh_version() {
+    # get the version from the tag
+    gh_version=$(gh version | tail -1 | xargs basename) 2>/dev/null
+    verify_command_version "gh" $1 $gh_version
+}
+
+verify_jq_version() {
+    verify_command_version "jq" $1 $(jq --version)
+}
