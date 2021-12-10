@@ -77,10 +77,6 @@ For the body of the post, just copy this checklist and again replace all occurre
 <blockquote class="wp-block-quote"><p>⚠️ The gutenberg-mobile X.XX.X release branches are now cut. Please do not merge any Gutenberg-related changes into the WPiOS or WPAndroid <code>develop</code> branches until <em>after</em> the main apps cut their own releases next week. If you'd like to merge changes now, merge them into the <code>gutenberg/after_X.XX.X</code> branches. </p></blockquote>
 <!-- /wp:quote --></div>
 <!-- /wp:group -->
-
-<!-- wp:paragraph -->
-<p>o Verify the localization strings files (<a href="https://github.com/wordpress-mobile/gutenberg-mobile/blob/develop/bundle/android/strings.xml">bundle/android/strings.xml</a>, <a href="https://github.com/wordpress-mobile/gutenberg-mobile/blob/develop/bundle/ios/GutenbergNativeTranslations.swift">bundle/ios/GutenbergNativeTranslations.swift</a>) have been generated properly. Check that we're not adding extra strings from non-native files and that we're not removing strings that are referenced in the code (more info can be found in this <a href="https://github.com/wordpress-mobile/gutenberg-mobile/issues/3466">issue</a>). <strong>If any issue is found, it will require manually modifying the files and push them to the release branch.</strong> If no strings are updated, it is expected to not see those files modified.</p>
-<!-- /wp:paragraph -->
   
 <!-- wp:paragraph -->
 <p>o In both <code>RELEASE-NOTES.txt</code> and <code>gutenberg/packages/react-native-editor/CHANGELOG.md</code>, replace <code>Unreleased</code> section with the release version and create a new <code>Unreleased</code> section.</p>
