@@ -27,10 +27,7 @@ No extra PRs yet. 🎉
 
 ## Test plan
 
-- Use the main WP apps to test the changes above.
-- Smoke test the main WP apps for [general writing flow](https://github.com/wordpress-mobile/test-cases/tree/master/test-cases/gutenberg/writing-flow).
-- Test the Unsupported Block Editor on WP Apps ([see steps](https://github.com/wordpress-mobile/test-cases/blob/trunk/test-cases/gutenberg/unsupported-block-editing.md#unsupported-block-editing---test-cases)).
-- Sanity [test suites](https://github.com/wordpress-mobile/test-cases/blob/trunk/test-suites/gutenberg/sanity-test-suites.md) for WP Apps should be completed for each platform.
+Once the installable builds of the main apps are ready, perform a quick smoke test of the editor on both iOS and Android to verify it launches without crashing. We will perform additional testing after the main apps cut their releases.
 
 ## Release Submission Checklist
 
