@@ -344,7 +344,7 @@ PULL_ID=${GB_MOBILE_PR_URL##*/}
 
 ohai "Update build.gradle file with the latest version"
 test -f "build.gradle" || abort "Error: Could not find build.gradle"
-sed -i'.orig' -E "s/ext.gutenbergMobileVersion = '(.*)'/ext.gutenbergMobileVersion = '${PULL_ID}-$GB_MOBILE_PR_REF'/" build.gradle || abort "Error: Failed updating gutenbergMobileVersion in build.gradle"
+sed -i '' -E "s/gutenbergMobileVersion = '(.*)'/gutenbergMobileVersion = '${PULL_ID}-$GB_MOBILE_PR_REF'/" build.gradle || abort "Error: Failed updating gutenbergMobileVersion in build.gradle"
 
 execute "git" "add" "build.gradle"
 execute "git" "commit" "-m" "Release script: Update build.gradle gutenbergMobileVersion to ref"
