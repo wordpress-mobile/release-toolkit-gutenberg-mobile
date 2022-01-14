@@ -243,6 +243,10 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- wp:paragraph -->
 <p>o Update the <code>gutenberg/after_X.XX.X</code> branches and open a PR against <code>develop</code>. If the branches are empty we’ll just delete them. The PR can actually get created as soon as something gets merged to the <code>gutenberg/after_X.XX.X</code> branches. Merge the <code>gutenberg/after_X.XX.X</code> PR(s) only <em>AFTER</em> the main apps have cut their release branches.</p>
 <!-- /wp:paragraph -->
+  
+<!-- wp:paragraph -->
+<p>o Close the <a href="https://github.com/wordpress-mobile/gutenberg-mobile/milestones">Gutenberg Mobile milestone</a> that corresponds to this release.</p>
+<!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":3} -->
 <h3>Test the Release</h3>
