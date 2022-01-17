@@ -207,6 +207,10 @@ For the body of the post, just copy this checklist and again replace all occurre
 <blockquote class="wp-block-quote"><p>Hey team. I wanted to let you know that the mobile Gutenberg team has finished integrating the X.XX.X Gutenberg release into the WPiOS and WPAndroid `release/XX.X` branches, ready for a new beta when you are available. Please let me know if you have any questions. Thanks! </p></blockquote>
 <!-- /wp:quote --></div>
 <!-- /wp:group -->
+  
+<!-- wp:paragraph -->
+<p>o Close the <a href="https://github.com/wordpress-mobile/gutenberg-mobile/milestones">Gutenberg Mobile milestone</a> that corresponds to this release.</p>
+<!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":3} -->
 <h3>Sync the Release to Development Branches</h3>
