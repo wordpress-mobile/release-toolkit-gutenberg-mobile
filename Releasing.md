@@ -49,7 +49,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:group -->
 
 <!-- wp:paragraph -->
-<p>o Create installable builds for WPiOS and WPAndroid based off the current <code>develop</code> branch and complete the <a href="https://github.com/wordpress-mobile/test-cases/tree/master/test-cases/gutenberg/writing-flow">general writing flow test cases</a>. </p>
+<p>o Create installable builds for WPiOS and WPAndroid based off the current <code>trunk</code> branch and complete the <a href="https://github.com/wordpress-mobile/test-cases/tree/master/test-cases/gutenberg/writing-flow">general writing flow test cases</a>. </p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":3} -->
@@ -74,7 +74,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:quote -->
-<blockquote class="wp-block-quote"><p>⚠️ The gutenberg-mobile X.XX.X release branches are now cut. Please do not merge any Gutenberg-related changes into the WPiOS or WPAndroid <code>develop</code> branches until <em>after</em> the main apps cut their own releases next week. If you'd like to merge changes now, merge them into the <code>gutenberg/after_X.XX.X</code> branches. </p></blockquote>
+<blockquote class="wp-block-quote"><p>⚠️ The gutenberg-mobile X.XX.X release branches are now cut. Please do not merge any Gutenberg-related changes into the WPiOS or WPAndroid <code>trunk</code> branches until <em>after</em> the main apps cut their own releases next week. If you'd like to merge changes now, merge them into the <code>gutenberg/after_X.XX.X</code> branches. </p></blockquote>
 <!-- /wp:quote --></div>
 <!-- /wp:group -->
   
@@ -187,16 +187,16 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Main apps PRs should be ready to merge to their <code>develop</code> branches now. Merge them or get them merged.</p>
+<p>o Main apps PRs should be ready to merge to their <code>trunk</code> branches now. Merge them or get them merged.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:group -->
 <div class="wp-block-group"><!-- wp:paragraph -->
-<p>o Once everything is merged, send a heads up to our friends in the <code>#platform9</code> Slack channel. If this is a "regular" release for the WPiOS and WPAndroid `develop` branches (i.e. this isn't a beta/hot fix, e.g. X.XX.2), the message will look similar to the following:</p>
+<p>o Once everything is merged, send a heads up to our friends in the <code>#platform9</code> Slack channel. If this is a "regular" release for the WPiOS and WPAndroid `trunk` branches (i.e. this isn't a beta/hot fix, e.g. X.XX.2), the message will look similar to the following:</p>
 <!-- /wp:paragraph -->  
   
 <!-- wp:quote -->
-<blockquote class="wp-block-quote"><p>Hey team. I wanted to let you know that the mobile Gutenberg team has finished integrating the X.XX.X Gutenberg release into the WPiOS and WPAndroid `develop` branches. The integration is ready for the next release cut/build creation when you are available. Please let me know if you have any questions. Thanks! </p></blockquote>
+<blockquote class="wp-block-quote"><p>Hey team. I wanted to let you know that the mobile Gutenberg team has finished integrating the X.XX.X Gutenberg release into the WPiOS and WPAndroid `trunk` branches. The integration is ready for the next release cut/build creation when you are available. Please let me know if you have any questions. Thanks! </p></blockquote>
 <!-- /wp:quote -->
   
 <!-- wp:paragraph -->
@@ -245,7 +245,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Update the <code>gutenberg/after_X.XX.X</code> branches and open a PR against <code>develop</code>. If the branches are empty we’ll just delete them. The PR can actually get created as soon as something gets merged to the <code>gutenberg/after_X.XX.X</code> branches. Merge the <code>gutenberg/after_X.XX.X</code> PR(s) only <em>AFTER</em> the main apps have cut their release branches.</p>
+<p>o Update the <code>gutenberg/after_X.XX.X</code> branches and open a PR against <code>trunk</code>. If the branches are empty we’ll just delete them. The PR can actually get created as soon as something gets merged to the <code>gutenberg/after_X.XX.X</code> branches. Merge the <code>gutenberg/after_X.XX.X</code> PR(s) only <em>AFTER</em> the main apps have cut their release branches.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":3} -->
@@ -317,12 +317,13 @@ For example, when the next release will be `1.11.0`.
 | ---------------- | -------- | ----------------------------------------- |
 | gutenberg        | trunk    | rnmobile/release_1.11.0-alpha1            |
 | gutenberg-mobile | develop  | release/1.11.0-alpha1                     |
-| WPAndroid        | develop  | gutenberg/integrate_release_1.11.0-alpha1 |
-| WPiOS            | develop  | gutenberg/integrate_release_1.11.0-alpha1 |
+| WPAndroid        | trunk    | gutenberg/integrate_release_1.11.0-alpha1 |
+| WPiOS            | trunk    | gutenberg/integrate_release_1.11.0-alpha1 |
 
 ### Automation script differences
 
 Compared to a Regular release, the differences here are:
+
 - When the script asks for the new version number, don't forget to add the `-alpha` suffix (e.g. `1.11.0-alpha1`).
 - All PRs created by the release script should be edited to clarify that they are temporary and will be deleted when testing is finished.
 
@@ -344,8 +345,8 @@ For example when releasing gutenberg-mobile `1.11.0`.
 | ---------------- | -------- | ---------------------------------- | --------------- |
 | gutenberg        | trunk    | rnmobile/release_1.11.0            | trunk           |
 | gutenberg-mobile | develop  | release/1.11.0                     | trunk & develop |
-| WPAndroid        | develop  | gutenberg/integrate_release_1.11.0 | develop         |
-| WPiOS            | develop  | gutenberg/integrate_release_1.11.0 | develop         |
+| WPAndroid        | trunk    | gutenberg/integrate_release_1.11.0 | trunk           |
+| WPiOS            | trunk    | gutenberg/integrate_release_1.11.0 | trunk           |
 
 ## 3. Betafix
 
