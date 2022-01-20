@@ -157,12 +157,16 @@ cd ..
 
 # Ask if a cherry-pick is needed before bundling (for example if this is a hotfix release)
 cd gutenberg
-read -r -p "Do you want to cherry-pick a commit from gutenberg? (y/n) " -n 1
-echo ""
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    read -r -p "Enter the commit hash to cherry-pick: " GUTENBERG_COMMIT_HASH_TO_CHERRY_PICK
-    execute "git" "cherry-pick" "$GUTENBERG_COMMIT_HASH_TO_CHERRY_PICK"
-fi
+CHERRY_PICK_PROMPT="Do you want to cherry-pick a commit from gutenberg? (y/n) " 
+while
+  read -r -p "$CHERRY_PICK_PROMPT" -n 1
+  echo ""
+  [[ $REPLY =~ ^[Yy]$ ]]
+do
+  read -r -p "Enter the commit hash to cherry-pick: " GUTENBERG_COMMIT_HASH_TO_CHERRY_PICK
+  execute "git" "cherry-pick" "$GUTENBERG_COMMIT_HASH_TO_CHERRY_PICK"
+  CHERRY_PICK_PROMPT="Do you want to cherry-pick another commit from gutenberg? (y/n) " 
+done
 cd ..
 
 # Commit updates to gutenberg submodule
