@@ -53,6 +53,23 @@ execute() {
     fi
 }
 
+# Takes multiple arguments consisting a command and executes it.
+# If the command is not successful, it will be retried for a maximum of 10 times.
+# In case it keeps failing, the script will be aborted, printing the failed command
+# and its arguments in a colored format.
+#
+# Returns the executed command's result if it's successful.
+execute_until_succeeds() {
+    local max_retry=10
+    local retry_count=0
+    until "$@"
+    do
+        sleep 1
+        [[ retry_count -eq "$max_retry" ]] && abort "$(printf "Failed after retrying $retry_count times: %s" "$(shell_join "$@")")"
+        ((retry_count++))
+        warn "Retrying '$(shell_join "$@")' command after $retry_count times..."
+    done
+}
 
 #####
 # Confirm to Proceed Prompt
