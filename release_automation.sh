@@ -294,7 +294,7 @@ test -f "Podfile" || abort "Error: Could not find Podfile"
 sed -i'.orig' -E "s/wordpress-mobile(\/gutenberg-mobile)/$MOBILE_REPO\1/" Podfile || abort "Error: Failed updating GitHub organization in Podfile"
 sed -i'.orig' -E "s/gutenberg :(commit|tag) => '(.*)'/gutenberg :commit => '$GB_MOBILE_PR_REF'/" Podfile || abort "Error: Failed updating gutenberg ref in Podfile"
 execute "bundle" "install"
-execute "rake" "dependencies"
+execute_until_succeeds "rake" "dependencies"
 
 
 execute "git" "add" "Podfile" "Podfile.lock"
