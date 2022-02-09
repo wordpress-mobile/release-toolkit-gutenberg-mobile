@@ -34,6 +34,17 @@ MOBILE_REPO="wordpress-mobile"
 
 set -e
 
+source ./release_utils.sh
+
+# Warn about possible WPiOS errors
+echo ""
+echo "This script will fail when generating the WPiOS PR if your local machine cannot successfully obtain the WPiOS dependencies. For that reason, if you want the script to generate WPiOS PRs, it is STRONGLY recommended that you verify that you can run 'bundle install; rake dependencies' on your local machine from the the WPiOS project's trunk branch before proceeding with the script. Otherwise, the script may fail in the middle of running, and no one wants that."
+read -r -p "Are you ready to proceed with the script? (y/n) " -n 1
+echo ""
+if ! [[ $REPLY =~ ^[Yy]$ ]]; then
+    abort "Exiting script..."
+fi
+
 # Read GB-Mobile PR template
 PR_TEMPLATE_PATH='./release_pull_request.md'
 test -f "$PR_TEMPLATE_PATH" || abort "Error: Could not find PR template at $PR_TEMPLATE_PATH"
@@ -51,7 +62,6 @@ if [[ ! "$GB_MOBILE_PATH" == *gutenberg-mobile ]]; then
     abort "Error path does not end with gutenberg-mobile"
 fi
 
-source ./release_utils.sh
 source ./release_prechecks.sh "$GB_MOBILE_PATH"
 
 # Execute script commands from gutenberg-mobile directory
