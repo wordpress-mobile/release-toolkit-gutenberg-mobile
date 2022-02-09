@@ -43,7 +43,7 @@ source ./release_utils.sh
 LOCAL_COMMIT=$(git rev-parse HEAD)
 git remote update
 DEVELOP_BRANCH_HEAD=$(git rev-parse ${1:-'develop@{upstream}'})
-if ! [[ $LOCAL_COMMIT = $DEVELOP_BRANCH_HEAD ]]; then
+if ! [[ "$LOCAL_COMMIT" = "$DEVELOP_BRANCH_HEAD" ]]; then
     echo ""
     echo "You're not running this script from the HEAD commit on the develop branch." 
     echo "If you are generating a release you should generally use the latest version of the script."
