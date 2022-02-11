@@ -41,7 +41,7 @@ source ./release_utils.sh
 
 # Check if script is up-to-date
 LOCAL_COMMIT=$(git rev-parse HEAD)
-git remote update
+execute "git" "remote" "update"
 DEVELOP_BRANCH=${1:-'develop@{upstream}'}
 DEVELOP_BRANCH_HEAD=$(git rev-parse "$DEVELOP_BRANCH")
 if ! [[ "$LOCAL_COMMIT" = "$DEVELOP_BRANCH_HEAD" ]]; then
