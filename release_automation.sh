@@ -28,7 +28,7 @@ MOBILE_REPO="wordpress-mobile"
 
 # Before creating the release, this script performs the following checks:
 # - AztecAndroid and WordPress-Aztec-iOS are set to release versions
-# - Release is being created off of either develop, main, or release/*
+# - Release is being created off of either develop, trunk, or a release tag
 # - Release is being created off of a clean branch
 # - Whether there are any open PRs targeting the milestone for the release
 
@@ -75,12 +75,17 @@ else
     ohai "Confirmed that Aztec Libraries are set to release versions. Proceeding..."
 fi
 
-## Check current branch is develop, trunk, or release/* branch
+# Check if current HEAD is develop or trunk branch
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-if [[ ! "$CURRENT_BRANCH" =~ ^develop$|^trunk$|^release/.* ]]; then
-    warn "Releases should generally only be based on 'develop', 'trunk', or an earlier release branch."
-    warn "You are currently on the '$CURRENT_BRANCH' branch."
-    confirm_to_proceed "Are you sure you want to create a release branch from the '$CURRENT_BRANCH' branch?"
+if [[ ! "$CURRENT_BRANCH" =~ ^develop$|^trunk$ ]]; then
+
+    # Check if current HEAD is a release tag
+    CURRENT_TAG=$(git tag --points-at HEAD)
+    if [[ ! "$CURRENT_TAG" =~ v[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+        warn "Releases should generally only be based on 'develop', 'trunk', or a release tag."
+        warn "Gutenberg-Mobile is currently on the '$CURRENT_BRANCH' branch and '$CURRENT_TAG' tag."
+        confirm_to_proceed "Are you sure you want to create a release branch from here?"
+    fi
 fi
 
 # Confirm branch is clean
