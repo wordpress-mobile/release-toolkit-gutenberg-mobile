@@ -28,7 +28,7 @@ MOBILE_REPO="wordpress-mobile"
 
 # Before creating the release, this script performs the following checks:
 # - AztecAndroid and WordPress-Aztec-iOS are set to release versions
-# - Release is being created off of either develop, main, or release/*
+# - Release is being created off of either develop, trunk, or a release tag
 # - Release is being created off of a clean branch
 # - Whether there are any open PRs targeting the milestone for the release
 
