@@ -34,12 +34,42 @@ MOBILE_REPO="wordpress-mobile"
 
 set -e
 
+SCRIPT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+cd "$SCRIPT_PATH"
+source ./release_utils.sh
+
+
+# Check if script is up-to-date
+LOCAL_COMMIT=$(git rev-parse HEAD)
+execute "git" "remote" "update"
+DEVELOP_BRANCH_HEAD=$(git rev-parse 'develop@{upstream}')
+if ! [[ "$LOCAL_COMMIT" = "$DEVELOP_BRANCH_HEAD" ]]; then
+    echo ""
+    echo "You're not running this script from the HEAD commit on the develop branch." 
+    echo "If you are generating a release you should generally use the latest version of the script."
+    read -r -p "Are you sure you want the script to proceed? (y/n) "
+    echo ""
+    if ! [[ $REPLY =~ ^[Yy]$ ]]; then
+        abort "Exiting script..."
+    fi
+fi
+
+# Check if script has uncommitted changes
+if [ -n "$(git status --porcelain)" ]; then 
+    echo "You are running this script with uncommitted changes."
+    echo "If you are generating a release you should generally use the current version of the script on the develop branch."
+    read -r -p "Are you sure you want the script to proceed? (y/n) "
+    echo ""
+    if ! [[ $REPLY =~ ^[Yy]$ ]]; then
+        abort "Exiting script..."
+    fi
+fi
+
 # Read GB-Mobile PR template
 PR_TEMPLATE_PATH='./release_pull_request.md'
 test -f "$PR_TEMPLATE_PATH" || abort "Error: Could not find PR template at $PR_TEMPLATE_PATH"
 PR_TEMPLATE=$(cat "$PR_TEMPLATE_PATH")
 
-SCRIPT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 # Ask for path to gutenberg-mobile directory
 # (default is sibling directory of gutenberg-mobile-release-toolkit)
 DEFAULT_GB_MOBILE_LOCATION="$SCRIPT_PATH/../gutenberg-mobile"
@@ -51,7 +81,6 @@ if [[ ! "$GB_MOBILE_PATH" == *gutenberg-mobile ]]; then
     abort "Error path does not end with gutenberg-mobile"
 fi
 
-source ./release_utils.sh
 source ./release_prechecks.sh "$GB_MOBILE_PATH"
 
 # Execute script commands from gutenberg-mobile directory
