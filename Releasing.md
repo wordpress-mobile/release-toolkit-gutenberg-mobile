@@ -83,7 +83,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Review and update <code>RELEASE-NOTES.txt</code> file on both WPAndroid and WPiOS PRs so it includes all user-facing changes introduced in the release.</p>
+<p>o Review and update <code>RELEASE-NOTES.txt</code> file on both WPAndroid and WPiOS PRs so it includes all user-facing changes introduced in the release. Keep in mind that some changes can be specific to a single platform, so they should only be added to the release notes of the platform that affects (e.g. a change that only affects Android should only be included in WPAndroid release notes).</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
