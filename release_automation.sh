@@ -38,6 +38,16 @@ SCRIPT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd "$SCRIPT_PATH"
 source ./release_utils.sh
 
+# Warn about possible WPiOS errors
+echo ""
+echo "This script will fail when generating the WPiOS PR if your local machine cannot successfully obtain the WPiOS dependencies." 
+echo "For that reason, if you want the script to generate WPiOS PRs, it is STRONGLY recommended that you verify that you can run 'bundle install && rake dependencies' on your local machine from the the WPiOS project's trunk branch before proceeding with the script." 
+echo "Otherwise, the script may fail in the middle of running, and no one wants that."
+read -r -p "Are you ready to proceed with the script? (y/n) "
+echo ""
+if ! [[ $REPLY =~ ^[Yy]$ ]]; then
+    abort "Exiting script..."
+fi
 
 # Check if script is up-to-date
 LOCAL_COMMIT=$(git rev-parse HEAD)
