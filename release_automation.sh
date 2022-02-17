@@ -28,7 +28,11 @@ MOBILE_REPO="wordpress-mobile"
 
 # Before creating the release, this script performs the following checks:
 # - AztecAndroid and WordPress-Aztec-iOS are set to release versions
-# - Release is being created off of either trunk or a release tag
+<<<<<<< Updated upstream
+# - Release is being created off of either develop, trunk, or a release tag
+=======
+# - Release is being created off of either trunk or release/*
+>>>>>>> Stashed changes
 # - Release is being created off of a clean branch
 # - Whether there are any open PRs targeting the milestone for the release
 
@@ -52,11 +56,22 @@ fi
 # Check if script is up-to-date
 LOCAL_COMMIT=$(git rev-parse HEAD)
 execute "git" "remote" "update"
+DEVELOP_BRANCH_HEAD=$(git rev-parse 'develop@{upstream}')
+if ! [[ "$LOCAL_COMMIT" = "$DEVELOP_BRANCH_HEAD" ]]; then
+    echo ""
+    echo "You're not running this script from the HEAD commit on the develop branch."
+    echo "If you are generating a release you should generally use the latest version of the script."
+    read -r -p "Are you sure you want the script to proceed? (y/n) "
+    echo ""
+    if ! [[ $REPLY =~ ^[Yy]$ ]]; then
+        abort "Exiting script..."
+    fi
+fi
 
 # Check if script has uncommitted changes
 if [ -n "$(git status --porcelain)" ]; then
     echo "You are running this script with uncommitted changes."
-    echo "If you are generating a release you should generally use the current version of the script on trunk."
+    echo "If you are generating a release you should generally use the current version of the script on the develop branch."
     read -r -p "Are you sure you want the script to proceed? (y/n) "
     echo ""
     if ! [[ $REPLY =~ ^[Yy]$ ]]; then
