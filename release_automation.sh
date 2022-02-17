@@ -12,6 +12,7 @@
 # 2. Insure that each of your forked repos contains the PR labels specified below:
 GUTENBERG_MOBILE_PR_LABEL="release-process"
 GUTENBERG_PR_LABEL="Mobile App - i.e. Android or iOS"
+GUTENBERG_AUTOMATION_LABEL="Mobile App - Automation"
 WPANDROID_PR_LABEL="gutenberg-mobile"
 WPIOS_PR_LABEL="Gutenberg integration"
 # 3. Ensure that each of your repos contains the target branch listed below:
@@ -285,6 +286,7 @@ GUTENBERG_PR_URL=$(execute "gh" "pr" "create" \
 "--head" "$GUTENBERG_REPO:$GB_RELEASE_BRANCH" \
 "--base" "$GUTENBERG_TARGET_BRANCH" \
 "--label" "$GUTENBERG_PR_LABEL" \
+"--label" "$GUTENBERG_AUTOMATION_LABEL" \
 "--draft")
 cd ..
 
