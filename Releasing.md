@@ -222,7 +222,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <p>o Update the gutenberg reference on the gutenberg-mobile release branch to point to the Gutenberg PR merge commit</p>
 
 <!-- wp:paragraph -->
-<p>o Merge the <strong>gutenberg-mobile</strong> PR to <code>trunk</code>. Use "Create a merge commit" option when merging to avoid lossing any commit history from the release branch.</p>
+<p>o Merge the <strong>gutenberg-mobile</strong> PR to <code>trunk</code>. Use "Create a merge commit" option when merging to avoid losing any commit history from the release branch.</p>
 <!-- /wp:paragraph -->
 
 
