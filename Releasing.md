@@ -215,7 +215,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
-<p>o Merge the gutenberg PR to <code>trunk</code>.</p>
+<p>o Resolve any conflicts with <code>trunk</code> and merge the gutenberg PR.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
