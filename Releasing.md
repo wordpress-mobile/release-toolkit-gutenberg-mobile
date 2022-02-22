@@ -170,13 +170,11 @@ For the body of the post, just copy this checklist and again replace all occurre
 <p>o Ensure that the bundle files are updated to include any changes to the release branch by running <code>npm run bundle</code> in gutenberg-mobile release branch and committing any changes. </p>
 <!-- /wp:paragraph -->
 
-<!-- wp:paragraph -->
-<p>o Merge the <strong>gutenberg-mobile</strong> PR to <code>trunk</code>. Use "Create a merge commit" option when merging, otherwise there could be conflicts between <code>trunk</code> and release branch in the next release. WARNING: Do not merge the <strong>gutenberg</strong> PR into <code>trunk</code> at this point.</p>
-<!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o <a href="https://github.com/wordpress-mobile/gutenberg-mobile/releases/new?tag=vX.XX.X&amp;target=trunk&amp;title=Release%20X.XX.X">Create a new gutenberg-mobile GitHub Release</a>. Include a list of changes in the Release description.</p>
+<p>o <a href="https://github.com/wordpress-mobile/gutenberg-mobile/releases/new?tag=vX.XX.X&amp;target=release/X.XX.X&amp;title=Release%20X.XX.X">Create a new gutenberg-mobile GitHub Release</a>. Include a list of changes in the Release description.</p>
 <!-- /wp:paragraph -->
+
 
 <!-- wp:paragraph -->
 <p>o In WPiOS, update the reference to point to the <em>tag</em> of the Release created in the previous task. </p>
@@ -213,28 +211,20 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":3} -->
-<h3>Sync the Release to Development Branches</h3>
+<h3>Merge Release Branches</h3>
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
-<p>o If there are any conflicts in the gutenberg PR, merge <code>trunk</code> into it and resolve them.</p>
+<p>o Resolve any conflicts with <code>trunk</code> and merge the gutenberg PR.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o In gutenberg-mobile, create a branch from <code>trunk</code> with a name like <code>merge_release_X.XX.X_to_develop</code> and open PR to <code>develop</code>. If there are any merge conflicts, merge <code>develop</code> into the PR and resolve them.</p>
-<!-- /wp:paragraph -->
+<p>o Update the gutenberg reference on the gutenberg-mobile release branch to point to the Gutenberg PR merge commit</p>
 
 <!-- wp:paragraph -->
-<p>o Merge the gutenberg PR to <code>trunk</code>.</p>
+<p>o Merge the <strong>gutenberg-mobile</strong> PR to <code>trunk</code>. Use "Create a merge commit" option when merging to avoid losing any commit history from the release branch.</p>
 <!-- /wp:paragraph -->
 
-<!-- wp:paragraph -->
-<p>o Update the <code>gutenberg</code> reference in the gutenberg-mobile <code>merge_release_X.XX.X_to_develop</code> PR so it points to merge commit in gutenberg <code>trunk</code> for the gutenberg PR merged in the previous task.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>o Merge the gutenberg-mobile PR to <code>develop</code>.</p>
-<!-- /wp:paragraph -->
 
 <!-- wp:heading {"level":3} -->
 <h3>Clean Up Pending Work (After main apps cut)</h3>
