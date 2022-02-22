@@ -52,10 +52,10 @@ fi
 # Check if script is up-to-date
 LOCAL_COMMIT=$(git rev-parse HEAD)
 execute "git" "remote" "update"
-DEVELOP_BRANCH_HEAD=$(git rev-parse 'develop@{upstream}')
-if ! [[ "$LOCAL_COMMIT" = "$DEVELOP_BRANCH_HEAD" ]]; then
+DEFAULT_BRANCH_HEAD=$(git rev-parse 'trunk@{upstream}')
+if ! [[ "$LOCAL_COMMIT" = "$DEFAULT_BRANCH_HEAD" ]]; then
     echo ""
-    echo "You're not running this script from the HEAD commit on the develop branch."
+    echo "You're not running this script from the HEAD commit on the default branch, 'trunk'."
     echo "If you are generating a release you should generally use the latest version of the script."
     read -r -p "Are you sure you want the script to proceed? (y/n) "
     echo ""
