@@ -18,17 +18,13 @@ fi
 
 tty_mkbold() { tty_escape "1;$1"; }
 tty_underline="$(tty_escape "4;39")"
-tty_blue="$(tty_escape 34)"
 tty_red="$(tty_escape 31)"
 tty_reset="$(tty_escape 0)"
 tty_cyan="$(tty_escape 96)"
 tty_bold="$(tty_escape "1;")"
 tty_green="$(tty_escape 32)"
 
-#info() { printf "${tty_bold}${tty_blue} %s${tty_reset}\n" "$1";}
-#warn() { printf "${tty_underline}${tty_red}Warning${tty_reset}: %s\n" "$1"; }
-#error() { printf "${tty_bold}${tty_red}Error: %s${tty_reset}\n" "$1"; }
-abort() {  printf "${tty_bold}${tty_red}Error: %s${tty_reset}\n" "$1" && exit 1; }
+abort() { printf "${tty_bold}${tty_red}Error: %s${tty_reset}\n" "$1" && exit 1; }
 
 confirm_to_proceed() {
     read -r -p "${tty_bold}$1 (y/n) ${tty_reset}" -n 1
@@ -39,11 +35,7 @@ confirm_to_proceed() {
     fi
 }
 
-verify_command_version() {
-    [[ "$(printf '%s\n' $2 $3 | sort -V | head -n1)" == "$2" ]] && return
-    printf "\n${tty_red}%s${tty_reset}\n"  "$1 is unavailable or out of date, please install $1 at or above '$2'"
-    false
-}
+
 
 show_dry_run_warning() {
   cat <<EOF
@@ -95,11 +87,15 @@ update_check_message() {
 echo -e "${tty_bold}🔍 Running preflight checks:\n${tty_reset}"
 
 ## Verify command dependencies: gh and jq
-gh_version=$(gh version | tail -1 | xargs basename) 2>/dev/null
-! verify_command_version "gh" "v2.2.0" "$gh_version"; gh_verified=$?
-! verify_command_version "jq" "jq-1.6" $(jq --version); jq_verified=$?
+verify_command_version() {
+    [[ "$(printf '%s\n' "$2" "$3" | sort -V | head -n1)" == "$2" ]] && return
+    printf "\n${tty_red}%s${tty_reset}\n"  "$1 is unavailable or out of date, please install $1 at or above '$2'"
+}
 
-( [[ $gh_verified -eq "0" ]] || [[ $jq_verified -eq "0" ]] ) && exit 1
+gh_version=$(gh version | tail -1 | xargs basename) 2>/dev/null
+! verify_command_version "gh" "v2.2.0" "$gh_version" && exit 1
+! verify_command_version "jq" "jq-1.6" $(jq --version) && exit 1
+
 echo "${check_command_message%??}✅"
 
 ## Verify Aztec version
@@ -122,7 +118,7 @@ gb_release_pr_count=$(pr_count "${GBM_GUTENBERG_OWNER}/gutenberg" "rnmobile/rele
 wpandroid_integration_pr_count=$(pr_count "${GBM_WP_MOBILE_OWNER}/WordPress-Android"  "gutenberg/integrate_release_${gbm_release_version}" )
 wpios_integration_pr_count=$(pr_count "${GBM_WP_MOBILE_OWNER}/WordPress-iOS"  "gutenberg/integrate_release_${gbm_release_version}" )
 
-existing_release_warning=$(($gbm_release_pr_count + $gb_release_pr_count + $wpandroid_integration_pr_count + $wpios_integration_pr_count))
+existing_release_warning=$((gbm_release_pr_count + gb_release_pr_count + wpandroid_integration_pr_count + wpios_integration_pr_count))
 update_check_message "$existing_release_warning" "$check_prs_message"
 
 
@@ -133,7 +129,7 @@ release_milestone_pr_count=$(gh api -X GET search/issues -f q="repo:${GBM_WP_MOB
 gbm_short_version=$(cut -d '.' -f 1-2 <<< "$gbm_release_version")
 short_release_milestone_pr_count=$(gh api -X GET search/issues -f q="repo:${GBM_WP_MOBILE_OWNER}/gutenberg-mobile milestone:${gbm_short_version} is:open" -q '.total_count')
 
-release_milestone_pr_count=$(($release_milestone_pr_count + $short_release_milestone_pr_count))
+release_milestone_pr_count=$((release_milestone_pr_count + short_release_milestone_pr_count))
 update_check_message "$release_milestone_pr_count" "$check_milestone_message"
 
 
