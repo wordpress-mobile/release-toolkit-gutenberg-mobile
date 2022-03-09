@@ -16,7 +16,7 @@ fetch_aztec_version() {
   set +o pipefail
   local source="$1"
   local version_key="$2"
-  curl -s "$source" | grep "$version_key" | head -1 | grep -oE "\d+.\d+.\d+" | cat
+  curl -sSL "$source" | grep "$version_key" | head -1 | grep -oE "\d+.\d+.\d+" | cat
   set -o pipefail
 }
 
