@@ -7,6 +7,7 @@ fi
 
 GBM_GUTENBERG_OWNER="${GBM_GUTENBERG_ORG:=WordPress}"
 GBM_WP_MOBILE_OWNER="${GBM_WP_MOBILE_ORG:=wordpress-mobile}"
+GBM_DRY_RUN="${GBM_DRY_RUN:=true}"
 
 ## Output helpers
 if [[ -t 1 ]]; then
@@ -17,14 +18,13 @@ fi
 
 tty_mkbold() { tty_escape "1;$1"; }
 tty_underline="$(tty_escape "4;39")"
-tty_blue="$(tty_mkbold 34)"
+tty_blue="$(tty_escape 34)"
 tty_red="$(tty_mkbold 31)"
 tty_reset="$(tty_escape 0)"
-tty_cyan="$(tty_mkbold 96)"
+tty_cyan="$(tty_escape 96)"
 tty_bold="$(tty_escape "1;")"
 
-
-info() { printf "${tty_blue} %s${tty_reset}\n" "$1";}
+info() { printf "${tty_bold}${tty_blue} %s${tty_reset}\n" "$1";}
 warn() { printf "${tty_underline}${tty_red}Warning${tty_reset}: %s\n" "$1"; }
 error() { printf "${tty_red}Error: %s${tty_reset}\n" "$1"; }
 abort() { error "$1" && exit 1; }
@@ -42,7 +42,19 @@ verify_command_version() {
     printf "\n${tty_red}%s${tty_reset}\n"  "$1 is unavailable or out of date, please install $1 at or above '$2'"
     false
 }
-echo ""
+
+if [[ -n "${GBM_DRY_RUN}" ]]; then
+   cat <<EOF
+   ${tty_bold}${tty_cyan}
+################################################################################
+#                                                                              #
+#                          ~~ Dry Mode enabled ~~                              #
+#                                                                              #
+################################################################################
+EOF
+fi
+
+echo "${tty_reset}"
 info "📡 Checking for required commands...."
 ## Verify command dependencies: gh and jq
 gh_version=$(gh version | tail -1 | xargs basename) 2>/dev/null
@@ -50,7 +62,6 @@ gh_version=$(gh version | tail -1 | xargs basename) 2>/dev/null
 ! verify_command_version "jq" "jq-1.6" $(jq --version); jq_verified=$?
 
 ( [[ $gh_verified -eq "0" ]] || [[ $jq_verified -eq "0" ]] ) && exit 1
-
 
 tput cuu 1
 info "📡 Checking for required commands....✅"
@@ -113,7 +124,6 @@ if [[ $(echo "$aztec_verification" | tr -d '\n' | wc -l | xargs) -gt "0" ]]; the
 else
   tput cuu 1
   info "📡 Verifing Aztec....................✅"
-
 fi
 
 ## Verify milestone prs
@@ -151,23 +161,29 @@ EOF
 
 confirm_to_proceed "Do you want to continue?"
 
-info "🔧 Creating Gutenberg and Gutenberg Mobile release branches..."
-sleep 1
-tput cuu 1
-info "🔧 Creating Gutenberg and Gutenberg Mobile release branches...✅"
+if [[ -n "$GBM_DRY_RUN" ]]; then
+  warn "~~ Dry run enabled. Pushing branches to the remote repos will be skipped ~~"
+  echo
+fi
 
-info "🔧 Creating iOS and Android release integration branches......"
+info "🔧 STUB Creating Gutenberg and Gutenberg Mobile release branches..."
 sleep 1
 tput cuu 1
-info "🔧 Creating iOS and Android release integration branches......✅"
+info "🔧 STUB Creating Gutenberg and Gutenberg Mobile release branches...✅"
+
+
+info "🔧 STUB Creating iOS and Android release integration branches......"
+sleep 1
+tput cuu 1
+info "🔧 STUB Creating iOS and Android release integration branches......✅"
 
 cat << EOF
 
-${tty_underline}${tty_cyan}Resulting Prs:                                               ${tty_reset}${tty_cyan}
+${tty_underline}${tty_cyan}Resulting PRs (STUB):                                               ${tty_reset}${tty_cyan}
 
-◦ Gutenberg:        https://github.com/WordPress/gutenberg/pull/1
-◦ Gutenberg Mobile: https://github.com/wordpress-mobile/gutenberg-mobile/pull/1
-◦ WPAndriod:        https://github.com/wordpress-mobile/WordPress-Android/pull/1
-◦ WPiOS:            https://github.com/wordpress-mobile/WordPress-iOS/pull/1
+◦ Gutenberg:        https://github.com/WordPress/gutenberg/pull/STUB
+◦ Gutenberg Mobile: https://github.com/wordpress-mobile/gutenberg-mobile/pull/STUB
+◦ WPAndriod:        https://github.com/wordpress-mobile/WordPress-Android/pull/STUB
+◦ WPiOS:            https://github.com/wordpress-mobile/WordPress-iOS/pull/STUB
 EOF
 echo -e "\n${tty_cyan}🎉 All set!${tty_reset}"
