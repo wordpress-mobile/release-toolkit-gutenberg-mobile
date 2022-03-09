@@ -21,7 +21,7 @@ fetch_aztec_version() {
 }
 
 if [[ -z "$gb_sha" ]]; then
-  gbm_tree_sha=$(gh api "/repos/${GBM_REPO_OWNER}/gutenberg-mobile/commits/trunk" -q '.commit.tree.sha')
+  gbm_tree_sha=$(gh api "/repos/${GBM_REPO_OWNER}/gutenberg-mobile/commits/${gbm_branch}" -q '.commit.tree.sha')
   gb_sha=$(gh api "/repos/${GBM_REPO_OWNER}/gutenberg-mobile/git/trees/${gbm_tree_sha}" -q '.tree | .[] | select(.path == "gutenberg") | .sha')
 fi
 
