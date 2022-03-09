@@ -32,7 +32,7 @@ if [[ -z "$aztec_android_version" ]]; then
   echo "A release version for WordPress-Aztec-Android was not found in $aztec_android_gradle_url"
 fi
 
-aztec_ios_podspec_url="https://raw.githubusercontent.com/${GBM_REPO_OWNER}/gutenberg/${gbm_branch}/RNTAztecView.podspec"
+aztec_ios_podspec_url="https://raw.githubusercontent.com/${GBM_REPO_OWNER}/gutenberg-mobile/${gbm_branch}/RNTAztecView.podspec"
 aztec_ios_version=$(fetch_aztec_version "$aztec_ios_podspec_url" "WordPress-Aztec-iOS")
 if [[ -z "$aztec_ios_version" ]]; then
   echo "A release version for WordPress-Aztec-iOS was not found in $aztec_ios_podspec_url"
