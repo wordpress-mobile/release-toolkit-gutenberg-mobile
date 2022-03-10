@@ -9,6 +9,86 @@ GBM_GUTENBERG_OWNER="${GBM_GUTENBERG_OWNER:=WordPress}"
 GBM_WP_MOBILE_OWNER="${GBM_WP_MOBILE_OWNER:=wordpress-mobile}"
 GBM_DRY_RUN="${GBM_DRY_RUN:=1}"
 
+usage() {
+  echo "
+Usage: $0 [options] <version>
+
+Options:
+  -a | --allow-non-standard-branch
+    Allow non-standard branches, e.g. release-1.0.0-beta.1.
+
+  -z | --skip-aztec-verify
+    Skip the aztec verification step.
+
+  -m | --gbm-release-head trunk
+    Release from the given branch on gutenberg-mobile.
+
+  -g | --gb-release-head trunk
+    Release from the given branch on gutenberg.
+
+  -c | --cherry-pick
+    Commit to cherry pick from gutenberg/trunk into the gutenberg release branch.
+
+  -h | --help
+  Show this help.
+
+Examples:
+$ # Prepare release 1.0.0 from gutenberg-mobile/trunk and gutenberg/trunk
+$ $0 1.0.0
+
+$ # Prepare point release from gutenberg/rnmobile/1.0.0 and cherry pick commits '313lol' and '415rofl'
+$ $0 --gb-release-head \"rnmobile/1.0.0\" --cherry-pick \"313lol,415rofl\" 1.0.1
+"
+exit 2
+}
+
+# Set up default options
+gbm_release_head="trunk"
+gb_release_head="trunk"
+cherry_pick_commits=""
+
+skip_aztec_verify=0
+allow_non_standard_branches=0
+
+for i in "$@"; do
+  case $i in
+    -m|--gbm-release-head)
+      gbm_release_head="${2:-}"
+      shift
+      shift
+      ;;
+    -g|--gb-release-head)
+      gb_release_head="${2:-}"
+      shift
+      shift
+      ;;
+    -c|--cherry-pick)
+      cherry_pick_commits+="${2:-},"
+      shift
+      shift
+      ;;
+    -a|--allow-non-standard-branch)
+      allow_non_standard_branches=1
+      shift
+      ;;
+    -z|--skip-aztec-verify)
+      skip_aztec_verify=1
+      shift
+      ;;
+    -h|--help)
+      usage
+      ;;
+    -*|--*)
+      echo "Unknown option $i"
+      exit 1
+      ;;
+    *)
+      ;;
+  esac
+done
+
+cherry_pick_commits=${cherry_pick_commits%?}
+gbm_release_version="${1:-}"
 
 ## Output helpers
 if [[ -t 1 ]]; then
@@ -41,32 +121,19 @@ ${tty_reset}
 EOF
 }
 
-# Parse arguments
-usage() {
-    cat <<EOF
-Usage: $0 ????
 
-EOF
-}
 
-gbm_release_head="trunk"
-gb_release_head="trunk"
-
-skip_aztec_verify=0
-allow_non_stable_branches=0
-
-gbm_release_version="${1:-}"
 
 [[ "${GBM_DRY_RUN}" -gt "0" ]] && show_dry_run_warning
 
 
 if [[ -z "$gbm_release_version" ]] || ! [[ "$gbm_release_version" =~ [0-9]*\.[0-9]*\.[0-9]* ]]; then
   error "{$tty_red}Error: A valid version is required."
-  usage && exit 1
+  usage
 fi
 
 # Validations
-if [[ "$allow_non_stable_branches"  -eq "0" ]] && [[ ! "$gbm_release_head" =~ ^trunk$|v[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+if [[ "$allow_non_standard_branches"  -eq "0" ]] && [[ ! "$gbm_release_head" =~ ^trunk$|v[0-9]+\.[0-9]+\.[0-9]+ ]]; then
   warn "Looks like you're trying to release from '$gbm_release_head'. This is not recommended."
   abort "Releases should generally only be based on 'trunk', or a release tag."
 fi
