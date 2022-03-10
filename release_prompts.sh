@@ -94,14 +94,17 @@ verify_command_version() {
 
 gh_version=$(gh version | tail -1 | xargs basename) 2>/dev/null
 ! verify_command_version "gh" "v2.2.0" "$gh_version" && exit 1
-! verify_command_version "jq" "jq-1.6" $(jq --version) && exit 1
+! verify_command_version "jq" "jq-1.6" "$(jq --version)" && exit 1
 
 echo "${check_command_message%??}✅"
 
 ## Verify Aztec version
 echo "$check_aztec_message"
-aztec_verification=$(curl -sSL https://raw.githubusercontent.com/wordpress-mobile/release-toolkit-gutenberg-mobile/add/extract-verify-aztec-script/verify_aztec_version.sh | bash -s trunk 1)
-aztec_version_warning=$(echo "$aztec_verification" | wc -l | xargs)
+aztec_verification=$(curl -sSL https://raw.githubusercontent.com/wordpress-mobile/release-toolkit-gutenberg-mobile/add/extract-verify-aztec-script/verify_aztec_version.sh | bash)
+aztec_version_warning=0
+if [[ -n "$aztec_verification" ]]; then
+  aztec_version_warning=1
+fi
 update_check_message "$aztec_version_warning" "$check_aztec_message"
 
 ## Check for open PRs for the release version
