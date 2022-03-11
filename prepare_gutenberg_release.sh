@@ -111,18 +111,11 @@ abort() { printf "${tty_bold}${tty_red}Error: %s${tty_reset}\n" "$1" && exit 1; 
 show_dry_run_warning() {
   cat <<EOF
 ${tty_red}
-################################################################################
-#                                                                              #
-#                          ❗️ Dry Mode enabled ❗️                              #
-#                ~~ Nothing will be pushed to remote repos ~~                  #
-#                                                                              #
-################################################################################
+                           ❗️ Dry Run Enabled ❗️
+                 ~~ Nothing will be pushed to remote repos ~~
 ${tty_reset}
 EOF
 }
-
-
-
 
 [[ "${GBM_DRY_RUN}" -gt "0" ]] && show_dry_run_warning
 
@@ -132,13 +125,27 @@ if [[ -z "$gbm_release_version" ]] || ! [[ "$gbm_release_version" =~ [0-9]*\.[0-
   usage
 fi
 
+gbm_release_branch="release/$gbm_release_version"
+gb_release_branch="rnmobile/release/$gbm_release_version"
+
 # Validations
+
+## Check to see if the is an open Gutenberg release PR exists
+should_create_gb_release_pr=$(gh pr view "$gb_release_branch" --repo "$GBM_GUTENBERG_OWNER/gutenberg" --json "closed" --jq ".closed" 2>/dev/null || echo "true")
+
+if [[ "$should_create_gb_release_pr" = false ]]; then
+  echo "Found Gutenberg release PR for $gbm_release_version. Verify the release is ready or close the PR then try again:"
+  gh pr view "$gb_release_branch" --repo "$GBM_GUTENBERG_OWNER/gutenberg"
+  exit 1
+fi
+
+## Check for non standard branches
 if [[ "$allow_non_standard_branches"  -eq "0" ]] && [[ ! "$gbm_release_head" =~ ^trunk$|v[0-9]+\.[0-9]+\.[0-9]+ ]]; then
   warn "Looks like you're trying to release from '$gbm_release_head'. This is not recommended."
   abort "Releases should generally only be based on 'trunk', or a release tag."
 fi
 
-## TODO change 'add/extract-verify-aztec-script' to 'trunk' after https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/pull/98 is merged
+## TODO change aztec_verification url to 'trunk' after https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/pull/98 is merged
 if [[ "$skip_aztec_verify" -eq "0" ]]; then
   aztec_verification=$(curl -sSL https://bit.ly/gbm-toolkit--verify-aztec | bash -s "$gbm_release_head")
   if [[ -n "$aztec_verification" ]] && [[ $(echo "$aztec_verification" | wc -l | xargs) -gt "0" ]]; then
@@ -147,20 +154,6 @@ if [[ "$skip_aztec_verify" -eq "0" ]]; then
     exit 1
   fi
 fi
-
-# Clone Gutenberg Mobile
-# Check to see if there is an existing Gutenberg Mobile release PR
-# NOTE: If there is an existing PR, can we assume the changes are ready ?
-gbm_release_branch="release/$gbm_release_version"
-
-# Check if the release branch already exists
-#gbm_release_branch_exists=$(gh api "repos/${GBM_WP_MOBILE_OWNER}/mobile-gutenberg/branches" --jq '(map(select(.name == "update-release-checklist") | .name)) | first')
-
-#if [[ -n "$gbm_release_branch_exists" ]]; then
-#  gbm_clone_branch="$gbm_release_branch"
-#else
-#  gbm_clone_branch="$gbm_release_head"
-#fi
 
 # Initialize Guteberg Mobile for release
 git clone "https://github.com/$GBM_WP_MOBILE_OWNER/gutenberg-mobile" \
@@ -172,7 +165,6 @@ git clone "https://github.com/$GBM_WP_MOBILE_OWNER/gutenberg-mobile" \
 
 cd gutenberg-mobile
 git switch -c "$gbm_release_branch"
-
 npm ci
 
 # Setup Gutenberg for release
@@ -212,9 +204,9 @@ done
 git add package.json package-lock.json
 git commit -m "Release script: Update gb mobile to version $gbm_release_version"
 
-#npm run bundle
-#git add bundle/
-#git commit -m "Release script: Update bundle for $gbm_release_version"
+npm run bundle
+git add bundle/
+git commit -m "Release script: Update bundle for $gbm_release_version"
 
 git add gutenberg
 git commit -m "Release script: Update gutenberg ref"
@@ -224,7 +216,6 @@ if [[ "$GBM_DRY_RUN" -gt "0" ]]; then
   echo -e "\n${tty_bold} Dry run complete – see you later 👋 ${tty_reset}"
   exit 0
 fi
-
 
 # Create release PRs
 
