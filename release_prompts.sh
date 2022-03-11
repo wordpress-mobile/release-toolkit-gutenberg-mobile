@@ -5,14 +5,6 @@ if [[ -n "${GBM_DEBUG:-}" ]]; then
     set -x
 fi
 
-if [[ -t 0 ]]; then
-    echo "[[ -t 0 ]] is true"
-else
-    echo "[[ -t 0 ]] is false"
-fi
-
-exit 0
-
 GBM_GUTENBERG_OWNER="${GBM_GUTENBERG_OWNER:=WordPress}"
 GBM_WP_MOBILE_OWNER="${GBM_WP_MOBILE_OWNER:=wordpress-mobile}"
 GBM_DRY_RUN="${GBM_DRY_RUN:=1}"
@@ -193,7 +185,10 @@ echo_create_or_use "$gbm_release_pr_count" "${GBM_WP_MOBILE_OWNER}/gutenberg-mob
 echo_create_or_use "$wpandroid_integration_pr_count" "${GBM_WP_MOBILE_OWNER}/WordPress-Android/gutenberg/integrate_release_${gbm_release_version} → ${GBM_WP_MOBILE_OWNER}WordPress-Android/master${tty_reset}"
 echo_create_or_use "$wpandroid_integration_pr_count" "${GBM_WP_MOBILE_OWNER}/WordPress-iOS/gutenberg/integrate_release_${gbm_release_version}     → ${GBM_WP_MOBILE_OWNER}WordPress-iOS/master${tty_reset}\n"
 
-confirm_to_proceed "Do you want to continue?"
+# If is tty ?
+if [[ -t 0 ]]; then
+  confirm_to_proceed "Do you want to continue?"
+fi
 
 [[ "${GBM_DRY_RUN}" -gt "0" ]] && show_dry_run_warning
 
