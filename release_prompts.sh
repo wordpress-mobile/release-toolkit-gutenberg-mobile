@@ -5,6 +5,14 @@ if [[ -n "${GBM_DEBUG:-}" ]]; then
     set -x
 fi
 
+if [[ -t 0 ]]; then
+    echo "[[ -t 0 ]] is true"
+else
+    echo "[[ -t 0 ]] is false"
+fi
+
+exit 0
+
 GBM_GUTENBERG_OWNER="${GBM_GUTENBERG_OWNER:=WordPress}"
 GBM_WP_MOBILE_OWNER="${GBM_WP_MOBILE_OWNER:=wordpress-mobile}"
 GBM_DRY_RUN="${GBM_DRY_RUN:=1}"
@@ -27,15 +35,13 @@ tty_green="$(tty_escape 32)"
 abort() { printf "${tty_bold}${tty_red}Error: %s${tty_reset}\n" "$1" && exit 1; }
 
 confirm_to_proceed() {
-    read -r -p "${tty_bold}$1 (y/n) ${tty_reset}" -n 1
-    echo ""
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        echo -e "\nStoping the release... see you later 👋 "
-        exit 0
-    fi
+  read -r -p "${tty_bold}$1 (y/n) ${tty_reset}" -n 1
+  echo ""
+  if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+      echo -e "\nStoping the release... see you later 👋 "
+      exit 0
+  fi
 }
-
-
 
 show_dry_run_warning() {
   cat <<EOF
