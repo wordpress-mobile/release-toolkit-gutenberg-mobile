@@ -15,10 +15,10 @@ Usage: $0 [options] <version>
 
 Options:
   -a | --allow-non-standard-branch
-    Allow non-standard branches, e.g. release-1.0.0-beta.1.
+    Allow non-standard branches, e.g. release-1.0.0-beta.1. Default false
 
   -z | --skip-aztec-verify
-    Skip the aztec verification step.
+    Skip the aztec verification step. Default false
 
   -m | --gbm-release-head trunk
     Release from the given branch on gutenberg-mobile.
@@ -27,7 +27,11 @@ Options:
     Release from the given branch on gutenberg.
 
   -c | --cherry-pick
-    Commit to cherry pick from gutenberg/trunk into the gutenberg release branch.
+    Commit to cherry pick from gutenberg/trunk into the gutenberg release branch. Add multiple cherry-pick commits with multiple -c flags.
+
+  -s|--gb-shallow-since
+    Shallow clone the gutenberg repo from the given date, See
+
 
   -h | --help
   Show this help.
@@ -46,6 +50,7 @@ exit 2
 gbm_release_head="trunk"
 gb_release_head="trunk"
 cherry_pick_commits=""
+gb_shallow_since=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
 
 skip_aztec_verify=0
 allow_non_standard_branches=0
@@ -64,6 +69,11 @@ for i in "$@"; do
       ;;
     -c|--cherry-pick)
       cherry_pick_commits+="${2:-},"
+      shift
+      shift
+      ;;
+    -s|--gb-shallow-since)
+      gb_shallow_since="${2:-}"
       shift
       shift
       ;;
@@ -155,7 +165,7 @@ if [[ "$skip_aztec_verify" -eq "0" ]]; then
   fi
 fi
 
-# Initialize Guteberg Mobile for release
+# Initialize Gutenberg Mobile and Gutenberg for release
 git clone "https://github.com/$GBM_WP_MOBILE_OWNER/gutenberg-mobile" \
   --branch "$gbm_release_head" \
   --single-branch \
@@ -164,13 +174,23 @@ git clone "https://github.com/$GBM_WP_MOBILE_OWNER/gutenberg-mobile" \
   --depth 1
 
 cd gutenberg-mobile
-git switch -c "$gbm_release_branch"
-npm ci
+git switch "$gbm_release_branch"  2>/dev/null || git checkout -b "$gbm_release_branch"
 
 # Setup Gutenberg for release
 cd gutenberg
-gb_release_branch="rnmobile/release/$gbm_release_version"
-git switch -c "$gb_release_branch"
+git remote set-branches origin "$gb_release_head" "$gbm_release_branch"
+git switch "$gb_release_head"
+git fetch --shallow-since "$gb_shallow_since" origin "$gb_release_head"
+git switch "$gb_release_branch" 2>/dev/null || git switch -c "$gb_release_branch"
+
+if [[ -n "$cherry_pick_commits" ]]; then
+  git cherry-pick "$cherry_pick_commits"
+fi
+
+# hop back up and install the node packages
+cd -
+npm ci
+cd -
 
 ## Update the verison in gutenberg package.json files
 for file in \
@@ -235,7 +255,6 @@ gbm_pr_url=$(gh pr create \
 --repo "$GBM_WP_MOBILE_OWNER/gutenberg-mobile" \
 --label "release-process" \
 --draft | tail -1)
-
 
 ## Gutenberg PR
 cd gutenberg
