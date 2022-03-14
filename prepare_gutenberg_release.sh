@@ -155,16 +155,6 @@ if [[ "$allow_non_standard_branches"  -eq "0" ]] && [[ ! "$gbm_release_head" =~ 
   abort "Releases should generally only be based on 'trunk', or a release tag."
 fi
 
-## TODO change aztec_verification url to 'trunk' after https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/pull/98 is merged
-if [[ "$skip_aztec_verify" -eq "0" ]]; then
-  aztec_verification=$(curl -sSL https://bit.ly/gbm-toolkit--verify-aztec | bash -s "$gbm_release_head")
-  if [[ -n "$aztec_verification" ]] && [[ $(echo "$aztec_verification" | wc -l | xargs) -gt "0" ]]; then
-    warn "Aztec version verification failed. Please check the version and try again. Errors:"
-    echo "\n$aztec_verification"
-    exit 1
-  fi
-fi
-
 # Initialize Gutenberg Mobile and Gutenberg for release
 git clone "https://github.com/$GBM_WP_MOBILE_OWNER/gutenberg-mobile" \
   --branch "$gbm_release_head" \
@@ -187,9 +177,19 @@ if [[ -n "$cherry_pick_commits" ]]; then
   git cherry-pick "$cherry_pick_commits"
 fi
 
-# hop back up and install the node packages
+# hop back up to install the node packages and run the Aztec check.
 cd -
 npm ci
+if [[ "$skip_aztec_verify" -eq "0" ]]; then
+  ## TODO change aztec_verification url to 'trunk' after https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/pull/98 is merged
+  aztec_verification_script="https://raw.githubusercontent.com/wordpress-mobile/release-toolkit-gutenberg-mobile/add/extract-verify-aztec-script/verify_aztec_version.sh"
+  aztec_verification=$(curl -sSL "$aztec_verification_script" | bash -s "$gbm_release_head")
+  if [[ -n "$aztec_verification" ]] && [[ $(echo "$aztec_verification" | wc -l | xargs) -gt "0" ]]; then
+    warn "Aztec version verification failed. Please check the version and try again. Errors:"
+    echo "\n$aztec_verification"
+    exit 1
+  fi
+fi
 cd -
 
 ## Update the verison in gutenberg package.json files
