@@ -26,24 +26,28 @@ tty_green="$(tty_escape 32)"
 
 abort() { printf "${tty_bold}${tty_red}Error: %s${tty_reset}\n" "$1" && exit 1; }
 
+## Allow user to answer if runiing in interactive mode.
+## Otherwise fail with an error.
 confirm_to_proceed() {
-  read -r -p "${tty_bold}$1 (y/n) ${tty_reset}" -n 1
-  echo ""
-  if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+  if [[ -t 0 ]]; then
+    read -r -p "${tty_bold}$1 (y/n) ${tty_reset}" -n 1
+    echo ""
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
       echo -e "\nStoping the release... see you later 👋 "
-      exit 0
+      exit 1
+    fi
+  else
+    # Non-interactive mode so assume "no"
+    echo "Running in non-interactive mode. Stopping the release."
+    exit 1
   fi
 }
 
 show_dry_run_warning() {
   cat <<EOF
 ${tty_red}
-################################################################################
-#                                                                              #
-#                          ❗️ Dry Mode enabled ❗️                              #
-#                ~~ Nothing will be pushed to remote repos ~~                  #
-#                                                                              #
-################################################################################
+                           ❗️ Dry Run Enabled ❗️
+                 ~~ Nothing will be pushed to remote repos ~~
 ${tty_reset}
 EOF
 }
@@ -122,10 +126,9 @@ wpios_integration_pr_count=$(pr_count "${GBM_WP_MOBILE_OWNER}/WordPress-iOS"  "g
 existing_release_warning=$((gbm_release_pr_count + gb_release_pr_count + wpandroid_integration_pr_count + wpios_integration_pr_count))
 update_check_message "$existing_release_warning" "$check_prs_message"
 
-
 ## Verify milestone prs
 echo "$check_milestone_message"
-# Look for both full and short version milestones, that is both "1.0.0" and "1.0"
+### Look for both full and short version milestones, that is both "1.0.0" and "1.0"
 release_milestone_pr_count=$(gh api -X GET search/issues -f q="repo:${GBM_WP_MOBILE_OWNER}/gutenberg-mobile milestone:${gbm_release_version} is:open" -q '.total_count')
 gbm_short_version=$(cut -d '.' -f 1-2 <<< "$gbm_release_version")
 short_release_milestone_pr_count=$(gh api -X GET search/issues -f q="repo:${GBM_WP_MOBILE_OWNER}/gutenberg-mobile milestone:${gbm_short_version} is:open" -q '.total_count')
@@ -133,8 +136,8 @@ short_release_milestone_pr_count=$(gh api -X GET search/issues -f q="repo:${GBM_
 release_milestone_pr_count=$((release_milestone_pr_count + short_release_milestone_pr_count))
 update_check_message "$release_milestone_pr_count" "$check_milestone_message"
 
-
-# Prompt for any warning overides before proceeding
+# ---
+# Prompt for overrides if any issues found
 
 ## Continue with Aztec release warnings
 if [[ "$aztec_version_warning" -gt "0" ]]; then
@@ -185,30 +188,4 @@ echo_create_or_use "$gbm_release_pr_count" "${GBM_WP_MOBILE_OWNER}/gutenberg-mob
 echo_create_or_use "$wpandroid_integration_pr_count" "${GBM_WP_MOBILE_OWNER}/WordPress-Android/gutenberg/integrate_release_${gbm_release_version} → ${GBM_WP_MOBILE_OWNER}WordPress-Android/master${tty_reset}"
 echo_create_or_use "$wpandroid_integration_pr_count" "${GBM_WP_MOBILE_OWNER}/WordPress-iOS/gutenberg/integrate_release_${gbm_release_version}     → ${GBM_WP_MOBILE_OWNER}WordPress-iOS/master${tty_reset}\n"
 
-# If is tty ?
-if [[ -t 0 ]]; then
-  confirm_to_proceed "Do you want to continue?"
-fi
-
-[[ "${GBM_DRY_RUN}" -gt "0" ]] && show_dry_run_warning
-
-echo "🔧 STUB Creating Gutenberg and Gutenberg Mobile release branches..."
-sleep 1
-tput cuu 1
-echo "🔧 STUB Creating Gutenberg and Gutenberg Mobile release branches...✅"
-
-
-echo "🔧 STUB Creating iOS and Android release integration branches......"
-sleep 1
-tput cuu 1
-echo "🔧 STUB Creating iOS and Android release integration branches......✅"
-
-cat << EOF
-
-${tty_underline}${tty_cyan}Resulting PRs (STUB):                                                                  ${tty_reset}${tty_cyan}
-◦ Gutenberg:        https://github.com/WordPress/gutenberg/pull/STUB
-◦ Gutenberg Mobile: https://github.com/wordpress-mobile/gutenberg-mobile/pull/STUB
-◦ WPAndriod:        https://github.com/wordpress-mobile/WordPress-Android/pull/STUB
-◦ WPiOS:            https://github.com/wordpress-mobile/WordPress-iOS/pull/STUB
-EOF
-echo -e "\n${tty_reset}${tty_bold}🚀  All set and have fun! 🚀 ${tty_reset}"
+confirm_to_proceed "Do you want to continue?"
