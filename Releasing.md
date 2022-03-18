@@ -24,7 +24,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 
 <details><summary>Click to expand</summary>
 <p>
-  
+
 ```html
 <!-- wp:paragraph -->
 <p>This checklist is based on the <a href="https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/blob/develop/Releasing.md#release-checklist-template">Release Checklist Template</a>. If you need a checklist for a new gutenberg-mobile release, please copy from that template.</p>
@@ -77,7 +77,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <blockquote class="wp-block-quote"><p>⚠️ The gutenberg-mobile X.XX.X release branches are now cut. Please do not merge any Gutenberg-related changes into the WPiOS or WPAndroid <code>trunk</code> branches until <em>after</em> the main apps cut their own releases next week. If you'd like to merge changes now, merge them into the <code>gutenberg/after_X.XX.X</code> branches. </p></blockquote>
 <!-- /wp:quote --></div>
 <!-- /wp:group -->
-  
+
 <!-- wp:paragraph -->
 <p>o In both <code>RELEASE-NOTES.txt</code> and <code>gutenberg/packages/react-native-editor/CHANGELOG.md</code>, replace <code>Unreleased</code> section with the release version and create a new <code>Unreleased</code> section.</p>
 <!-- /wp:paragraph -->
@@ -87,11 +87,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Verify the WPAndroid PR build succeeds. If PR CI tasks include a 403 error related to an inability to resolve the <code>react-native-bridge</code> dependency, you must wait for the <code>Build Android RN Bridge &amp; Publish to S3</code> task to succeed in gutenberg-mobile and then restart the WPAndroid CI tasks.</p>
-<!-- /wp:paragraph -->  
-
-<!-- wp:paragraph -->
-<p>o Trigger an installable build on WPiOS PR.</p>
+<p>o Verify the WPAndroid and iOS PR builds succeed. For WPAndroid, if the PR CI tasks include a 403 error related to an inability to resolve the <code>react-native-bridge</code> dependency, you must wait for the <code>Build Android RN Bridge &amp; Publish to S3</code> task to succeed in gutenberg-mobile and then restart the WPAndroid CI tasks.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
@@ -191,21 +187,21 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- wp:group -->
 <div class="wp-block-group"><!-- wp:paragraph -->
 <p>o Once everything is merged, send a heads up to our friends in the <code>#platform9</code> Slack channel. If this is a "regular" release for the WPiOS and WPAndroid `trunk` branches (i.e. this isn't a beta/hot fix, e.g. X.XX.2), the message will look similar to the following:</p>
-<!-- /wp:paragraph -->  
-  
+<!-- /wp:paragraph -->
+
 <!-- wp:quote -->
 <blockquote class="wp-block-quote"><p>Hey team. I wanted to let you know that the mobile Gutenberg team has finished integrating the X.XX.X Gutenberg release into the WPiOS and WPAndroid `trunk` branches. The integration is ready for the next release cut/build creation when you are available. Please let me know if you have any questions. Thanks! </p></blockquote>
 <!-- /wp:quote -->
-  
+
 <!-- wp:paragraph -->
 <p>o If the release is a beta/hot fix (e.g. X.XX.2), be sure to directly mention the relevant Excellence Wranglers for the release and modify the following template, similar to the following:</p>
-<!-- /wp:paragraph -->  
-  
+<!-- /wp:paragraph -->
+
 <!-- wp:quote -->
 <blockquote class="wp-block-quote"><p>Hey team. I wanted to let you know that the mobile Gutenberg team has finished integrating the X.XX.X Gutenberg release into the WPiOS and WPAndroid `release/XX.X` branches, ready for a new beta when you are available. Please let me know if you have any questions. Thanks! </p></blockquote>
 <!-- /wp:quote --></div>
 <!-- /wp:group -->
-  
+
 <!-- wp:paragraph -->
 <p>o Close the <a href="https://github.com/wordpress-mobile/gutenberg-mobile/milestones">Gutenberg Mobile milestone</a> that corresponds to this release.</p>
 <!-- /wp:paragraph -->
