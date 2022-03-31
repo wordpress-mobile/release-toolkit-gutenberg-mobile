@@ -303,7 +303,7 @@ For example, when the next release will be `1.11.0`.
 | Repo             | Cut From | Branch Name                               |
 | ---------------- | -------- | ----------------------------------------- |
 | gutenberg        | trunk    | rnmobile/release_1.11.0-alpha1            |
-| gutenberg-mobile | develop  | release/1.11.0-alpha1                     |
+| gutenberg-mobile | trunk    | release/1.11.0-alpha1                     |
 | WPAndroid        | trunk    | gutenberg/integrate_release_1.11.0-alpha1 |
 | WPiOS            | trunk    | gutenberg/integrate_release_1.11.0-alpha1 |
 
@@ -331,7 +331,7 @@ For example when releasing gutenberg-mobile `1.11.0`.
 | Repo             | Cut From | Branch Name                        | Merging To      |
 | ---------------- | -------- | ---------------------------------- | --------------- |
 | gutenberg        | trunk    | rnmobile/release_1.11.0            | trunk           |
-| gutenberg-mobile | develop  | release/1.11.0                     | trunk & develop |
+| gutenberg-mobile | trunk    | release/1.11.0                     | trunk           |
 | WPAndroid        | trunk    | gutenberg/integrate_release_1.11.0 | trunk           |
 | WPiOS            | trunk    | gutenberg/integrate_release_1.11.0 | trunk           |
 
@@ -349,7 +349,7 @@ At the same time there could also be a regular release going on for example for 
 | Repo             | Cut From                | Branch Name                        | Merging To                                                       |
 | ---------------- | ----------------------- | ---------------------------------- | ---------------------------------------------------------------- |
 | gutenberg        | rnmobile/release_1.11.0 | rnmobile/release_1.11.1            | trunk & (maybe also) rnmobile/release_1.12.0                     |
-| gutenberg-mobile | release/1.11.0          | release/1.11.1                     | trunk & develop & (maybe also) release/1.12.0                    |
+| gutenberg-mobile | release/1.11.0          | release/1.11.1                     | trunk & (maybe also) release/1.12.0                              |
 | WPAndroid        | release/22.2.0          | gutenberg/integrate_release_1.11.1 | release/22.2.0 & (maybe also) gutenberg/integrate_release_1.12.0 |
 | WPiOS            | release/22.2.0          | gutenberg/integrate_release_1.11.1 | release/22.2.0 & (maybe also) gutenberg/integrate_release_1.12.0 |
 
@@ -379,7 +379,7 @@ At the same time there could also be a regular release, a betafix or even anothe
 | Repo             | Cut From                | Branch Name                        | Merging To                                                       |
 | ---------------- | ----------------------- | ---------------------------------- | ---------------------------------------------------------------- |
 | gutenberg        | rnmobile/release_1.11.0 | rnmobile/release_1.11.1            | trunk & (maybe also) rnmobile/release_1.12.1                     |
-| gutenberg-mobile | release/1.11.0          | release/1.11.1                     | trunk & develop & (maybe also) release/1.12.1                    |
+| gutenberg-mobile | release/1.11.0          | release/1.11.1                     | trunk & (maybe also) release/1.12.1                              |
 | WPAndroid        | release/22.2.0          | gutenberg/integrate_release_1.11.1 | release/22.2.1 & (maybe also) gutenberg/integrate_release_1.12.1 |
 | WPiOS            | release/22.2.0          | gutenberg/integrate_release_1.11.1 | release/22.2.1 & (maybe also) gutenberg/integrate_release_1.12.1 |
 
