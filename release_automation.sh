@@ -336,7 +336,18 @@ execute "git" "switch" "-c" "gutenberg/integrate_release_$VERSION_NUMBER"
 ohai "Update GitHub organization and gutenberg-mobile ref"
 test -f "Podfile" || abort "Error: Could not find Podfile"
 sed -i'.orig' -E "s/wordpress-mobile(\/gutenberg-mobile)/$MOBILE_REPO\1/" Podfile || abort "Error: Failed updating GitHub organization in Podfile"
-sed -i'.orig' -E "s/gutenberg :(commit|tag) => '(.*)'/gutenberg :commit => '$GB_MOBILE_PR_REF'/" Podfile || abort "Error: Failed updating gutenberg ref in Podfile"
+# The Gutenberg reference can be in two different formats in Podfile, hence we have to detect which one is being used before updating it.
+#   - Old format: gutenberg :tag => 'v1.0.0'
+#   - New format: gutenberg tag: 'v1.0.0'
+if ( grep -qE "gutenberg :(commit|tag) => '(.*)'" Podfile ) then
+    # Old format (WordPress-iOS 20.0 and older)
+    sed -i'.orig' -E "s/gutenberg :(commit|tag) => '(.*)'/gutenberg :commit => '$GB_MOBILE_PR_REF'/" Podfile || abort "Error: Failed updating gutenberg ref in Podfile (old format)"
+elif ( grep -qE "gutenberg (commit|tag): '(.*)'" Podfile ) then
+    # New format (WordPress-iOS 20.1 and newer)
+    sed -i'.orig' -E "s/gutenberg (commit|tag): '(.*)'/gutenberg :commit => '$GB_MOBILE_PR_REF'/" Podfile || abort "Error: Failed updating gutenberg ref in Podfile (new format)"
+else
+    abort "Error: Failed updating gutenberg ref in Podfile due to bad format"
+fi
 execute "bundle" "install"
 execute_until_succeeds "rake" "dependencies"
 
