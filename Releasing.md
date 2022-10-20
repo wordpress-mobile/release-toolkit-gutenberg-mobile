@@ -284,6 +284,15 @@ For the body of the post, just copy this checklist and again replace all occurre
 </p>
 </details>
 
+If the release is a beta/hot fix, include the following block at the top of the body, explaining briefly the reason for releasing the fix.
+**Example:** `This hotfix addresses ISSUE_OR_CRASH in ORIGINAL_VERSION. See P2_PR_SLACK_ETC_LINK_OR_LINKS for the rationale behind the decision to make it.`
+
+```html
+<!-- wp:paragraph {"backgroundColor":"pale-cyan-blue"} -->
+<p class="has-pale-cyan-blue-background-color has-background">[Add reason for releasing the fix HERE]</p>
+<!-- /wp:paragraph -->
+```
+
 # Different types of releases
 
 ## Best practices
