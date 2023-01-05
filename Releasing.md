@@ -48,10 +48,6 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:quote --></div>
 <!-- /wp:group -->
 
-<!-- wp:paragraph -->
-<p>o Create installable builds for WPiOS and WPAndroid based off the current <code>trunk</code> branch and complete the <a href="https://github.com/wordpress-mobile/test-cases/tree/master/test-cases/gutenberg/writing-flow">general writing flow test cases</a>. </p>
-<!-- /wp:paragraph -->
-
 <!-- wp:heading {"level":3} -->
 <h3>Create the Release (Thursday)</h3>
 <!-- /wp:heading -->
