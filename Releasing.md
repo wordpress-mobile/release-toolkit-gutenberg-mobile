@@ -12,15 +12,28 @@ This is useful in case you want to use an unreleased version of the bundle in th
 
 # Release Checklist Template
 
-When you are ready to cut a new release, use the following template.
+When cutting a new release post the release checklist to https://appreleasesp2.wordpress.com/
+
 
 For the post title, use this (replacing `X.XX.X` with the applicable release number):
 
 ```
 Gutenberg Mobile X.XX.X – Release Scenario
 ```
+Choose one of the following methods to create the body of the post :
 
-For the body of the post, just copy this checklist and again replace all occurrences of `X.XX.X` with the applicable release number.
+### Updated with the new gutenberg task block
+Run the `release_checklist.rb` to generate the checklist. The rendered checklist can be captured from stdout, example:
+
+`$ ./release_checklist.rb 1.2.3 | pbcopy`
+
+run
+`$ ./release_checklist.rb -h` for more options
+
+
+### Classic markdown flavored checkbox
+
+Copy this checklist and again replace all occurrences of `X.XX.X` with the applicable release number.
 
 <details><summary>Click to expand</summary>
 <p>
