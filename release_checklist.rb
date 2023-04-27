@@ -5,7 +5,7 @@ require 'optparse'
 require 'tempfile'
 
 def use_local_template?
-  ENV['GBM_USE_LOCAL_TEMPLATES']
+  ENV['GBM_USE_LOCAL_RELEASE_TEMPLATES']
 end
 
 # Output helpers
