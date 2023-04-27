@@ -64,7 +64,7 @@ class ReleaseChecklist < Checklist
   def initialize(version, options = {})
     @version = version
     local_template = options.fetch(:template, false)
-    @template = local_template ? File.read(local_template) : self.class.template
+    @template = self.class.template
     @release_date = options.fetch(:release_date, "[date]")
     @mobile_version = options.fetch(:mobile_version, "XX.X")
     @is_unscheduled = options.fetch(:is_unscheduled, false)
@@ -144,10 +144,6 @@ option_parser = OptionParser.new do |opts|
 
   opts.on '-v', '--mobile-version', 'Mobile host version (Only used for unscheduled releases)' do |v|
     options[:mobile_version] = v
-  end
-
-  opts.on '-t', '--template TEMPLATE', 'Template file' do |t|
-    options[:template] = t
   end
 
   opts.on '-o', '--output OUTPUT', 'Output file' do |o|
