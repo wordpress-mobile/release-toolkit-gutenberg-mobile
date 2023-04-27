@@ -1,0 +1,225 @@
+
+<!-- wp:paragraph {"className":"p2-editor-autotitle"} -->
+<p class="p2-editor-autotitle">Gutenberg Mobile <%= @version %> – Release Scenario</p>
+<!-- /wp:paragraph -->
+
+<% unless @is_unscheduled %>
+<!-- wp:heading {"level":3} -->
+<h3>Before the Release (Tuesday)</h3>
+<!-- /wp:heading -->
+
+<!-- wp:group -->
+<div class="wp-block-group">
+
+  <%= task_block "Visit all open gutenberg-mobile PRs that are assigned to #{ @version } milestone and leave a comment with a message similar to the following:" %>
+
+  <!-- wp:quote -->
+  <blockquote class="wp-block-quote">
+    <p>Hey [author]. We will cut the <%= @version %> release on <%= @release_date %>. I plan to circle back and bump this PR to the next milestone then, but please let me know if you'd rather us work to include this PR in <%= @version %>. Thanks!
+    </p>
+  </blockquote>
+  <!-- /wp:quote -->
+</div>
+<!-- /wp:group -->
+<% end %>
+
+<% if @is_unscheduled && @unscheduled_message %>
+<!-- wp:paragraph {"backgroundColor":"pale-cyan-blue"} -->
+<p class="has-pale-cyan-blue-background-color has-background"><%= @unscheduled_message %></p>
+<!-- /wp:paragraph -->
+<% end %>
+
+<!-- wp:heading {"level":3} -->
+<h3>Create the Release <%= @is_unscheduled ? "" : "(Thursday)"%></h3>
+<!-- /wp:heading -->
+
+<%= task_block 'Verify that <code>gutenberg-mobile/RNTAztecView.podspec</code> and <code>gutenberg-mobile/gutenberg/packages/react-native-aztec/RNTAztecView.podspec</code> ' +
+               'refer to the same <code>WordPress-Aztec-iOS</code> version and are pointing to a stable, tagged release (e.g. 1.14.1). If they are not, ' +
+               'we may need to <a href="#create-a-new-aztec-release">create a new Aztec</a> release.'  %>
+
+<%= task_block 'Clone the <a href="https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile">release scripts</a> or pull the latest version if you have already cloned it.' %>
+
+<%= task_block 'Review the <a href="https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/blob/develop/Releasing.md">release script instructions</a>. ' +
+               'In your clone of the release scripts, run the script via:  <code>./release_automation.sh</code>. This creates the gutenberg and gutenberg-mobile release PRs as well as WPAndroid and WPiOS integration PRs.' +
+               '<br><br><strong>Note:</strong> You might want to wait a bit before confirming WPAndroid PR creation so gutenberg-mobile can have enough time to finish the ' +
+               '<code>Build Android RN Bridge &amp; Publish to S3</code> job on CI which is needed by WPAndroid CI.' %>
+
+<% unless @is_unscheduled %>
+<!-- wp:group -->
+<div class="wp-block-group">
+  <%= task_block 'Post a message similar to the following to the <code>#mobile-gutenberg</code> and <code>#mobile-gutenberg-platform</code> Slack channels:' %>
+
+  <!-- wp:quote -->
+  <blockquote class="wp-block-quote">
+    <p>⚠️ The gutenberg-mobile <%= @version %> release branches are now cut. Please do not merge any Gutenberg-related changes into the WPiOS or WPAndroid <code>trunk</code> branches until <em>after</em>
+      the main apps cut their own releases next week. If you'd like to merge changes now, merge them into the <code>gutenberg/after_<%= @version %></code> branches.</p>
+  </blockquote>
+  <!-- /wp:quote -->
+</div>
+<!-- /wp:group -->
+<% end %>
+
+<%= task_block 'In both <code>RELEASE-NOTES.txt</code> and <code>gutenberg/packages/react-native-editor/CHANGELOG.md</code>, ' +
+               'replace <code>Unreleased</code> section with the release version and create a new <code>Unreleased</code> section.' %>
+
+<%= task_block 'Review and update <code>RELEASE-NOTES.txt</code> file on both WPAndroid and WPiOS PRs so it includes all user-facing changes introduced in the release. ' +
+               'Keep in mind that some changes can be specific to a single platform, so they should only be added to the release notes of the platform that affects ' +
+               '(e.g. a change that only affects Android should only be included in WPAndroid release notes).' %>
+
+<%= task_block 'Verify the WPAndroid and iOS PR builds succeed. For WPAndroid, if the PR CI tasks include a 403 error related to an inability to resolve the ' +
+               '<code>react-native-bridge</code> dependency, you must wait for the <code>Build Android RN Bridge &amp; Publish to S3</code> ' +
+               'task to succeed in gutenberg-mobile and then restart the WPAndroid CI tasks.' %>
+
+<%= task_block 'Once the installable builds are ready, perform a quick smoke test of the editor on both iOS and Android to verify it launches without crashing. ' +
+               'We will perform additional testing after the main apps cut their releases.' %>
+
+<%= task_block 'Fill in the missing parts of the gutenberg-mobile PR description. When filling in the "Changes" section, link to the most descriptive GitHub issue ' +
+               'for any given change and consider adding a short description. Testers rely on this section to gather more details about changes in a release.' %>
+
+<%= task_block 'Mark all 4 PRs ready for review and request review from your release wrangler buddy.' %>
+
+<% if @is_unscheduled %>
+<%= task_block 'If this is a release for inclusion in the frozen WPiOS and WPAndroid release branches (i.e. this is a beta/hot fix, e.g. X.XX.2), ' +
+               'ping the directly responsible individual handing the release of each platform of the main apps.' %>
+<% end%>
+<!-- wp:heading {"level":3} -->
+<h3 id="create-a-new-aztec-release">Create an Aztec Release</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>ℹ️ If <code>gutenberg-mobile/RNTAztecView.podspec</code> and <code>gutenberg-mobile/gutenberg/packages/react-native-aztec/RNTAztecView.podspec</code>
+  refer to a commit SHA instead of a stable release (e.g. 1.14.1) or refer to <em>different</em> versions, the steps in this section may need to be completed.</p>
+<!-- /wp:paragraph -->
+
+<%= task_block 'Verify all Aztec PRs attached to the "Next Release" milestone or PRs with changes required for this Gutenberg release have been merged before next steps.' %>
+
+<%= task_block 'Open a PR on Aztec repo to update the <code>CHANGELOG.md</code> and <code>README.md</code> files with the new version name.' %>
+
+<%= task_block 'Create a new release and name it with the tag name from step 1. ' +
+                'For Aztec-iOS, follow <a href="https://github.com/wordpress-mobile/AztecEditor-iOS/blob/develop/Documentation/ReleaseProcess.md">this process</a>. ' +
+                'For Aztec-Android, releases are created via the <a href="https://github.com/wordpress-mobile/AztecEditor-Android/releases">GitHub releases page</a> by hitting the “Draft new release” button, ' +
+                'put the tag name to be created in the tag version field and release title field, and also add the changelog to the release description. ' +
+                'The binary assets (.zip, tar.gz files) are attached automatically after hitting “Publish release”.' %>
+
+<%= task_block 'Update Aztec version references within <code>gutenberg-mobile/RNTAztecView.podspec</code> and <code>gutenberg-mobile/gutenberg/packages/react-native-aztec/RNTAztecView.podspec</code>' +
+                ' to the new <code>WordPress-Aztec-iOS</code> version.' %>
+
+
+<!-- wp:heading {"level":3} -->
+<h3>Manage Incoming Changes (conditional)</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>ℹ️ If additional changes (e.g. bug fixes) were merged into the gutenberg-mobile <code>release/<% @version %></code> or in gutenberg <code>rnmobile/release-<%= @version %></code> branches, the steps in this section need to be completed."</p>
+<!-- /wp:paragraph -->
+
+<%= task_block "After a merge happened in gutenberg-mobile <code>release/#{ @version }</code> or in gutenberg <code>rnmobile/release-#{ @version }</code>, " +
+               "ensure the <code>gutenberg</code> submodule points to the correct hash and the <code>rnmobile/release-#{ @version }</code> in the gutenberg repo branch has been updated." %>
+
+<%= task_block 'If there were changes in gutenberg repo, make sure to cherry-pick the changes that landed in the <code>trunk</code> branch back to the release branch ' +
+               'and don\'t forget to run <code>npm run bundle</code> in gutenberg-mobile again if necessary.' %>
+
+<%= task_block 'Add the new change to the "Extra PRs that Landed After the Release Was Cut" section of the gutenberg-mobile PR description.' %>
+
+<!-- wp:heading {"level":3} -->
+<h3>Integrate the Release <%= @is_unscheduled ? "" : "(Thursday)" %></h3>
+<!-- /wp:heading -->
+
+<%= task_block 'Verify the <code>gutenberg</code> ref within the gutenberg-mobile release branch is pointed to the latest commit in the gutenberg release branch.' %>
+
+<%= task_block "Create and push a <code>rnmobile/#{ @version }</code> git tag for the head of gutenberg release branch. " %>
+
+<%= task_block 'Ensure that the bundle files are updated to include any changes to the release branch by running <code>npm run bundle</code> in gutenberg-mobile release branch and committing any changes. ' %>
+
+<%= task_block "<a href=\"#{ @new_release_url }\">Create a new gutenberg-mobile GitHub Release</a>. Include a list of changes in the Release description." %>
+
+<%= task_block 'In WPiOS, update the reference to point to the <em>tag</em> of the Release created in the previous task. ' %>
+
+<%= task_block 'In WPAndroid, update the <code>gutenbergMobileVersion</code> in <code>build.gradle</code> to point to the <em>tag</em> of the Release used in the previous task. ' %>
+
+<%= task_block 'Main apps PRs should be ready to merge to their <code>trunk</code> branches now. Merge them or get them merged.' %>
+
+  <% if @is_unscheduled %>
+    <%= task_block 'If the release is a beta/hot fix (e.g. X.XX.2), be sure to directly mention the relevant Excellence Wranglers for the release and modify the following template, similar to the following:' %>
+  <% else %>
+
+    <%= task_block 'Once everything is merged, send a heads up to our friends in the <code>#apps-infrastructure-formerly-platform9</code> Slack channel with the following message: ' %>
+    <!-- wp:quote -->
+    <blockquote class="wp-block-quote">
+      <p>Hey team. I wanted to let you know that the mobile Gutenberg team has finished integrating the <%= @version %> Gutenberg release into the WPiOS and WPAndroid `release/<%= @mobile_version %>` branches, ready for a new beta when you are available. Please let me know if you have any questions. Thanks!
+      </p>
+    </blockquote>
+    <!-- /wp:quote -->
+<% end %>
+
+<%= task_block 'Close the <a href="https://github.com/wordpress-mobile/gutenberg-mobile/milestones">Gutenberg Mobile milestone</a> that corresponds to this release.' %>
+
+<!-- wp:heading {"level":3} -->
+<h3>Merge Release Branches</h3>
+<!-- /wp:heading -->
+
+<%= task_block 'Resolve any conflicts with <code>trunk</code> and merge the gutenberg PR.' %>
+
+<%= task_block 'Update the gutenberg reference on the gutenberg-mobile release branch to point to the Gutenberg PR merge commit' %>
+
+<%= task_block 'Merge the <strong>gutenberg-mobile</strong> PR to <code>trunk</code>. Use "Create a merge commit" option when merging to avoid losing any commit history from the release branch.' %>
+
+<!-- wp:heading {"level":3} -->
+<h3>Clean Up Pending Work (After main apps cut)</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>
+  ⚠️ This section may only be completed <em>after</em> the main apps cut their own release branches.
+</p>
+<!-- /wp:paragraph -->
+
+<%= task_block "Update the <code>gutenberg/after_#{ @version }</code> branches and open a PR against <code>trunk</code>. If the branches are empty we’ll just delete them. " +
+               "The PR can actually get created as soon as something gets merged to the <code>gutenberg/after_#{ @version }</code> branches. " +
+               "Merge the <code>gutenberg/after_#{ @version }</code> PR(s) only <em>AFTER</em> the main apps have cut their release branches." %>
+
+<!-- wp:heading {"level":3} -->
+<h3>Test the Release</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>ℹ️ Use the main WP apps to complete each the tasks below for both iOS and Android.</p>
+<!-- /wp:paragraph -->
+
+<%= task_block 'Test the new changes that are included in the release PR.' %>
+
+<%= task_block 'Complete the <a href="https://github.com/wordpress-mobile/test-cases/tree/master/test-cases/gutenberg/writing-flow">general writing flow test cases</a>.' %>
+
+<%= task_block 'Complete the <a href="https://github.com/wordpress-mobile/test-cases/blob/trunk/test-cases/gutenberg/unsupported-block-editing.md#unsupported-block-editing---test-cases">Unsupported Block Editor test cases</a>.' %>
+
+<%= task_block 'Complete the <a href="https://github.com/wordpress-mobile/test-cases/blob/trunk/test-suites/gutenberg/sanity-test-suites.md">sanity test suites</a>.' %>
+
+<!-- wp:paragraph -->
+<p>For the remainder of the main app release period, monitor main app release P2 posts for issues found.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:heading {"level":3} -->
+<h3>Finish the Release</h3>
+<!-- /wp:heading -->
+
+<%= task_block 'Update the <a href="https://docs.google.com/spreadsheets/d/15U4v6zUBmPGagksHX_6ZfVA672-1qB2MO8M7HYBOOgQ/edit?usp=sharing">Release Incident Spreadsheet</a> with any fixes that occurred after the release branches were cut.' %>
+
+<% unless @is_unscheduled %>
+<%= task_block 'Message the next release wrangler in the <code>#mobile-gutenberg-platform</code> Slack channel <strong>providing them with a tentative schedule</strong> ' +
+               'for the next release. This will help ensure a smooth hand off and sets expectations for when they should begin their work. ' %>
+<% end %>
+<%= task_block 'Celebrate! 🎉' %>
+
+<!-- wp:paragraph -->
+<p>+mobilegutenberg </p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>#gutenberg-mobile</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>This checklist is generated from <a href="https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/trunk/templates/release_checklist.html.erb">Release Checklist Template</a>. <br />
+See <a href="https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/blob/trunk/Releasing.md#release-checklist-template">Releasing: release checklist template</a> for more information.
+</p>
+<!-- /wp:paragraph -->

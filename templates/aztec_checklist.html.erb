@@ -1,0 +1,20 @@
+<!-- wp:heading {"level":3} -->
+<h3 id="create-a-new-aztec-release">Create an Aztec Release</h3>
+<!-- /wp:heading -->
+<!-- wp:paragraph -->
+<p>ℹ️ The Aztec package dependencies in <code>gutenberg-mobile/RNTAztecView.podspec</code> and <code>gutenberg-mobile/gutenberg/packages/react-native-aztec/RNTAztecView.podspec</code> are incorrect.
+  They either refer to a commit SHA instead of a stable release (e.g. 1.14.1) or refer to <em>different</em> versions completed. The following steps must be completed before continuing with the release:</p>
+<!-- /wp:paragraph -->
+
+<%= task_block 'Verify all Aztec PRs attached to the "Next Release" milestone or PRs with changes required for this Gutenberg release have been merged before next steps.' %>
+
+<%= task_block 'Open a PR on Aztec repo to update the <code>CHANGELOG.md</code> and <code>README.md</code> files with the new version name.' %>
+
+<%= task_block 'Create a new release and name it with the tag name from step 1. ' +
+                'For Aztec-iOS, follow <a href="https://github.com/wordpress-mobile/AztecEditor-iOS/blob/develop/Documentation/ReleaseProcess.md">this process</a>. ' +
+                'For Aztec-Android, releases are created via the <a href="https://github.com/wordpress-mobile/AztecEditor-Android/releases">GitHub releases page</a> by hitting the “Draft new release” button, ' +
+                'put the tag name to be created in the tag version field and release title field, and also add the changelog to the release description. ' +
+                'The binary assets (.zip, tar.gz files) are attached automatically after hitting “Publish release”.' %>
+
+<%= task_block 'Update Aztec version references within <code>gutenberg-mobile/RNTAztecView.podspec</code> and <code>gutenberg-mobile/gutenberg/packages/react-native-aztec/RNTAztecView.podspec</code> ' +
+               'to the new <code>WordPress-Aztec-iOS</code> version.' %>

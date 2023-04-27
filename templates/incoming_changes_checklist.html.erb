@@ -1,0 +1,15 @@
+<!-- wp:heading {"level":3} -->
+<h3>Manage Incoming Changes (conditional)</h3>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>ℹ️ If additional changes (e.g. bug fixes) were merged into the gutenberg-mobile <code>release/<% @version %></code> or in gutenberg <code>rnmobile/release-<%= @version %></code> branches, the steps in this section need to be completed."</p>
+<!-- /wp:paragraph -->
+
+<%= task_block "After a merge happened in gutenberg-mobile <code>release/#{ @version }</code> or in gutenberg <code>rnmobile/release-#{ @version }</code>, " +
+               "ensure the <code>gutenberg</code> submodule points to the correct hash and the <code>rnmobile/release-#{ @version }</code> in the gutenberg repo branch has been updated." %>
+
+<%= task_block 'If there were changes in gutenberg repo, make sure to cherry-pick the changes that landed in the <code>trunk</code> branch back to the release branch ' +
+               'and don\'t forget to run <code>npm run bundle</code> in gutenberg-mobile again if necessary.' %>
+
+<%= task_block 'Add the new change to the "Extra PRs that Landed After the Release Was Cut" section of the gutenberg-mobile PR description.' %>
