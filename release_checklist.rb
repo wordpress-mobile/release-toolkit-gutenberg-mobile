@@ -142,7 +142,7 @@ option_parser = OptionParser.new do |opts|
     options[:release_date] = d
   end
 
-  opts.on '-v', '--mobile-version', 'Mobile host version' do |v|
+  opts.on '-v', '--mobile-version', 'Mobile host version (Only used for unscheduled releases)' do |v|
     options[:mobile_version] = v
   end
 
