@@ -252,7 +252,10 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Complete the <a href="https://github.com/wordpress-mobile/test-cases/blob/trunk/test-suites/gutenberg/sanity-test-suites.md">sanity test suites</a>.</p>
+<p>o Complete the <a href="https://docs.google.com/spreadsheets/d/1uJ_o1t5fxeCRfGWTTImmieNgXf_sLflB1iOnKLyhPAw/edit#gid=0">functionality tests scheduled for Android</a>.</p>
+<!-- /wp:paragraph -->
+<!-- wp:paragraph -->
+<p>o Complete the <a href="https://docs.google.com/spreadsheets/d/1uJ_o1t5fxeCRfGWTTImmieNgXf_sLflB1iOnKLyhPAw/edit#gid=0">functionality tests scheduled for iOS</a>.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
