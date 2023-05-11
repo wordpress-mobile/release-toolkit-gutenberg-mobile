@@ -12,8 +12,8 @@
 # 2. Insure that each of your forked repos contains the PR labels specified below:
 GUTENBERG_MOBILE_PR_LABEL="release-process"
 GUTENBERG_PR_LABEL="Mobile App - i.e. Android or iOS"
-WPANDROID_PR_LABEL="gutenberg-mobile"
-WPIOS_PR_LABEL="Gutenberg integration"
+WPANDROID_PR_LABEL="Gutenberg"
+WPIOS_PR_LABEL="Gutenberg"
 # 3. Ensure that each of your repos contains the target branch listed below:
 GUTENBERG_MOBILE_TARGET_BRANCH="trunk"
 GUTENBERG_TARGET_BRANCH="trunk"
