@@ -343,7 +343,7 @@ execute "bundle" "install"
 execute_until_succeeds "rake" "dependencies"
 
 
-execute "git" "add" "Podfile" "Podfile.lock"
+execute "git" "add" "Podfile" "Podfile.lock" "$version_file"
 execute "git" "commit" "-m" "Release script: Update gutenberg-mobile ref"
 
 ohai "Push integration branch"
