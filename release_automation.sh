@@ -235,6 +235,9 @@ ohai 'Update XCFramework builders project Podfile.lock'
 cd ios-xcframework
 execute 'bundle' 'install'
 execute 'bundle' 'exec' 'pod' 'install'
+# It is expected for Podfile.lock to change when the version changes in the project.
+# Therefore, we don't conditionally stage and commit, as not having changes should be considerd a failure.
+execute 'git' 'add' 'Podfile.lock'
 execute 'git' 'commit' '-m' "Release script: Sync XCFramework \`Podfile.lock\` with $VERSION_NUMBER"
 cd ..
 
