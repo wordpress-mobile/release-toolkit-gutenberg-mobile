@@ -227,6 +227,19 @@ ohai "Commit bundle changes"
 execute "git" "add" "bundle/"
 execute "git" "commit" "-m" "Release script: Update bundle for: $VERSION_NUMBER"
 
+# Update the Podfile for the XCFramework builder project
+#
+# We use a dedicated Xcode project to build the iOS distribution XCFramework which uses CocoaPods to fetch React Native dependencies and which references the project version.
+# It's necessary to keep the versions up to day in the project's lockfile.
+ohai 'Update XCFramework builders project Podfile.lock'
+cd ios-xcframework
+execute 'bundle' 'install'
+execute 'bundle' 'exec' 'pod' 'install'
+# It is expected for Podfile.lock to change when the version changes in the project.
+# Therefore, we don't conditionally stage and commit, as not having changes should be considerd a failure.
+execute 'git' 'add' 'Podfile.lock'
+execute 'git' 'commit' '-m' "Release script: Sync XCFramework \`Podfile.lock\` with $VERSION_NUMBER"
+cd ..
 
 #####
 # Create PRs
