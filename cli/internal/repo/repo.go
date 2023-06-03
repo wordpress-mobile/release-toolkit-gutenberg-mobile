@@ -1,6 +1,7 @@
 package repo
 
 import (
+	"fmt"
 	"os"
 )
 
@@ -34,20 +35,19 @@ func initOrgs() {
 	}
 }
 
-func getOrg(repo string) string {
-
+func getOrg(repo string) (string, error) {
 	switch repo {
 	case "gutenberg":
-		return wordPressOrg
+		return wordPressOrg, nil
 	case "jetpack":
-		return automatticOrg
+		return automatticOrg, nil
 	case "gutenberg-mobile":
 		fallthrough
 	case "WordPress-Android":
 		fallthrough
 	case "WordPress-iOS":
-		return wpMobileOrg
+		return wpMobileOrg, nil
 	default:
-		return ""
+		return "", fmt.Errorf("unknown repo: %s", repo)
 	}
 }

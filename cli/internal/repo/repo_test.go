@@ -8,7 +8,7 @@ import (
 func TestInitOrgs(t *testing.T) {
 
 	t.Run("It sets up the default orgs", func(t *testing.T) {
-
+		initOrgs()
 		assertEqual(t, wordPressOrg, "WordPress")
 		assertEqual(t, automatticOrg, "Automattic")
 		assertEqual(t, wpMobileOrg, "wordpress-mobile")
@@ -18,6 +18,7 @@ func TestInitOrgs(t *testing.T) {
 		t.Setenv("GBM_WPMOBILE_ORG", "my-wordpress-mobile")
 		t.Setenv("GBM_WORDPRESS_ORG", "my-wordpress")
 		t.Setenv("GBM_AUTOMATTIC_ORG", "my-automattic")
+		defer clearEnv(t)
 
 		initOrgs()
 
@@ -48,10 +49,11 @@ func assertEqual(t testing.TB, got, want interface{}) {
 		t.Fatalf("got %v want %v", got, want)
 	}
 }
-func assertMap(t testing.TB, got, want map[string]string) {
+
+func clearEnv(t testing.TB) {
 	t.Helper()
-	eq := reflect.DeepEqual(got, want)
-	if !eq {
-		t.Fatalf("expected the same map but got different maps: got %v want %v", got, want)
-	}
+	t.Setenv("GBM_WPMOBILE_ORG", "")
+	t.Setenv("GBM_WORDPRESS_ORG", "")
+	t.Setenv("GBM_AUTOMATTIC_ORG", "")
+	initOrgs()
 }
