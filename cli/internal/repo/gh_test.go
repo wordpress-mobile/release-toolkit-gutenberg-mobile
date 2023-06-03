@@ -8,6 +8,7 @@ import (
 )
 
 func TestGetPr(t *testing.T) {
+
 	t.Run("It returns an error using a non GBM repo", func(t *testing.T) {
 		_, err := GetPr("wp-calypso", 123)
 		assertError(t, err)
@@ -56,13 +57,17 @@ func TestGetPr(t *testing.T) {
 			{env: "GBM_WPMOBILE_ORG", org: "my-wordpress-mobile", repo: "WordPress-Android"},
 			{env: "GBM_WPMOBILE_ORG", org: "my-wordpres-mobile", repo: "WordPress-iOS"},
 		}
+
 		prNumber := 123
 		t.Cleanup(gock.Off)
 
 		for _, r := range repos {
 			t.Run(fmt.Sprintf("It uses the env %s for the %s org", r.env, r.repo), func(t *testing.T) {
+
+				// Set the mock orgs and reset the orgs
 				t.Setenv(r.env, r.org)
-				InitOrgs()
+				initOrgs()
+
 				path := fmt.Sprintf("/repos/%s/%s/pulls/%d", r.org, r.repo, prNumber)
 				gock.New("https://api.github.com").
 					Get(path).
