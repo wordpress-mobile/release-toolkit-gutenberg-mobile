@@ -1,6 +1,8 @@
 package repo
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"os"
 
@@ -44,7 +46,10 @@ func getClient() *api.RESTClient {
 
 // GetPr returns a PullRequest struct for the given repo and PR number.
 func GetPr(repo string, id int) (PullRequest, error) {
-	org := getOrg(repo)
+	org, err := getOrg(repo)
+	if err != nil {
+		return PullRequest{}, err
+	}
 	client := getClient()
 
 	endpoint := fmt.Sprintf("repos/%s/%s/pulls/%d", org, repo, id)
@@ -58,4 +63,38 @@ func GetPr(repo string, id int) (PullRequest, error) {
 	}
 
 	return response, nil
+}
+
+func CreatePr(repo string, pr *PullRequest) error {
+	client := getClient()
+	org, err := getOrg(repo)
+	if err != nil {
+		return err
+	}
+
+	endpoint := fmt.Sprintf("repos/%s/%s/pulls", org, repo)
+
+	npr := struct {
+		Title string `json:"title"`
+		Body  string `json:"body"`
+		Head  string `json:"head"`
+		Base  string `json:"base"`
+		Draft bool   `json:"draft"`
+	}{
+		Title: pr.Title,
+		Body:  pr.Body,
+		Head:  pr.Head.Ref,
+		Base:  pr.Base.Ref,
+		Draft: pr.Draft,
+	}
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(npr); err != nil {
+		return err
+	}
+
+	if err := client.Post(endpoint, &buf, &pr); err != nil {
+		return err
+	}
+	return nil
 }
