@@ -50,6 +50,14 @@ func assertEqual(t testing.TB, got, want interface{}) {
 	}
 }
 
+func assertNotEqual(t testing.TB, got, want interface{}) {
+	t.Helper()
+	eq := reflect.DeepEqual(got, want)
+	if eq {
+		t.Fatalf("got %v want %v", got, want)
+	}
+}
+
 func clearEnv(t testing.TB) {
 	t.Helper()
 	t.Setenv("GBM_WPMOBILE_ORG", "")

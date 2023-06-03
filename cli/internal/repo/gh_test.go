@@ -36,6 +36,7 @@ func TestGetPr(t *testing.T) {
 					Get(path).
 					Reply(200).
 					JSON(fmt.Sprintf(`{"number": %d}`, prNumber))
+				defer gock.Off()
 
 				pr, err := GetPr(r.repo, prNumber)
 				assertNoError(t, err)
@@ -74,9 +75,11 @@ func TestGetPr(t *testing.T) {
 					Get(path).
 					Reply(200).
 					JSON(fmt.Sprintf(`{"number": %d}`, prNumber))
+
+				_, err := GetPr(r.repo, prNumber)
+				assertNoError(t, err)
 			})
-			_, err := GetPr(r.repo, prNumber)
-			assertNoError(t, err)
+			defer gock.Off()
 		}
 	})
 
@@ -99,22 +102,13 @@ func TestCreatePR(t *testing.T) {
 
 		setupMockOrg(t, "TEST")
 
-		pr := PullRequest{
-			Title: "Test PR",
-			Body:  "This is a test PR",
-			Head: struct {
-				Ref string
-				Sha string
-			}{Ref: "try/sentry"},
-			Base: struct {
-				Ref string
-				Sha string
-			}{Ref: "trunk"},
-			Draft: true,
-		}
+		pr := createTestPr(t)
 
 		want := pr
 		want.Number = 123
+
+		// Confirm that the PR is not equal to the want
+		assertNotEqual(t, pr, want)
 
 		resp, _ := json.Marshal(&want)
 
@@ -122,11 +116,11 @@ func TestCreatePR(t *testing.T) {
 			Post("/repos/TEST/gutenberg-mobile/pulls").
 			Reply(200).
 			JSON(string(resp))
-		t.Cleanup(gock.Off)
+		defer gock.Off()
 
 		err := CreatePr("gutenberg-mobile", &pr)
 		assertNoError(t, err)
-		assertEqual(t, pr.Number, want.Number)
+		assertEqual(t, pr, want)
 
 	})
 
@@ -136,13 +130,53 @@ func TestCreatePR(t *testing.T) {
 		gock.New("https://api.github.com").
 			Post("/repos/TEST/gutenberg-mobile/pulls").
 			Reply(422)
-		t.Cleanup(gock.Off)
+		defer gock.Off()
 
 		pr := PullRequest{}
 
 		err := CreatePr("gutenberg-mobile", &pr)
 		assertError(t, err)
 	})
+}
+
+func TestUpdatePR(t *testing.T) {
+
+	t.Run("It updates the passed in PR struct on success ", func(t *testing.T) {
+		setupMockOrg(t, "TEST")
+
+		pr := createTestPr(t)
+		pr.Number = 123
+
+		want := pr
+		want.Title = "Updated TEST PR"
+
+		resp, _ := json.Marshal(&want)
+
+		gock.New("https://api.github.com").
+			Patch("/repos/TEST/gutenberg-mobile/pulls/123").
+			Reply(200).
+			JSON(string(resp))
+		defer gock.Off()
+
+		update := PrUpdate{
+			Title: "Updated TEST PR",
+		}
+
+		err := UpdatePr("gutenberg-mobile", &pr, update)
+		assertNoError(t, err)
+		assertEqual(t, pr, want)
+
+	})
+}
+
+func TestAddLabels(t *testing.T) {
+
+	t.Run("It adds labels to a PR", func(t *testing.T) {
+	})
+
+	t.Run("It returns an error if the request fails", func(t *testing.T) {
+	})
+
 }
 
 func setupMockOrg(t *testing.T, org string) {
@@ -153,4 +187,22 @@ func setupMockOrg(t *testing.T, org string) {
 		t.Setenv("GBM_WPMOBILE_ORG", "")
 		initOrgs()
 	})
+}
+
+func createTestPr(t *testing.T) PullRequest {
+	t.Helper()
+
+	return PullRequest{
+		Title: "Test PR",
+		Body:  "This is a test PR",
+		Head: struct {
+			Ref string
+			Sha string
+		}{Ref: "test/branch"},
+		Base: struct {
+			Ref string
+			Sha string
+		}{Ref: "trunk"},
+		Draft: true,
+	}
 }

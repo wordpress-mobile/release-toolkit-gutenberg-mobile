@@ -34,6 +34,13 @@ type PullRequest struct {
 	}
 }
 
+type PrUpdate struct {
+	Title string
+	Body  string
+	State string
+	Base  string
+}
+
 // getClient returns a REST client for the GitHub API.
 func getClient() *api.RESTClient {
 	client, err := api.DefaultRESTClient()
@@ -74,6 +81,7 @@ func CreatePr(repo string, pr *PullRequest) error {
 
 	endpoint := fmt.Sprintf("repos/%s/%s/pulls", org, repo)
 
+	// We need to flatten the struct to match the API
 	npr := struct {
 		Title string `json:"title"`
 		Body  string `json:"body"`
@@ -94,6 +102,26 @@ func CreatePr(repo string, pr *PullRequest) error {
 	}
 
 	if err := client.Post(endpoint, &buf, &pr); err != nil {
+		return err
+	}
+	return nil
+}
+
+func UpdatePr(repo string, pr *PullRequest, update PrUpdate) error {
+	org, err := getOrg(repo)
+	if err != nil {
+		return err
+	}
+	client := getClient()
+
+	endpoint := fmt.Sprintf("repos/%s/%s/pulls/%d", org, repo, pr.Number)
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(update); err != nil {
+		return err
+	}
+
+	if err := client.Patch(endpoint, &buf, &pr); err != nil {
 		return err
 	}
 	return nil
