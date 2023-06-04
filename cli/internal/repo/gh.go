@@ -65,6 +65,15 @@ type Branch struct {
 	}
 }
 
+type BranchError struct {
+	Err  error
+	Type string
+}
+
+func (r *BranchError) Error() string {
+	return r.Err.Error()
+}
+
 // GetPr returns a PullRequest struct for the given repo and PR number.
 func GetPr(repo string, id int) (PullRequest, error) {
 	org, err := GetOrg(repo)
