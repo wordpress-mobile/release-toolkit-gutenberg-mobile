@@ -57,14 +57,12 @@ type SearchResult struct {
 	Items      []PullRequest
 }
 
-// getClient returns a REST client for the GitHub API.
-func getClient() *api.RESTClient {
-	client, err := api.DefaultRESTClient()
-	if err != nil {
-		fmt.Printf("Error getting client: %v", err)
-		os.Exit(1)
+// Branch represents a GitHub branch API schema.
+type Branch struct {
+	Name   string
+	Commit struct {
+		Sha string
 	}
-	return client
 }
 
 // GetPr returns a PullRequest struct for the given repo and PR number.
@@ -217,4 +215,54 @@ func SearchPrs(filter RepoFilter) (SearchResult, error) {
 		return SearchResult{}, err
 	}
 	return response, nil
+}
+
+// SearchBranch returns a branch for the given repo and branch name.
+func SearchBranch(repo, branch string) (Branch, error) {
+	org, err := GetOrg(repo)
+	if err != nil {
+		return Branch{}, err
+	}
+	response := Branch{}
+	client := getClient()
+	endpoint := fmt.Sprintf("repos/%s/%s/branches/%s", org, repo, branch)
+	if err := client.Get(endpoint, &response); err != nil {
+		return Branch{}, err
+	}
+	return response, nil
+}
+
+// getClient returns a REST client for the GitHub API.
+func getClient() *api.RESTClient {
+	client, err := api.DefaultRESTClient()
+	if err != nil {
+		fmt.Printf("Error getting client: %v", err)
+		os.Exit(1)
+	}
+	return client
+}
+
+func labelRequest(repo string, prNum int, labels []string) ([]struct{ Name string }, error) {
+	org, err := GetOrg(repo)
+	if err != nil {
+		return nil, err
+	}
+
+	client := getClient()
+
+	endpoint := fmt.Sprintf("repos/%s/%s/issues/%d/labels", org, repo, prNum)
+
+	pbody := struct{ Labels []string }{Labels: labels}
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(pbody); err != nil {
+		return nil, err
+	}
+
+	resp := []struct{ Name string }{}
+
+	if err := client.Post(endpoint, &buf, &resp); err != nil {
+		return nil, err
+	}
+
+	return resp, nil
 }
