@@ -35,7 +35,7 @@ func initOrgs() {
 	}
 }
 
-func getOrg(repo string) (string, error) {
+func GetOrg(repo string) (string, error) {
 	switch repo {
 	case "gutenberg":
 		return wordPressOrg, nil

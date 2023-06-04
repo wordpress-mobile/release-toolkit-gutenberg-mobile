@@ -69,7 +69,7 @@ func getClient() *api.RESTClient {
 
 // GetPr returns a PullRequest struct for the given repo and PR number.
 func GetPr(repo string, id int) (PullRequest, error) {
-	org, err := getOrg(repo)
+	org, err := GetOrg(repo)
 	if err != nil {
 		return PullRequest{}, err
 	}
@@ -90,7 +90,7 @@ func GetPr(repo string, id int) (PullRequest, error) {
 
 func CreatePr(repo string, pr *PullRequest) error {
 	client := getClient()
-	org, err := getOrg(repo)
+	org, err := GetOrg(repo)
 	if err != nil {
 		return err
 	}
@@ -132,7 +132,7 @@ func CreatePr(repo string, pr *PullRequest) error {
 }
 
 func UpdatePr(repo string, pr *PullRequest, update PrUpdate) error {
-	org, err := getOrg(repo)
+	org, err := GetOrg(repo)
 	if err != nil {
 		return err
 	}
@@ -186,34 +186,14 @@ func RemoveAllLabels(repo string, pr *PullRequest) error {
 	return nil
 }
 
-func labelRequest(repo string, prNum int, labels []string) ([]struct{ Name string }, error) {
-	org, err := getOrg(repo)
-	if err != nil {
-		return nil, err
-	}
-
-	client := getClient()
-
-	endpoint := fmt.Sprintf("repos/%s/%s/issues/%d/labels", org, repo, prNum)
-
-	pbody := struct{ Labels []string }{Labels: labels}
-	var buf bytes.Buffer
-	if err := json.NewEncoder(&buf).Encode(pbody); err != nil {
-		return nil, err
-	}
-
-	resp := []struct{ Name string }{}
-
-	if err := client.Post(endpoint, &buf, &resp); err != nil {
-		return nil, err
-	}
-
-	return resp, nil
-}
-
 // Build a RepoFilter from a repo name and a list of queries.
 func BuildRepoFilter(repo string, queries ...string) RepoFilter {
-	org, _ := getOrg(repo)
+
+	// We just need to warn if the org is not found.
+	org, err := GetOrg(repo)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Warning: %s\n", err)
+	}
 	var encoded []string
 	queries = append(queries, fmt.Sprintf("repo:%s/%s", org, repo))
 
