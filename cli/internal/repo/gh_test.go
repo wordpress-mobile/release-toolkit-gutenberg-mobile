@@ -137,11 +137,82 @@ func TestCreatePR(t *testing.T) {
 		err := CreatePr("gutenberg-mobile", &pr)
 		assertError(t, err)
 	})
+
+	t.Run("It adds labels to the PR if provided", func(t *testing.T) {
+		setupMockOrg(t, "TEST")
+
+		pr := createTestPr(t)
+
+		labels := []struct{ Name string }{
+			{Name: "awesome-sauce"},
+		}
+
+		pr.Labels = labels
+
+		want := pr
+		want.Number = 123
+
+		// Confirm that the PR is not equal to the want
+		assertNotEqual(t, pr, want)
+
+		resp, _ := json.Marshal(&want)
+
+		gock.New("https://api.github.com").
+			Post("/repos/TEST/gutenberg-mobile/pulls").
+			Reply(200).
+			JSON(string(resp))
+
+		gock.New("https://api.github.com").
+			Post("/repos/TEST/gutenberg-mobile/issues/123/labels").
+			Reply(200).
+			JSON(labels)
+		defer gock.Off()
+
+		err := CreatePr("gutenberg-mobile", &pr)
+		assertNoError(t, err)
+		assertEqual(t, pr, want)
+
+	})
 }
 
 func TestUpdatePR(t *testing.T) {
 
 	t.Run("It updates the passed in PR struct on success ", func(t *testing.T) {
+		setupMockOrg(t, "TEST")
+
+		pr := createTestPr(t)
+		pr.Number = 123
+
+		labels := []struct{ Name string }{
+			{Name: "awesome-sauce"},
+		}
+		pr.Labels = labels
+		want := pr
+		want.Title = "Updated TEST PR"
+
+		resp, _ := json.Marshal(&want)
+
+		gock.New("https://api.github.com").
+			Patch("/repos/TEST/gutenberg-mobile/pulls/123").
+			Reply(200).
+			JSON(string(resp))
+
+		gock.New("https://api.github.com").
+			Post("/repos/TEST/gutenberg-mobile/issues/123/labels").
+			Reply(200).
+			JSON(labels)
+		defer gock.Off()
+
+		update := PrUpdate{
+			Title: "Updated TEST PR",
+		}
+
+		err := UpdatePr("gutenberg-mobile", &pr, update)
+		assertNoError(t, err)
+		assertEqual(t, pr, want)
+	})
+
+	t.Run("It updates labels if present", func(t *testing.T) {
 		setupMockOrg(t, "TEST")
 
 		pr := createTestPr(t)
@@ -176,22 +247,22 @@ func TestAddLabels(t *testing.T) {
 		pr := createTestPr(t)
 		pr.Number = 123
 
-		respLabels := []struct{ Name string }{
+		labels := []struct{ Name string }{
 			{Name: "foo"},
 			{Name: "bar"},
 		}
 
+		pr.Labels = labels
+
 		gock.New("https://api.github.com").
 			Post("/repos/TEST/gutenberg-mobile/issues/123/labels").
 			Reply(200).
-			JSON(respLabels)
+			JSON(labels)
 		defer gock.Off()
 
-		labels := []string{"foo", "bar"}
-
-		err := AddLabels("gutenberg-mobile", &pr, labels)
+		err := AddLabels("gutenberg-mobile", &pr)
 		assertNoError(t, err)
-		assertEqual(t, pr.Labels, respLabels)
+		assertEqual(t, pr.Labels, labels)
 	})
 
 	t.Run("It returns an error if the request fails", func(t *testing.T) {
@@ -206,9 +277,7 @@ func TestAddLabels(t *testing.T) {
 
 		defer gock.Off()
 
-		labels := []string{"foo", "bar"}
-
-		err := AddLabels("gutenberg-mobile", &pr, labels)
+		err := AddLabels("gutenberg-mobile", &pr)
 		assertError(t, err)
 	})
 
@@ -218,18 +287,17 @@ func TestAddLabels(t *testing.T) {
 		pr := createTestPr(t)
 		pr.Number = 123
 
-		labels := []string{}
-
-		err := AddLabels("gutenberg-mobile", &pr, labels)
+		err := AddLabels("gutenberg-mobile", &pr)
 		assertError(t, err)
 	})
 }
 
-func TestRemoveLabel(t *testing.T) {
+func TestRemoveAllLabel(t *testing.T) {
 	t.Run("It removes a labels from a PR if the request is successful", func(t *testing.T) {
 		setupMockOrg(t, "TEST")
 
 		pr := createTestPr(t)
+		pr.Number = 123
 
 		pr.Labels = []struct{ Name string }{
 			{Name: "foo"},
@@ -237,11 +305,12 @@ func TestRemoveLabel(t *testing.T) {
 		}
 
 		gock.New("https://api.github.com").
-			Delete("/repos/TEST/gutenberg-mobile/issues/123/labels/foo").
-			Reply(200)
+			Post("/repos/TEST/gutenberg-mobile/issues/123/labels").
+			Reply(200).
+			JSON("[]")
 		defer gock.Off()
 
-		err := RemoveLabels("gutenberg-mobile", &pr)
+		err := RemoveAllLabels("gutenberg-mobile", &pr)
 		assertNoError(t, err)
 		if len(pr.Labels) != 0 {
 			t.Errorf("Expected labels to be removed")

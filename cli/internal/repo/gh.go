@@ -104,6 +104,12 @@ func CreatePr(repo string, pr *PullRequest) error {
 	if err := client.Post(endpoint, &buf, &pr); err != nil {
 		return err
 	}
+
+	if pr.Labels != nil {
+		if err := AddLabels(repo, pr); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
@@ -124,16 +130,27 @@ func UpdatePr(repo string, pr *PullRequest, update PrUpdate) error {
 	if err := client.Patch(endpoint, &buf, &pr); err != nil {
 		return err
 	}
+
+	if pr.Labels != nil {
+		if err := AddLabels(repo, pr); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
 // Adds labels to a PR
-func AddLabels(repo string, pr *PullRequest, labels []string) error {
+func AddLabels(repo string, pr *PullRequest) error {
+	labels := []string{}
+	for _, label := range pr.Labels {
+		labels = append(labels, label.Name)
+	}
 	if len(labels) == 0 {
 		return fmt.Errorf("no labels to add")
 	}
 
-	resp, err := labelRequest(repo, labels)
+	resp, err := labelRequest(repo, pr.Number, labels)
+
 	if err != nil {
 		return err
 	}
@@ -142,8 +159,8 @@ func AddLabels(repo string, pr *PullRequest, labels []string) error {
 }
 
 // Removes all labels from a PR
-func RemoveLabels(repo string, pr *PullRequest) error {
-	_, err := labelRequest(repo, []string{})
+func RemoveAllLabels(repo string, pr *PullRequest) error {
+	_, err := labelRequest(repo, pr.Number, []string{})
 	if err != nil {
 		return err
 	}
@@ -151,19 +168,22 @@ func RemoveLabels(repo string, pr *PullRequest) error {
 	return nil
 }
 
-func labelRequest(repo string, labels []string) ([]struct{ Name string }, error) {
+func labelRequest(repo string, prNum int, labels []string) ([]struct{ Name string }, error) {
 	org, err := getOrg(repo)
 	if err != nil {
 		return nil, err
 	}
+
 	client := getClient()
 
-	endpoint := fmt.Sprintf("repos/%s/%s/labels", org, repo)
+	endpoint := fmt.Sprintf("repos/%s/%s/issues/%d/labels", org, repo, prNum)
 
+	pbody := struct{ Labels []string }{Labels: labels}
 	var buf bytes.Buffer
-	if err := json.NewEncoder(&buf).Encode(labels); err != nil {
+	if err := json.NewEncoder(&buf).Encode(pbody); err != nil {
 		return nil, err
 	}
+
 	resp := []struct{ Name string }{}
 
 	if err := client.Post(endpoint, &buf, &resp); err != nil {
