@@ -211,6 +211,45 @@ func TestAddLabels(t *testing.T) {
 		err := AddLabels("gutenberg-mobile", &pr, labels)
 		assertError(t, err)
 	})
+
+	t.Run("It returns an error if the labels are empty", func(t *testing.T) {
+		setupMockOrg(t, "TEST")
+
+		pr := createTestPr(t)
+		pr.Number = 123
+
+		labels := []string{}
+
+		err := AddLabels("gutenberg-mobile", &pr, labels)
+		assertError(t, err)
+	})
+}
+
+func TestRemoveLabel(t *testing.T) {
+	t.Run("It removes a labels from a PR if the request is successful", func(t *testing.T) {
+		setupMockOrg(t, "TEST")
+
+		pr := createTestPr(t)
+
+		pr.Labels = []struct{ Name string }{
+			{Name: "foo"},
+			{Name: "bar"},
+		}
+
+		gock.New("https://api.github.com").
+			Delete("/repos/TEST/gutenberg-mobile/issues/123/labels/foo").
+			Reply(200)
+		defer gock.Off()
+
+		err := RemoveLabels("gutenberg-mobile", &pr)
+		assertNoError(t, err)
+		if len(pr.Labels) != 0 {
+			t.Errorf("Expected labels to be removed")
+		}
+	})
+
+	t.Run("It does not remove the label from the PR if the request fails", func(t *testing.T) {
+	})
 }
 
 func setupMockOrg(t *testing.T, org string) {

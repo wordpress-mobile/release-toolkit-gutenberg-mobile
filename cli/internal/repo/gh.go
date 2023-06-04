@@ -127,6 +127,7 @@ func UpdatePr(repo string, pr *PullRequest, update PrUpdate) error {
 	return nil
 }
 
+// Adds labels to a PR
 func AddLabels(repo string, pr *PullRequest, labels []string) error {
 	if len(labels) == 0 {
 		return fmt.Errorf("no labels to add")
@@ -137,6 +138,16 @@ func AddLabels(repo string, pr *PullRequest, labels []string) error {
 		return err
 	}
 	pr.Labels = resp
+	return nil
+}
+
+// Removes all labels from a PR
+func RemoveLabels(repo string, pr *PullRequest) error {
+	_, err := labelRequest(repo, []string{})
+	if err != nil {
+		return err
+	}
+	pr.Labels = nil
 	return nil
 }
 
