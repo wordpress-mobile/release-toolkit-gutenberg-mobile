@@ -321,12 +321,71 @@ func TestRemoveAllLabel(t *testing.T) {
 	})
 }
 
+func TestSearchPrs(t *testing.T) {
+	t.Run("It returns a list of PRs", func(t *testing.T) {
+		setupMockOrg(t, "TEST")
+
+		prs := []PullRequest{
+			{Title: "Test PR"},
+			{Title: "Another PR"},
+		}
+
+		gock.New("https://api.github.com").
+			Get("/search/issues").
+			Reply(200).
+			JSON(SearchResult{
+				Items:      prs,
+				TotalCount: len(prs),
+			})
+		defer gock.Off()
+
+		got, err := SearchPrs(RepoFilter{})
+		assertNoError(t, err)
+		assertEqual(t, got.Items, prs)
+		assertEqual(t, got.TotalCount, len(prs))
+	})
+
+	t.Run("It returns an error if the request fails", func(t *testing.T) {
+		setupMockOrg(t, "TEST")
+
+		gock.New("https://api.github.com").
+			Get("/search/issuesXX").
+			Reply(422)
+		defer gock.Off()
+
+		_, err := SearchPrs(RepoFilter{})
+		assertError(t, err)
+	})
+}
+
+func TestBuildRepoFilter(t *testing.T) {
+
+	t.Run("It returns a filter with the org", func(t *testing.T) {
+		setupMockOrg(t, "TEST")
+
+		filter := BuildRepoFilter("gutenberg-mobile", "")
+		assertEqual(t, filter.repo, "TEST/gutenberg-mobile")
+	})
+
+	t.Run("It encodes the queries", func(t *testing.T) {
+		setupMockOrg(t, "TEST")
+
+		filter := BuildRepoFilter("gutenberg", "is:open", "is:pr", `label:"Mobile App - i.e. Android or iOS"`)
+		assertEqual(t, filter.query, "is%3Aopen+is%3Apr+label%3A%22Mobile+App+-+i.e.+Android+or+iOS%22+repo%3ATEST%2Fgutenberg")
+	})
+
+}
+
+// Helpers
+
 func setupMockOrg(t *testing.T, org string) {
 	t.Helper()
 	t.Setenv("GBM_WPMOBILE_ORG", org)
+	t.Setenv("GBM_WORDPRESS_ORG", org)
 	initOrgs()
 	t.Cleanup(func() {
 		t.Setenv("GBM_WPMOBILE_ORG", "")
+		t.Setenv("GBM_WORDPRESS_ORG", "")
 		initOrgs()
 	})
 }
