@@ -165,18 +165,52 @@ func TestUpdatePR(t *testing.T) {
 		err := UpdatePr("gutenberg-mobile", &pr, update)
 		assertNoError(t, err)
 		assertEqual(t, pr, want)
-
 	})
 }
 
 func TestAddLabels(t *testing.T) {
 
 	t.Run("It adds labels to a PR", func(t *testing.T) {
+		setupMockOrg(t, "TEST")
+
+		pr := createTestPr(t)
+		pr.Number = 123
+
+		respLabels := []struct{ Name string }{
+			{Name: "foo"},
+			{Name: "bar"},
+		}
+
+		gock.New("https://api.github.com").
+			Post("/repos/TEST/gutenberg-mobile/issues/123/labels").
+			Reply(200).
+			JSON(respLabels)
+		defer gock.Off()
+
+		labels := []string{"foo", "bar"}
+
+		err := AddLabels("gutenberg-mobile", &pr, labels)
+		assertNoError(t, err)
+		assertEqual(t, pr.Labels, respLabels)
 	})
 
 	t.Run("It returns an error if the request fails", func(t *testing.T) {
-	})
+		setupMockOrg(t, "TEST")
 
+		pr := createTestPr(t)
+		pr.Number = 123
+
+		gock.New("https://api.github.com").
+			Post("/repos/TEST/gutenberg-mobile/issues/123/labels").
+			Reply(422)
+
+		defer gock.Off()
+
+		labels := []string{"foo", "bar"}
+
+		err := AddLabels("gutenberg-mobile", &pr, labels)
+		assertError(t, err)
+	})
 }
 
 func setupMockOrg(t *testing.T, org string) {

@@ -45,7 +45,7 @@ type PrUpdate struct {
 func getClient() *api.RESTClient {
 	client, err := api.DefaultRESTClient()
 	if err != nil {
-		fmt.Errorf("Error getting client: %v", err)
+		fmt.Printf("Error getting client: %v", err)
 		os.Exit(1)
 	}
 	return client
@@ -124,5 +124,28 @@ func UpdatePr(repo string, pr *PullRequest, update PrUpdate) error {
 	if err := client.Patch(endpoint, &buf, &pr); err != nil {
 		return err
 	}
+	return nil
+}
+
+func AddLabels(repo string, pr *PullRequest, labels []string) error {
+	org, err := getOrg(repo)
+	if err != nil {
+		return err
+	}
+	client := getClient()
+
+	endpoint := fmt.Sprintf("repos/%s/%s/issues/%d/labels", org, repo, pr.Number)
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(labels); err != nil {
+		return err
+	}
+	resp := []struct{ Name string }{}
+
+	if err := client.Post(endpoint, &buf, &resp); err != nil {
+		return err
+	}
+
+	pr.Labels = resp
 	return nil
 }
