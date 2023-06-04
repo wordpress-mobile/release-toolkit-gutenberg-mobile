@@ -105,6 +105,8 @@ func CreatePr(repo string, pr *PullRequest) error {
 		return err
 	}
 
+	// To date there is no way to set the labels on creation
+	// so we need to send the label to the labels endpoint
 	if pr.Labels != nil {
 		if err := AddLabels(repo, pr); err != nil {
 			return err
