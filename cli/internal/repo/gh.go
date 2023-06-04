@@ -128,24 +128,36 @@ func UpdatePr(repo string, pr *PullRequest, update PrUpdate) error {
 }
 
 func AddLabels(repo string, pr *PullRequest, labels []string) error {
-	org, err := getOrg(repo)
+	if len(labels) == 0 {
+		return fmt.Errorf("no labels to add")
+	}
+
+	resp, err := labelRequest(repo, labels)
 	if err != nil {
 		return err
 	}
+	pr.Labels = resp
+	return nil
+}
+
+func labelRequest(repo string, labels []string) ([]struct{ Name string }, error) {
+	org, err := getOrg(repo)
+	if err != nil {
+		return nil, err
+	}
 	client := getClient()
 
-	endpoint := fmt.Sprintf("repos/%s/%s/issues/%d/labels", org, repo, pr.Number)
+	endpoint := fmt.Sprintf("repos/%s/%s/labels", org, repo)
 
 	var buf bytes.Buffer
 	if err := json.NewEncoder(&buf).Encode(labels); err != nil {
-		return err
+		return nil, err
 	}
 	resp := []struct{ Name string }{}
 
 	if err := client.Post(endpoint, &buf, &resp); err != nil {
-		return err
+		return nil, err
 	}
 
-	pr.Labels = resp
-	return nil
+	return resp, nil
 }
