@@ -1,7 +1,7 @@
 package render
 
 import (
-	"fmt"
+	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -14,7 +14,10 @@ var RootCmd = &cobra.Command{
 	- release checklists
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("render called")
+		if len(args) == 0 {
+			cmd.Help()
+			os.Exit(0)
+		}
 	},
 }
 
