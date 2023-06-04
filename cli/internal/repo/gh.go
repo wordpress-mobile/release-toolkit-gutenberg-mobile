@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"os"
+	"strings"
 
 	"github.com/cli/go-gh/v2/pkg/api"
 )
@@ -34,11 +36,25 @@ type PullRequest struct {
 	}
 }
 
+// Used to send PR update requests to the GitHub API.
 type PrUpdate struct {
 	Title string
 	Body  string
 	State string
 	Base  string
+}
+
+// RepoFilter is used to filter PRs by repo and query.
+type RepoFilter struct {
+	repo  string
+	query string
+}
+
+// SearchResult is used to return a list of PRs from a search.
+type SearchResult struct {
+	Filter     RepoFilter
+	TotalCount int `json:"total_count"`
+	Items      []PullRequest
 }
 
 // getClient returns a REST client for the GitHub API.
@@ -193,4 +209,32 @@ func labelRequest(repo string, prNum int, labels []string) ([]struct{ Name strin
 	}
 
 	return resp, nil
+}
+
+// Build a RepoFilter from a repo name and a list of queries.
+func BuildRepoFilter(repo string, queries ...string) RepoFilter {
+	org, _ := getOrg(repo)
+	var encoded []string
+	queries = append(queries, fmt.Sprintf("repo:%s/%s", org, repo))
+
+	for _, q := range queries {
+		encoded = append(encoded, url.QueryEscape(q))
+	}
+
+	return RepoFilter{
+		repo:  fmt.Sprintf("%s/%s", org, repo),
+		query: strings.Join(encoded, "+"),
+	}
+}
+
+// SearchPRs returns a list of PRs matching the given filter.
+func SearchPrs(filter RepoFilter) (SearchResult, error) {
+	client := getClient()
+	endpoint := fmt.Sprintf("search/issues?q=%s", filter.query)
+	response := SearchResult{Filter: filter}
+
+	if err := client.Get(endpoint, &response); err != nil {
+		return SearchResult{}, err
+	}
+	return response, nil
 }
