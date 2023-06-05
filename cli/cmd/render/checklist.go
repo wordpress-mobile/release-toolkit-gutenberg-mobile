@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/wordpress-mobile/gbm-cli/internal/gbm"
+	"github.com/wordpress-mobile/gbm-cli/internal/utils"
 	"github.com/wordpress-mobile/gbm-cli/pkg/render"
 )
 
@@ -30,14 +30,14 @@ var ChecklistCmd = &cobra.Command{
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		var scheduled string
-		if s := gbm.IsScheduledRelease(Version); s {
+		if s := utils.IsScheduledRelease(Version); s {
 			scheduled = "true"
 		} else {
 			scheduled = "false"
 		}
 
 		if ReleaseDate == "" {
-			ReleaseDate = gbm.NextReleaseDate()
+			ReleaseDate = utils.NextReleaseDate()
 		}
 
 		releaseUrl := fmt.Sprintf("https://github.com/wordpress-mobile/gutenberg-mobile/releases/new?tag=v%s&target=release/%s&title=Release+%s", Version, Version, Version)
