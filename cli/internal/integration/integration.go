@@ -53,7 +53,7 @@ func setTempDir() {
 
 // Creates an integration PR for the given target
 // It will return an ExitingPrError if the branch already exists
-func CreateIntegrationPr(target Target, gbmPr *repo.PullRequest) error {
+func CreateIntegrationPr(target Target, gbmPr repo.PullRequest) error {
 	targetRepo := target.GetRepo()
 	targetOrg, _ := repo.GetOrg(targetRepo)
 	baseBranch := target.GetBaseBranch()
@@ -81,7 +81,7 @@ func CreateIntegrationPr(target Target, gbmPr *repo.PullRequest) error {
 		return err
 	}
 
-	if err := target.UpdateVersion(tempDir, *gbmPr); err != nil {
+	if err := target.UpdateVersion(tempDir, gbmPr); err != nil {
 		return err
 	}
 

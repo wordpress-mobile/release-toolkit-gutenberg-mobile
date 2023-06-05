@@ -15,7 +15,7 @@ import (
 // Creates an integration PR for the given target
 // It will return an ExitingPrError if the branch already exists
 // If successful, it will populate the gbmPR with the newly created PR info
-func CreateIntegrationPr(target integration.Target, gbmPR *repo.PullRequest) error {
+func CreateIntegrationPr(target integration.Target, gbmPR repo.PullRequest) error {
 	return integration.CreateIntegrationPr(target, gbmPR)
 }
 
