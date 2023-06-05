@@ -143,7 +143,7 @@ func TestCreatePR(t *testing.T) {
 
 		pr := createTestPr(t)
 
-		labels := []struct{ Name string }{
+		labels := []Label{
 			{Name: "awesome-sauce"},
 		}
 
@@ -183,7 +183,7 @@ func TestUpdatePR(t *testing.T) {
 		pr := createTestPr(t)
 		pr.Number = 123
 
-		labels := []struct{ Name string }{
+		labels := []Label{
 			{Name: "awesome-sauce"},
 		}
 		pr.Labels = labels
@@ -247,7 +247,7 @@ func TestAddLabels(t *testing.T) {
 		pr := createTestPr(t)
 		pr.Number = 123
 
-		labels := []struct{ Name string }{
+		labels := []Label{
 			{Name: "foo"},
 			{Name: "bar"},
 		}
@@ -299,7 +299,7 @@ func TestRemoveAllLabel(t *testing.T) {
 		pr := createTestPr(t)
 		pr.Number = 123
 
-		pr.Labels = []struct{ Name string }{
+		pr.Labels = []Label{
 			{Name: "foo"},
 			{Name: "bar"},
 		}

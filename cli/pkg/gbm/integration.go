@@ -15,8 +15,8 @@ import (
 // Creates an integration PR for the given target
 // It will return an ExitingPrError if the branch already exists
 // If successful, it will populate the gbmPR with the newly created PR info
-func CreateIntegrationPr(target integration.Target, gbmPR repo.PullRequest) error {
-	return integration.CreateIntegrationPr(target, gbmPR)
+func CreateIntegrationPr(target integration.Target, gbmPR repo.PullRequest, verbose bool) (repo.PullRequest, error) {
+	return integration.CreateIntegrationPr(target, gbmPR, verbose)
 }
 
 type writerFunc func([]byte, string) ([]byte, error)
@@ -28,11 +28,11 @@ type AndroidInPr struct {
 	RenderTitle func(gbmPR repo.PullRequest) string
 	RenderBody  func(gbmPR repo.PullRequest) string
 	Version     string
-	Tags        []string
+	Labels      []repo.Label
 }
 
 func (a AndroidInPr) UpdateVersion(dir string, gbmPR repo.PullRequest) error {
-	file := filepath.Join(dir, "WordPress-Android", "build.gradle")
+	file := filepath.Join(dir, "build.gradle")
 	config, err := os.ReadFile(file)
 	if err != nil {
 		return err
@@ -70,8 +70,8 @@ func (a AndroidInPr) Body(gbmPR repo.PullRequest) string {
 	return a.RenderBody(gbmPR)
 }
 
-func (a AndroidInPr) GetTags() []string {
-	return a.Tags
+func (a AndroidInPr) GetLabels() []repo.Label {
+	return a.Labels
 }
 
 func (a AndroidInPr) GetRepo() string {
@@ -89,18 +89,19 @@ func (a AndroidInPr) GetBaseBranch() string {
 	return a.BaseBranch
 }
 
-// iOS integration Target
+// iOS integration PR
+// Implements the integration.Target interface
 type IosInPr struct {
 	HeadBranch  string
 	BaseBranch  string
 	RenderTitle func(gbmPR repo.PullRequest) string
 	RenderBody  func(gbmPR repo.PullRequest) string
 	Version     string
-	Tags        []string
+	Labels      []repo.Label
 }
 
 func (i IosInPr) UpdateVersion(dir string, gbmPr repo.PullRequest) error {
-	file := filepath.Join(dir, "WordPress-iOS", "Gutenberg", "version.rb")
+	file := filepath.Join(dir, "Gutenberg", "version.rb")
 	config, err := os.ReadFile(file)
 	if err != nil {
 		return err
@@ -161,8 +162,8 @@ func (i IosInPr) Body(gbmPR repo.PullRequest) string {
 	return i.RenderBody(gbmPR)
 }
 
-func (i IosInPr) GetTags() []string {
-	return i.Tags
+func (i IosInPr) GetLabels() []repo.Label {
+	return i.Labels
 }
 
 func (i IosInPr) GetRepo() string {

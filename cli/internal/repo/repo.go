@@ -6,47 +6,55 @@ import (
 )
 
 var (
-	wpMobileOrg   string
-	wordPressOrg  string
-	automatticOrg string
+	WpMobileOrg   string
+	WordPressOrg  string
+	AutomatticOrg string
+	repos         []string
 )
 
 func init() {
 	initOrgs()
+	// GBM repos
+	repos = append(repos,
+		"gutenberg",
+		"gutenberg-mobile",
+		"jetpack",
+		"WordPress-Android",
+		"WordPress-iOS")
 }
 
 func initOrgs() {
 	if gbmWpMobileOrg, ok := os.LookupEnv("GBM_WPMOBILE_ORG"); !ok {
-		wpMobileOrg = "wordpress-mobile"
+		WpMobileOrg = "wordpress-mobile"
 	} else {
-		wpMobileOrg = gbmWpMobileOrg
+		WpMobileOrg = gbmWpMobileOrg
 	}
 
 	if gbmWordPressOrg, ok := os.LookupEnv("GBM_WORDPRESS_ORG"); !ok {
-		wordPressOrg = "WordPress"
+		WordPressOrg = "WordPress"
 	} else {
-		wordPressOrg = gbmWordPressOrg
+		WordPressOrg = gbmWordPressOrg
 	}
 
 	if gbmAutomatticOrg, ok := os.LookupEnv("GBM_AUTOMATTIC_ORG"); !ok {
-		automatticOrg = "Automattic"
+		AutomatticOrg = "Automattic"
 	} else {
-		automatticOrg = gbmAutomatticOrg
+		AutomatticOrg = gbmAutomatticOrg
 	}
 }
 
 func GetOrg(repo string) (string, error) {
 	switch repo {
 	case "gutenberg":
-		return wordPressOrg, nil
+		return WordPressOrg, nil
 	case "jetpack":
-		return automatticOrg, nil
+		return AutomatticOrg, nil
 	case "gutenberg-mobile":
 		fallthrough
 	case "WordPress-Android":
 		fallthrough
 	case "WordPress-iOS":
-		return wpMobileOrg, nil
+		return WpMobileOrg, nil
 	default:
 		return "", fmt.Errorf("unknown repo: %s", repo)
 	}

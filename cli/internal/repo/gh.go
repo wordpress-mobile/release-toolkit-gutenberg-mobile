@@ -11,6 +11,15 @@ import (
 	"github.com/cli/go-gh/v2/pkg/api"
 )
 
+type Label struct {
+	Name string
+}
+
+type Repo struct {
+	Ref string
+	Sha string
+}
+
 // PullRequest represents a GitHub pull request.
 // Not all fields are populated by all API calls.
 type PullRequest struct {
@@ -18,7 +27,7 @@ type PullRequest struct {
 	Url    string `json:"html_url"`
 	Body   string
 	Title  string
-	Labels []struct{ Name string }
+	Labels []Label
 	State  string
 	User   struct {
 		Login string
@@ -26,14 +35,8 @@ type PullRequest struct {
 	Draft     bool
 	Mergeable bool
 	Org       string
-	Head      struct {
-		Ref string
-		Sha string
-	}
-	Base struct {
-		Ref string
-		Sha string
-	}
+	Head      Repo
+	Base      Repo
 }
 
 // Used to send PR update requests to the GitHub API.
@@ -72,6 +75,18 @@ type BranchError struct {
 
 func (r *BranchError) Error() string {
 	return r.Err.Error()
+}
+
+func IsBranchError(err error) bool {
+	_, ok := err.(*BranchError)
+	return ok
+}
+
+func IsExistingBranchError(err error) bool {
+	if !IsBranchError(err) {
+		return false
+	}
+	return err.(*BranchError).Type == "exists"
 }
 
 // GetPr returns a PullRequest struct for the given repo and PR number.
@@ -170,6 +185,7 @@ func AddLabels(repo string, pr *PullRequest) error {
 	for _, label := range pr.Labels {
 		labels = append(labels, label.Name)
 	}
+	fmt.Println("Add Labels: pr.labels", pr.Labels)
 	if len(labels) == 0 {
 		return fmt.Errorf("no labels to add")
 	}
@@ -241,6 +257,45 @@ func SearchBranch(repo, branch string) (Branch, error) {
 	return response, nil
 }
 
+// Find all the PRs that are synced with the given Gutenberg Mobile PR
+// A PR is considered synced if the PR body contains the GBM pr url
+func FindGbmSyncedPrs(repo string, gbmPr PullRequest) ([]PullRequest, error) {
+
+	rfs := []RepoFilter{
+		BuildRepoFilter("gutenberg", "is:open", "is:pr", `label:"Mobile App - i.e. Android or iOS"`),
+		BuildRepoFilter("WordPress-Android", "is:open", "is:pr", `label:"Gutenberg"`),
+		BuildRepoFilter("WordPress-iOS", "is:open", "is:pr", `label:"Gutenberg"`),
+		BuildRepoFilter("jetpack", "is:open", "is:pr"),
+	}
+
+	var syncedPrs []PullRequest
+	prChan := make(chan SearchResult)
+
+	// Search for PRs in parallel
+	for _, rf := range rfs {
+		go func(rf RepoFilter) {
+			res, err := SearchPrs(rf)
+
+			if err != nil {
+				fmt.Println(err)
+			}
+			prChan <- res
+		}(rf)
+	}
+
+	// Wait for all the PRs to be returned
+	for i := 0; i < len(rfs); i++ {
+		res := <-prChan
+		for _, pr := range res.Items {
+			if strings.Contains(pr.Body, gbmPr.Url) {
+				syncedPrs = append(syncedPrs, pr)
+			}
+		}
+	}
+
+	return syncedPrs, nil
+}
+
 // getClient returns a REST client for the GitHub API.
 func getClient() *api.RESTClient {
 	client, err := api.DefaultRESTClient()
@@ -251,7 +306,7 @@ func getClient() *api.RESTClient {
 	return client
 }
 
-func labelRequest(repo string, prNum int, labels []string) ([]struct{ Name string }, error) {
+func labelRequest(repo string, prNum int, labels []string) ([]Label, error) {
 	org, err := GetOrg(repo)
 	if err != nil {
 		return nil, err
@@ -267,7 +322,7 @@ func labelRequest(repo string, prNum int, labels []string) ([]struct{ Name strin
 		return nil, err
 	}
 
-	resp := []struct{ Name string }{}
+	resp := []Label{}
 
 	if err := client.Post(endpoint, &buf, &resp); err != nil {
 		return nil, err
