@@ -27,7 +27,7 @@ type PullRequest struct {
 	Url    string `json:"html_url"`
 	Body   string
 	Title  string
-	Labels []Label
+	Labels []Label `json:"labels"`
 	State  string
 	User   struct {
 		Login string
@@ -49,8 +49,8 @@ type PrUpdate struct {
 
 // RepoFilter is used to filter PRs by repo and query.
 type RepoFilter struct {
-	repo  string
-	query string
+	Repo  string
+	Query string
 }
 
 // SearchResult is used to return a list of PRs from a search.
@@ -117,6 +117,7 @@ func CreatePr(repo string, pr *PullRequest) error {
 		return err
 	}
 
+	labels := pr.Labels
 	endpoint := fmt.Sprintf("repos/%s/%s/pulls", org, repo)
 
 	// We need to flatten the struct to match the API
@@ -145,6 +146,7 @@ func CreatePr(repo string, pr *PullRequest) error {
 
 	// To date there is no way to set the labels on creation
 	// so we need to send the label to the labels endpoint
+	pr.Labels = labels
 	if pr.Labels != nil {
 		if err := AddLabels(repo, pr); err != nil {
 			return err
@@ -181,11 +183,11 @@ func UpdatePr(repo string, pr *PullRequest, update PrUpdate) error {
 
 // Adds labels to a PR
 func AddLabels(repo string, pr *PullRequest) error {
+
 	labels := []string{}
 	for _, label := range pr.Labels {
 		labels = append(labels, label.Name)
 	}
-	fmt.Println("Add Labels: pr.labels", pr.Labels)
 	if len(labels) == 0 {
 		return fmt.Errorf("no labels to add")
 	}
@@ -225,15 +227,15 @@ func BuildRepoFilter(repo string, queries ...string) RepoFilter {
 	}
 
 	return RepoFilter{
-		repo:  fmt.Sprintf("%s/%s", org, repo),
-		query: strings.Join(encoded, "+"),
+		Repo:  fmt.Sprintf("%s/%s", org, repo),
+		Query: strings.Join(encoded, "+"),
 	}
 }
 
 // SearchPRs returns a list of PRs matching the given filter.
 func SearchPrs(filter RepoFilter) (SearchResult, error) {
 	client := getClient()
-	endpoint := fmt.Sprintf("search/issues?q=%s", filter.query)
+	endpoint := fmt.Sprintf("search/issues?q=%s", filter.Query)
 	response := SearchResult{Filter: filter}
 
 	if err := client.Get(endpoint, &response); err != nil {
@@ -259,23 +261,16 @@ func SearchBranch(repo, branch string) (Branch, error) {
 
 // Find all the PRs that are synced with the given Gutenberg Mobile PR
 // A PR is considered synced if the PR body contains the GBM pr url
-func FindGbmSyncedPrs(repo string, gbmPr PullRequest) ([]PullRequest, error) {
-
-	rfs := []RepoFilter{
-		BuildRepoFilter("gutenberg", "is:open", "is:pr", `label:"Mobile App - i.e. Android or iOS"`),
-		BuildRepoFilter("WordPress-Android", "is:open", "is:pr", `label:"Gutenberg"`),
-		BuildRepoFilter("WordPress-iOS", "is:open", "is:pr", `label:"Gutenberg"`),
-		BuildRepoFilter("jetpack", "is:open", "is:pr"),
-	}
-
-	var syncedPrs []PullRequest
+func FindGbmSyncedPrs(gbmPr PullRequest, filters []RepoFilter) ([]SearchResult, error) {
+	var synced []SearchResult
 	prChan := make(chan SearchResult)
 
 	// Search for PRs in parallel
-	for _, rf := range rfs {
+	for _, rf := range filters {
 		go func(rf RepoFilter) {
 			res, err := SearchPrs(rf)
 
+			// just log the error and continue
 			if err != nil {
 				fmt.Println(err)
 			}
@@ -284,16 +279,20 @@ func FindGbmSyncedPrs(repo string, gbmPr PullRequest) ([]PullRequest, error) {
 	}
 
 	// Wait for all the PRs to be returned
-	for i := 0; i < len(rfs); i++ {
-		res := <-prChan
-		for _, pr := range res.Items {
+	for i := 0; i < len(filters); i++ {
+		resp := <-prChan
+		sItems := []PullRequest{}
+
+		for _, pr := range resp.Items {
 			if strings.Contains(pr.Body, gbmPr.Url) {
-				syncedPrs = append(syncedPrs, pr)
+				sItems = append(sItems, pr)
 			}
 		}
+		resp.Items = sItems
+		synced = append(synced, resp)
 	}
 
-	return syncedPrs, nil
+	return synced, nil
 }
 
 // getClient returns a REST client for the GitHub API.
@@ -316,7 +315,11 @@ func labelRequest(repo string, prNum int, labels []string) ([]Label, error) {
 
 	endpoint := fmt.Sprintf("repos/%s/%s/issues/%d/labels", org, repo, prNum)
 
-	pbody := struct{ Labels []string }{Labels: labels}
+	type labelBody struct {
+		Labels []string `json:"labels"`
+	}
+
+	pbody := labelBody{Labels: labels}
 	var buf bytes.Buffer
 	if err := json.NewEncoder(&buf).Encode(pbody); err != nil {
 		return nil, err

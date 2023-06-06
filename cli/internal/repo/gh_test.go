@@ -364,14 +364,14 @@ func TestBuildRepoFilter(t *testing.T) {
 		setupMockOrg(t, "TEST")
 
 		filter := BuildRepoFilter("gutenberg-mobile", "")
-		assertEqual(t, filter.repo, "TEST/gutenberg-mobile")
+		assertEqual(t, filter.Repo, "TEST/gutenberg-mobile")
 	})
 
 	t.Run("It encodes the queries", func(t *testing.T) {
 		setupMockOrg(t, "TEST")
 
 		filter := BuildRepoFilter("gutenberg", "is:open", "is:pr", `label:"Mobile App - i.e. Android or iOS"`)
-		assertEqual(t, filter.query, "is%3Aopen+is%3Apr+label%3A%22Mobile+App+-+i.e.+Android+or+iOS%22+repo%3ATEST%2Fgutenberg")
+		assertEqual(t, filter.Query, "is%3Aopen+is%3Apr+label%3A%22Mobile+App+-+i.e.+Android+or+iOS%22+repo%3ATEST%2Fgutenberg")
 	})
 
 }

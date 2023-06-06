@@ -28,19 +28,20 @@ func LogInfo(format string, args ...interface{}) {
 
 func LogDebug(format string, args ...interface{}) {
 	c := color.New(color.FgGreen, color.Bold)
-	l.Printf(c.Sprintf(fmt.Sprint("DEBUG ", format, "\n"), args...))
+	l.Printf(c.Sprintf(fmt.Sprint("DEBUG ", format), args...))
 	color.Unset()
 }
 
+// TODO: Allow calling with just the error  (LogError(err))
 func LogError(format string, args ...interface{}) {
 	c := color.New(color.FgRed, color.Bold)
-	l.Printf(c.Sprintf(fmt.Sprint("ERROR ", format, "\n"), args...))
+	l.Printf(c.Sprintf(fmt.Sprint("ERROR ", format), args...))
 	color.Unset()
 }
 
 func LogWarn(format string, args ...interface{}) {
 	c := color.New(color.FgYellow, color.Bold)
-	l.Printf(c.Sprintf(fmt.Sprint("WARN ", format, "\n"), args...))
+	l.Printf(c.Sprintf(fmt.Sprint("WARN ", format), args...))
 	color.Unset()
 }
 

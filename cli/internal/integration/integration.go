@@ -14,17 +14,44 @@ import (
 	"github.com/wordpress-mobile/gbm-cli/internal/utils"
 )
 
-// Integration Target interface
-type Target interface {
-	UpdateVersion(string, repo.PullRequest) error
-	GetVersion(repo.PullRequest) string
-	Title(repo.PullRequest) string
-	Body(repo.PullRequest) string
-	GetRepo() string
-	GetBaseBranch() string
-	GetHeadBranch() string
-	GetLabels() []repo.Label
+// Integration Target struct
+type Target struct {
+	// The integration target repo. The allowed values are:
+	// WordPress-Android, WordPress-iOS
+	Repo string
+
+	// The integration branch where the integration updates are committed.
+	// The naming is the convention used by the Github api.
+	HeadBranch string
+
+	// The base branch where the integration branch is based on.
+	// The HeadBranch will be branched from this branch. Also the PR will be
+	// opened against this branch.
+	BaseBranch string
+
+	// The function that will be used to render the PR title.
+	RenderTitle func(gbmPr repo.PullRequest) string
+
+	// The function that will be used to render the PR body.
+	RenderBody func(gbmPr repo.PullRequest) string
+
+	// The relative path to the integration config file from the integration repo root.
+	VersionFile string
+
+	// The function that updates the version in the integration config.
+	UpdateVersion VersionUpdaterFunc
+
+	// The labels that will be added to the PR.
+	Labels []repo.Label
+
+	// Sets the PR to draft if this is true.
+	Draft bool
+
+	// The directory where the integration repo is cloned into.
+	Dir string
 }
+
+type VersionUpdaterFunc func([]byte, repo.PullRequest) ([]byte, error)
 
 var (
 	tempDir string
@@ -55,10 +82,10 @@ func setTempDir() {
 	}
 }
 
-func logger(v bool) func(string, ...interface{}) {
+func logger(v bool, repo string) func(string, ...interface{}) {
 	return func(f string, a ...interface{}) {
 		if v {
-			utils.LogInfo(f, a...)
+			utils.LogInfo(fmt.Sprint(repo, ": ", f), a...)
 		}
 	}
 }
@@ -67,12 +94,17 @@ func logger(v bool) func(string, ...interface{}) {
 // It will return an ExitingPrError if the branch already exists
 func CreateIntegrationPr(target Target, gbmPr repo.PullRequest, verbose bool) (repo.PullRequest, error) {
 
-	l := logger(verbose)
-
-	targetRepo := target.GetRepo()
+	targetRepo := target.Repo
 	targetOrg, _ := repo.GetOrg(targetRepo)
-	baseBranch := target.GetBaseBranch()
-	headBranch := target.GetHeadBranch()
+	baseBranch := target.BaseBranch
+	headBranch := target.HeadBranch
+
+	// Since functions can be nil we need to check if the version updater exists
+	if target.UpdateVersion == nil {
+		return repo.PullRequest{}, fmt.Errorf("%s UpdateVersion function is nil", targetRepo)
+	}
+
+	l := logger(verbose, targetRepo)
 
 	exBranch, _ := repo.SearchBranch(targetRepo, headBranch)
 
@@ -85,9 +117,8 @@ func CreateIntegrationPr(target Target, gbmPr repo.PullRequest, verbose bool) (r
 		return pr, &repo.BranchError{Err: errors.New("branch already exists"), Type: "exists"}
 	}
 
-	setTempDir()
-	dir := filepath.Join(tempDir, targetRepo)
-	defer cleanup()
+	dir := filepath.Join(target.Dir, targetRepo)
+
 	l("Cloning %s into %s", targetRepo, dir)
 
 	repoUrl := fmt.Sprintf("git@github.com:%s/%s.git", targetOrg, targetRepo)
@@ -101,8 +132,25 @@ func CreateIntegrationPr(target Target, gbmPr repo.PullRequest, verbose bool) (r
 		return pr, err
 	}
 
-	if err := target.UpdateVersion(dir, gbmPr); err != nil {
-		return pr, err
+	l("Updating Gutenberg Mobile version")
+	configPath := filepath.Join(dir, target.VersionFile)
+	config, err := os.ReadFile(configPath)
+	if err != nil {
+		return pr, fmt.Errorf("%s error reading version file: %w", targetRepo, err)
+	}
+	update, err := target.UpdateVersion(config, gbmPr)
+	if err != nil {
+		return pr, fmt.Errorf("%s error updating version file: %w", targetRepo, err)
+	}
+
+	// We just overwrite the file with the new bytes
+	f, err := os.Create(configPath)
+	if err != nil {
+		return pr, fmt.Errorf("%s error creating version file: %w", targetRepo, err)
+	}
+	defer f.Close()
+	if _, err := f.Write(update); err != nil {
+		return pr, fmt.Errorf("%s error writing version file file: %w", targetRepo, err)
 	}
 
 	l("Committing changes")
@@ -115,13 +163,14 @@ func CreateIntegrationPr(target Target, gbmPr repo.PullRequest, verbose bool) (r
 		return pr, err
 	}
 
-	l("Creating PR")
+	l("Creating the PR")
 	pr = repo.PullRequest{
-		Title:  target.Title(gbmPr),
-		Body:   target.Body(gbmPr),
+		Title:  target.RenderTitle(gbmPr),
+		Body:   target.RenderBody(gbmPr),
 		Head:   repo.Repo{Ref: headBranch},
 		Base:   repo.Repo{Ref: baseBranch},
-		Labels: target.GetLabels(),
+		Labels: target.Labels,
+		Draft:  target.Draft,
 	}
 
 	err = repo.CreatePr(targetRepo, &pr)

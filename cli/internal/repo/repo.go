@@ -9,18 +9,10 @@ var (
 	WpMobileOrg   string
 	WordPressOrg  string
 	AutomatticOrg string
-	repos         []string
 )
 
 func init() {
 	initOrgs()
-	// GBM repos
-	repos = append(repos,
-		"gutenberg",
-		"gutenberg-mobile",
-		"jetpack",
-		"WordPress-Android",
-		"WordPress-iOS")
 }
 
 func initOrgs() {
