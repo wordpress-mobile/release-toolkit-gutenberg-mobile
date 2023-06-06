@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/wordpress-mobile/gbm-cli/cmd/release"
 	"github.com/wordpress-mobile/gbm-cli/cmd/render"
 )
 
@@ -18,6 +19,7 @@ var rootCmd = &cobra.Command{
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },
+	Version: "0.0.1",
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -40,4 +42,5 @@ func init() {
 	// when this action is called directly.
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	rootCmd.AddCommand(render.RootCmd)
+	rootCmd.AddCommand(release.RootCmd)
 }

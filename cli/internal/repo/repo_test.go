@@ -9,9 +9,9 @@ func TestInitOrgs(t *testing.T) {
 
 	t.Run("It sets up the default orgs", func(t *testing.T) {
 		initOrgs()
-		assertEqual(t, wordPressOrg, "WordPress")
-		assertEqual(t, automatticOrg, "Automattic")
-		assertEqual(t, wpMobileOrg, "wordpress-mobile")
+		assertEqual(t, WordPressOrg, "WordPress")
+		assertEqual(t, AutomatticOrg, "Automattic")
+		assertEqual(t, WpMobileOrg, "wordpress-mobile")
 	})
 
 	t.Run("It returns the orgs from the environment variables", func(t *testing.T) {
@@ -22,9 +22,9 @@ func TestInitOrgs(t *testing.T) {
 
 		initOrgs()
 
-		assertEqual(t, wordPressOrg, "my-wordpress")
-		assertEqual(t, automatticOrg, "my-automattic")
-		assertEqual(t, wpMobileOrg, "my-wordpress-mobile")
+		assertEqual(t, WordPressOrg, "my-wordpress")
+		assertEqual(t, AutomatticOrg, "my-automattic")
+		assertEqual(t, WpMobileOrg, "my-wordpress-mobile")
 	})
 }
 
