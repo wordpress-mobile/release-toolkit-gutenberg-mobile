@@ -3,11 +3,8 @@ package integration
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
-	"os/signal"
 	"path/filepath"
-	"syscall"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/wordpress-mobile/gbm-cli/internal/repo"
@@ -52,35 +49,6 @@ type Target struct {
 }
 
 type VersionUpdaterFunc func([]byte, repo.PullRequest) ([]byte, error)
-
-var (
-	tempDir string
-)
-
-func cleanup() {
-	os.RemoveAll(tempDir)
-}
-
-func init() {
-	// Make sure we clean up temp files on early exits
-	// Use a buffered channel so we don't miss the signal.
-	// see https://go.dev/tour/concurrency/5 and https://gobyexample.com/signals
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
-	go func() {
-		<-c
-		cleanup()
-		os.Exit(1)
-	}()
-}
-
-func setTempDir() {
-	var err error
-	if tempDir, err = ioutil.TempDir("", "gbm-"); err != nil {
-		fmt.Println("Error creating temp dir")
-		os.Exit(1)
-	}
-}
 
 func logger(v bool, repo string) func(string, ...interface{}) {
 	return func(f string, a ...interface{}) {
