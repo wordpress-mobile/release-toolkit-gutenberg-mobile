@@ -1,10 +1,12 @@
 package utils
 
 import (
+	"bufio"
 	"fmt"
 	"log"
 	"os"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/fatih/color"
@@ -74,4 +76,26 @@ func GetGbmReleasePr(version string) (repo.PullRequest, error) {
 		return repo.PullRequest{}, fmt.Errorf("found multiple prs for %s", version)
 	}
 	return res.Items[0], nil
+}
+
+func Confirm(ask string) bool {
+	reader := bufio.NewReader(os.Stdin)
+	cyan := color.New(color.FgCyan, color.Bold).PrintfFunc()
+
+	for {
+		cyan("%s [y/n]: ", ask)
+
+		response, err := reader.ReadString('\n')
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		response = strings.ToLower(strings.TrimSpace(response))
+
+		if response == "y" || response == "yes" {
+			return true
+		} else if response == "n" || response == "no" {
+			return false
+		}
+	}
 }
