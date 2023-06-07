@@ -1,6 +1,7 @@
 package release
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -25,6 +26,86 @@ type aztecResult struct {
 	err      error
 	valid    bool
 	platform string
+}
+
+func ValidateVersion(version string) (bool, error) {
+	return true, nil
+}
+
+func UpdatePackageVersion(version, path string) error {
+	f, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	packJson, err := io.ReadAll(f)
+	if err != nil {
+		return err
+	}
+
+	update, err := updatePackageJsonVersion(version, packJson)
+	if err != nil {
+		return err
+	}
+
+	w, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	defer w.Close()
+	if _, err := w.Write(update); err != nil {
+		return err
+	}
+	return nil
+}
+
+func updatePackageJsonVersion(version string, packJson []byte) ([]byte, error) {
+
+	re := regexp.MustCompile(`("version"\s*:\s*)"(?:.*)"`)
+
+	if match := re.Match(packJson); !match {
+		return nil, errors.New("cannot find a version in the json file")
+	}
+	repl := fmt.Sprintf(`$1"%s"`, version)
+	return re.ReplaceAll(packJson, []byte(repl)), nil
+}
+
+func UpdateChangeNotes(version, path string) error {
+	f, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	changeNotes, err := io.ReadAll(f)
+	if err != nil {
+		return err
+	}
+
+	update := updateChangeNotes(version, changeNotes)
+	if err != nil {
+		return err
+	}
+
+	w, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	defer w.Close()
+	if _, err := w.Write(update); err != nil {
+		return err
+	}
+	return nil
+}
+
+func updateChangeNotes(version string, chNotes []byte) []byte {
+
+	re := regexp.MustCompile(`(##\s*Unreleased\s*\n)`)
+
+	repl := fmt.Sprintf("$1##\n %s\n", version)
+
+	return re.ReplaceAll(chNotes, []byte(repl))
 }
 
 // This validates the version of Aztec to make sure it's using a stable release and
