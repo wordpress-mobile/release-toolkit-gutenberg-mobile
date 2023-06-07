@@ -236,7 +236,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
-<p>ℹ️ Use the main WP apps to complete each the tasks below for both iOS and Android. </p>
+<p>ℹ️ Use the main WP apps to complete each the tasks below for both iOS and Android, and post the results of each test group/suite as a comment on the gutenberg-mobile release PR (merged at this point in time). </p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
