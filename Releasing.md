@@ -95,7 +95,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Mark all 4 PRs ready for review and request review from your release wrangler buddy.</p>
+<p>o Mark all 4 PRs ready for review and request review from your release wrangler buddy. In some release cases (like betafixes), it's likely that the PRs could have conflicts with `trunk`. In this case, do not resolve merge conflicts by merging with `trunk` as this will introduce new and unexpected changes into the release. Instead, leave the conflicts until the release is integrated into the main apps, and then resolve the conflicts when merging the PRs back to `trunk`. Optionally, a second clone of the release branch can be created to verify the CI checks.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
@@ -164,7 +164,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 
 
 <!-- wp:paragraph -->
-<p>o <a href="https://github.com/wordpress-mobile/gutenberg-mobile/releases/new?tag=vX.XX.X&amp;target=release/X.XX.X&amp;title=Release%20X.XX.X">Create a new gutenberg-mobile GitHub Release</a>. Include a list of changes in the Release description.</p>
+<p>o <a href="https://github.com/wordpress-mobile/gutenberg-mobile/releases/new?tag=vX.XX.X&amp;target=release/X.XX.X&amp;title=Release%20X.XX.X">Create a new gutenberg-mobile GitHub Release</a>. Include a list of changes in the Release description. Ensure the checkmark next "Set as the latest release" is checked, and publish the release with the "Publish release" button.</p>
 <!-- /wp:paragraph -->
 
 
