@@ -6,9 +6,11 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"os/exec"
 	"strings"
 
 	"github.com/cli/go-gh/v2/pkg/api"
+	"github.com/fatih/color"
 )
 
 type Label struct {
@@ -108,6 +110,33 @@ func GetPr(repo string, id int) (PullRequest, error) {
 	}
 
 	return response, nil
+}
+
+func PreviewPr(repo, dir string, pr *PullRequest) {
+	org, _ := GetOrg(repo)
+	boldUnder := color.New(color.Bold, color.Underline).SprintFunc()
+	bold := color.New(color.Bold).SprintFunc()
+	cyan := color.New(color.FgCyan).SprintFunc()
+	fmt.Println(boldUnder("\nPr Preview"))
+	fmt.Println(bold("Local:"), "\t", cyan(dir))
+	fmt.Println(bold("Repo:"), "\t", cyan(fmt.Sprintf("%s/%s", org, repo)))
+	fmt.Println(bold("Title:"), "\t", cyan(pr.Title))
+	fmt.Print(bold("Body:\n"), cyan(pr.Body))
+	fmt.Println(bold("Commits:"))
+	exc := exec.Command(
+		"git",
+		"log",
+		"trunk...HEAD",
+		"--oneline",
+		"--no-merges",
+		"-10",
+	)
+	exc.Dir = dir
+	exc.Stdout = os.Stdout
+
+	if err := exc.Run(); err != nil {
+		fmt.Println(err)
+	}
 }
 
 func CreatePr(repo string, pr *PullRequest) error {
