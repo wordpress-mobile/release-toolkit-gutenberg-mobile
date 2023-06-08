@@ -11,7 +11,16 @@ import (
 	"strings"
 
 	"github.com/wordpress-mobile/gbm-cli/internal/repo"
+	"github.com/wordpress-mobile/gbm-cli/internal/utils"
 )
+
+func logger(v bool) func(string, ...interface{}) {
+	return func(f string, a ...interface{}) {
+		if v {
+			utils.LogInfo(f, a...)
+		}
+	}
+}
 
 type AztecSrc struct {
 	// This is a local path to the Gutenberg Mobile repo. If this is set, the validator will use this path
@@ -71,7 +80,42 @@ func updatePackageJsonVersion(version string, packJson []byte) ([]byte, error) {
 	return re.ReplaceAll(packJson, []byte(repl)), nil
 }
 
-func UpdateChangeNotes(version, path string) error {
+// Change Log and Release notes update functions
+
+// Updates the release notes by replacing "Unreleased" with
+// the new version and adding a new "Unreleased" section
+func UpdateReleaseNotes(version, path string) error {
+	return readWriteNotes(version, path, releaseNotesUpdater)
+}
+
+// See UpdateReleaseNotes
+// This handles the string replacement
+func releaseNotesUpdater(version string, notes []byte) []byte {
+	re := regexp.MustCompile(`(^Unreleased\s*\n)`)
+
+	repl := fmt.Sprintf("$1---\n\n%s\n", version)
+
+	return re.ReplaceAll(notes, []byte(repl))
+}
+
+// Updates the change log by replacing "Unreleased" with
+// the new version and adding a new "Unreleased" section
+func UpdateChangeLog(version, path string) error {
+	return readWriteNotes(version, path, changeLogUpdater)
+}
+
+// See UpdateChangeLog
+// This handles the string replacement
+func changeLogUpdater(version string, notes []byte) []byte {
+
+	re := regexp.MustCompile(`(##\s*Unreleased\s*\n)`)
+
+	repl := fmt.Sprintf("$1\n## %s\n", version)
+
+	return re.ReplaceAll(notes, []byte(repl))
+}
+
+func readWriteNotes(version, path string, updater func(string, []byte) []byte) error {
 	f, err := os.Open(path)
 	if err != nil {
 		return err
@@ -83,7 +127,7 @@ func UpdateChangeNotes(version, path string) error {
 		return err
 	}
 
-	update := updateChangeNotes(version, changeNotes)
+	update := updater(version, changeNotes)
 	if err != nil {
 		return err
 	}
@@ -97,15 +141,6 @@ func UpdateChangeNotes(version, path string) error {
 		return err
 	}
 	return nil
-}
-
-func updateChangeNotes(version string, chNotes []byte) []byte {
-
-	re := regexp.MustCompile(`(##\s*Unreleased\s*\n)`)
-
-	repl := fmt.Sprintf("$1##\n %s\n", version)
-
-	return re.ReplaceAll(chNotes, []byte(repl))
 }
 
 // This validates the version of Aztec to make sure it's using a stable release and
