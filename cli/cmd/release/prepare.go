@@ -29,7 +29,7 @@ var PrepareCmd = &cobra.Command{
 
 		runIntegration := Apps || Android || Ios
 
-		if Gbm || runIntegration {
+		if Gbm && runIntegration {
 			utils.LogInfo("📦 Running full release pipeline. Let's go! 🚀")
 		}
 
