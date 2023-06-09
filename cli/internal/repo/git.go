@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"time"
 
 	"github.com/cli/go-gh/v2/pkg/auth"
@@ -12,12 +13,14 @@ import (
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
+	"github.com/wordpress-mobile/gbm-cli/internal/utils"
 )
 
 type SubmoduleRef struct {
 	Repo   string
 	Tag    string
 	Branch string
+	Sha    string
 }
 
 func getAuth() *http.BasicAuth {
@@ -67,31 +70,40 @@ func Clone(url, branch, path string, verbose bool) (*git.Repository, error) {
 func Open(path string) (*git.Repository, error) {
 	r, err := git.PlainOpen(path)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("unable to open repo at %s (err %s)", path, err)
 	}
 	return r, nil
 }
 
 // go-git has an issue with cloning submodules https://github.com/go-git/go-git/issues/488
-// Dropping down to exec.Command for now
-func CloneGBM(path string, verbose bool) (*git.Repository, error) {
+// Dropping down to git for now
+func CloneGBM(dir string, verbose bool) (*git.Repository, error) {
+	git := execGit(dir, verbose)
+
 	org, _ := GetOrg("gutenberg-mobile")
 	url := fmt.Sprintf("git@github.com:%s/%s.git", org, "gutenberg-mobile")
 
-	cmd := exec.Command("git", "clone", url, "--recursive", "--depth", "1", path)
-
-	if verbose {
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
+	if err := git("clone", url, "--recursive", "--depth", "1", "gutenberg-mobile"); err != nil {
+		return nil, fmt.Errorf("unable to clone gutenberg mobile %s", err)
 	}
-
-	if err := cmd.Run(); err != nil {
-		return nil, err
-	}
-
-	return Open(path)
+	return Open(filepath.Join(dir, "gutenberg-mobile"))
 }
 
+func SubmoduleInit(dir string, verbose bool) error {
+	git := execGit(dir, verbose)
+
+	if err := git("submodule", "update", "--init"); err != nil {
+		return fmt.Errorf("submodule update failed (err %s)", err)
+	}
+	return nil
+}
+
+func Switch(dir, branch string, verbose bool) error {
+
+	git := execGit(dir, verbose)
+
+	return git("switch", "-c", branch)
+}
 func Checkout(r *git.Repository, branch string) error {
 	w, err := r.Worktree()
 	if err != nil {
@@ -133,27 +145,6 @@ func checkout(r *git.Repository, o *git.CheckoutOptions) error {
 	return w.Checkout(o)
 }
 
-func SubmoduleUpdate(r *git.Repository, sref SubmoduleRef) error {
-	w, err := r.Worktree()
-	if err != nil {
-		return err
-	}
-
-	sub, err := w.Submodule(sref.Repo)
-	if err != nil {
-		return err
-	}
-	srep, err := sub.Repository()
-	if err != nil {
-		return err
-	}
-
-	if sref.Tag != "" {
-		return CheckoutTag(srep, sref.Tag)
-	}
-	return fmt.Errorf("not sure how to update the submodule")
-}
-
 func IsPorcelain(r *git.Repository) (bool, error) {
 	w, err := r.Worktree()
 	if err != nil {
@@ -166,14 +157,41 @@ func IsPorcelain(r *git.Repository) (bool, error) {
 	return status.IsClean(), nil
 }
 
-func Commit(r *git.Repository, message string, opts git.CommitOptions) error {
-	if opts.Author == nil {
-		opts.Author = getSignature()
-	}
+func Add(r *git.Repository, files ...string) error {
 	w, err := r.Worktree()
+	if err != nil {
+		return err
+	}
+
+	for _, f := range files {
+		_, err := w.Add(f)
+		if err != nil {
+			utils.LogWarn("Error adding the file %s :%s", f, err)
+		}
+	}
+	return nil
+}
+
+func Commit(r *git.Repository, message string, files ...string) error {
+	return CommitOptions(r, message, git.CommitOptions{}, files...)
+}
+
+func CommitOptions(r *git.Repository, message string, opts git.CommitOptions, files ...string) error {
+	w, err := r.Worktree()
+
+	for _, f := range files {
+		_, err := w.Add(f)
+		if err != nil {
+			utils.LogWarn("Error adding the file %s :%s", f, err)
+		}
+	}
 
 	if err != nil {
 		return err
+	}
+
+	if opts.Author == nil {
+		opts.Author = getSignature()
 	}
 	_, err = w.Commit(message, &opts)
 
@@ -181,7 +199,24 @@ func Commit(r *git.Repository, message string, opts git.CommitOptions) error {
 }
 
 func CommitAll(r *git.Repository, message string) error {
-	return Commit(r, message, git.CommitOptions{All: true})
+	return CommitOptions(r, message, git.CommitOptions{All: true})
+}
+
+// go-git has an open issue about committing submodules
+// https://github.com/go-git/go-git/issues/248
+// This drops dow to `git` to commit the submodule update
+func CommitSubmodule(dir, message, submodule string, verbose bool) error {
+
+	git := execGit(dir, verbose)
+
+	if err := git("add", submodule); err != nil {
+		return fmt.Errorf("unable to add submodule %s in %s :%s", submodule, dir, err)
+	}
+
+	if err := git("commit", "-m", message); err != nil {
+		return fmt.Errorf("unable to commit submodule update %s : %s", submodule, err)
+	}
+	return nil
 }
 
 func Tag(r *git.Repository, tag, message string, push bool) error {
@@ -235,4 +270,19 @@ func PushTag(r *git.Repository, verbose bool) error {
 		return nil
 	}
 	return err
+}
+
+// Use this to drop down to `git` when go-git is not playing well.
+func execGit(dir string, verbose bool) func(...string) error {
+	return func(cmds ...string) error {
+		cmd := exec.Command("git", cmds...)
+		cmd.Dir = dir
+
+		if verbose {
+			cmd.Stdout = os.Stdout
+			cmd.Stderr = os.Stderr
+		}
+
+		return cmd.Run()
+	}
 }
