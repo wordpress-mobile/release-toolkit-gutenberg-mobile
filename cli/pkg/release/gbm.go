@@ -22,7 +22,7 @@ import (
 
 func CreateGbmPr(version, dir string, verbose bool) (repo.PullRequest, error) {
 
-	l := logger(verbose)
+	l := logger()
 
 	l("\nPreparing Gutenberg Mobile Release PR")
 
@@ -47,7 +47,7 @@ func CreateGbmPr(version, dir string, verbose bool) (repo.PullRequest, error) {
 	repo.PreviewPr("gutenberg-mobile", filepath.Join(dir, "gutenberg-mobile"), &pr)
 	org, _ := repo.GetOrg("gutenberg-mobile")
 
-	prompt := fmt.Sprintf("\nReady to create the PR on %s/gutenberg?", org)
+	prompt := fmt.Sprintf("\nReady to create the PR on %s/gutenberg-mobile?", org)
 	cont := utils.Confirm(prompt)
 	if !cont {
 		l("Bye 👋")
@@ -56,6 +56,23 @@ func CreateGbmPr(version, dir string, verbose bool) (repo.PullRequest, error) {
 
 	if err := gbm.CreatePr(gbmr, &pr, verbose); err != nil {
 		return pr, err
+	}
+
+	// Update the gb release pr
+	gbPr, err := repo.GetGbReleasePr(version)
+	if err != nil {
+		utils.LogWarn("Couldn't get the GB release PR (err %s)", err)
+	}
+
+	if err := renderGbPrBody(version, pr.Url, &gbPr); err != nil {
+		utils.LogWarn("unable to render the GB Pr body to update (err %s)", err)
+	}
+	prUp := repo.PrUpdate{
+		Body: pr.Body,
+	}
+
+	if err := repo.UpdatePr(&gbPr, prUp); err != nil {
+		utils.LogWarn("unable to update the GB release pr (err %s)", err)
 	}
 
 	return pr, nil
