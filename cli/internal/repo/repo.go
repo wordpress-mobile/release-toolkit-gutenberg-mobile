@@ -53,7 +53,15 @@ func GetOrg(repo string) (string, error) {
 }
 
 func GetGbmReleasePr(version string) (PullRequest, error) {
-	filter := BuildRepoFilter("gutenberg-mobile", "is:pr", fmt.Sprintf("%s in:title", version))
+	return getReleasePr("gutenberg-mobile", version)
+}
+
+func GetGbReleasePr(version string) (PullRequest, error) {
+	return getReleasePr("gutenberg", version)
+}
+
+func getReleasePr(repo, version string) (PullRequest, error) {
+	filter := BuildRepoFilter(repo, "is:pr", fmt.Sprintf("%s in:title", version))
 
 	res, err := SearchPrs(filter)
 	if err != nil {
@@ -66,5 +74,7 @@ func GetGbmReleasePr(version string) (PullRequest, error) {
 	if res.TotalCount != 1 {
 		return PullRequest{}, fmt.Errorf("found multiple prs for %s", version)
 	}
-	return res.Items[0], nil
+	pr := res.Items[0]
+	pr.Repo = repo
+	return pr, nil
 }
