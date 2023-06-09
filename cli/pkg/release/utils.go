@@ -15,11 +15,9 @@ import (
 	"github.com/wordpress-mobile/gbm-cli/internal/utils"
 )
 
-func logger(v bool) func(string, ...interface{}) {
+func logger() func(string, ...interface{}) {
 	return func(f string, a ...interface{}) {
-		if v {
-			utils.LogInfo(f, a...)
-		}
+		utils.LogInfo(f, a...)
 	}
 }
 

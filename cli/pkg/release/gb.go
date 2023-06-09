@@ -14,7 +14,7 @@ import (
 
 func CreateGbPR(version, dir string, verbose bool) (repo.PullRequest, error) {
 
-	l := logger(verbose)
+	l := logger()
 	pr := repo.PullRequest{}
 
 	gbBranchName := fmt.Sprintf("rnmobile/release_%s", version)
