@@ -20,13 +20,13 @@ var StatusCmd = &cobra.Command{
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		version := args[0]
-		gbmPr, err := utils.GetGbmReleasePr(version)
+		gbmPr, err := repo.GetGbmReleasePr(version)
 		if err != nil {
 			utils.LogError("%v", err)
 			os.Exit(1)
 		}
 
-		// repo filters
+		// Get the PRs linked to the release pr
 		rfs := []repo.RepoFilter{
 			repo.BuildRepoFilter("gutenberg", "is:open", "is:pr", `label:"Mobile App - i.e. Android or iOS"`),
 			repo.BuildRepoFilter("WordPress-Android", "is:open", "is:pr"),
@@ -38,6 +38,7 @@ var StatusCmd = &cobra.Command{
 			utils.LogError("%v", err)
 		}
 
+		// Setup table renderer
 		terminal := term.FromEnv()
 		termWidth, _, _ := terminal.Size()
 		t := tableprinter.New(terminal.Out(), terminal.IsTerminalOutput(), termWidth)
@@ -48,6 +49,7 @@ var StatusCmd = &cobra.Command{
 		renderRow(t, cyan("Repo"), cyan("PR"), cyan("State"), cyan("Draft"), cyan("Mergeable"))
 		renderRow(t, "gutenberg-mobile", gbmPr.Url, gbmPr.State, draftStr(gbmPr), mergeableStr(gbmPr))
 
+		// Render results in a table
 		for _, res := range results {
 			for _, pr := range res.Items {
 				renderRow(t, res.Filter.Repo, pr.Url, pr.State, draftStr(pr), mergeableStr(pr))
