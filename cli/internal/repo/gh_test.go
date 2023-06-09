@@ -182,6 +182,7 @@ func TestUpdatePR(t *testing.T) {
 
 		pr := createTestPr(t)
 		pr.Number = 123
+		pr.Repo = "gutenberg-mobile"
 
 		labels := []Label{
 			{Name: "awesome-sauce"},
@@ -207,7 +208,7 @@ func TestUpdatePR(t *testing.T) {
 			Title: "Updated TEST PR",
 		}
 
-		err := UpdatePr("gutenberg-mobile", &pr, update)
+		err := UpdatePr(&pr, update)
 		assertNoError(t, err)
 		assertEqual(t, pr, want)
 	})
@@ -217,6 +218,7 @@ func TestUpdatePR(t *testing.T) {
 
 		pr := createTestPr(t)
 		pr.Number = 123
+		pr.Repo = "gutenberg-mobile"
 
 		want := pr
 		want.Title = "Updated TEST PR"
@@ -233,7 +235,7 @@ func TestUpdatePR(t *testing.T) {
 			Title: "Updated TEST PR",
 		}
 
-		err := UpdatePr("gutenberg-mobile", &pr, update)
+		err := UpdatePr(&pr, update)
 		assertNoError(t, err)
 		assertEqual(t, pr, want)
 	})
@@ -397,12 +399,18 @@ func createTestPr(t *testing.T) PullRequest {
 		Title: "Test PR",
 		Body:  "This is a test PR",
 		Head: struct {
-			Ref string
-			Sha string
+			Ref   string
+			Sha   string
+			Owner struct {
+				Login string
+			}
 		}{Ref: "test/branch"},
 		Base: struct {
-			Ref string
-			Sha string
+			Ref   string
+			Sha   string
+			Owner struct {
+				Login string
+			}
 		}{Ref: "trunk"},
 		Draft: true,
 	}

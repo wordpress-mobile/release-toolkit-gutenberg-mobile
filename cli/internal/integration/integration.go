@@ -1,14 +1,11 @@
 package integration
 
 import (
+	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
-	"os/signal"
-	"syscall"
-	"time"
+	"path/filepath"
 
-	"github.com/go-git/go-git/v5"
 	"github.com/wordpress-mobile/gbm-cli/internal/repo"
 	"github.com/wordpress-mobile/gbm-cli/internal/utils"
 )
@@ -92,7 +89,7 @@ func CreateIntegrationPr(target Target, gbmPr repo.PullRequest, verbose bool) (r
 	l("Cloning %s into %s", targetRepo, dir)
 
 	repoUrl := fmt.Sprintf("git@github.com:%s/%s.git", targetOrg, targetRepo)
-	r, err := repo.Clone(repoUrl, baseBranch, dir)
+	r, err := repo.Clone(repoUrl, baseBranch, dir, verbose)
 	if err != nil {
 		return pr, err
 	}
@@ -124,12 +121,12 @@ func CreateIntegrationPr(target Target, gbmPr repo.PullRequest, verbose bool) (r
 	}
 
 	l("Committing changes")
-	if err := repo.Commit(r, "Update Gutenberg version", git.CommitOptions{All: true}); err != nil {
+	if err := repo.CommitAll(r, "Update Gutenberg version"); err != nil {
 		return pr, err
 	}
 
 	l("Pushing changes")
-	if err := repo.Push(r); err != nil {
+	if err := repo.Push(r, verbose); err != nil {
 		return pr, err
 	}
 

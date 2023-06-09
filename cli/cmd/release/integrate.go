@@ -2,10 +2,7 @@ package release
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
-	"os/signal"
-	"syscall"
 	"time"
 
 	"github.com/briandowns/spinner"
@@ -20,34 +17,7 @@ var (
 	Android    bool
 	Update     bool
 	BaseBranch string
-	Verbose    bool
-	tempDir    string
 )
-
-func cleanup() {
-	os.RemoveAll(tempDir)
-}
-
-func init() {
-	// Make sure we clean up temp files on early exits
-	// Use a buffered channel so we don't miss the signal.
-	// see https://go.dev/tour/concurrency/5 and https://gobyexample.com/signals
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
-	go func() {
-		<-c
-		cleanup()
-		os.Exit(1)
-	}()
-}
-
-func setTempDir() {
-	var err error
-	if tempDir, err = ioutil.TempDir("", "gbm-"); err != nil {
-		fmt.Println("Error creating temp dir")
-		os.Exit(1)
-	}
-}
 
 // checklistCmd represents the checklist command
 var IntegrateCmd = &cobra.Command{
@@ -58,7 +28,7 @@ var IntegrateCmd = &cobra.Command{
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		version := args[0]
-		gbmPr, err := utils.GetGbmReleasePr(version)
+		gbmPr, err := repo.GetGbmReleasePr(version)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -91,7 +61,7 @@ var IntegrateCmd = &cobra.Command{
 			numPr++
 			utils.LogInfo("Creating iOS PR at %s/Wordpress-iOS", repo.WpMobileOrg)
 			go func() {
-				pr, err := release.CreateIosPr(version, BaseBranch, tempDir, gbmPr, Verbose)
+				pr, err := release.CreateIosPr(version, BaseBranch, TempDir, gbmPr, Verbose)
 				rChan <- result{"WordPress-iOS", pr, err}
 			}()
 		}
@@ -100,7 +70,7 @@ var IntegrateCmd = &cobra.Command{
 			numPr++
 			utils.LogInfo("Creating Android PR at %s/WordPress-Android", repo.WpMobileOrg)
 			go func() {
-				pr, err := release.CreateAndroidPr(version, BaseBranch, tempDir, gbmPr, Verbose)
+				pr, err := release.CreateAndroidPr(version, BaseBranch, TempDir, gbmPr, Verbose)
 				rChan <- result{"WordPress-Android", pr, err}
 			}()
 		}

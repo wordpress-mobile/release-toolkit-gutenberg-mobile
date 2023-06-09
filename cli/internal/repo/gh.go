@@ -3,12 +3,16 @@ package repo
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/url"
 	"os"
+	"os/exec"
 	"strings"
 
 	"github.com/cli/go-gh/v2/pkg/api"
+	"github.com/fatih/color"
+	"github.com/wordpress-mobile/gbm-cli/internal/utils"
 )
 
 type Label struct {
@@ -16,8 +20,9 @@ type Label struct {
 }
 
 type Repo struct {
-	Ref string
-	Sha string
+	Ref   string
+	Sha   string
+	Owner struct{ Login string }
 }
 
 // PullRequest represents a GitHub pull request.
@@ -34,9 +39,31 @@ type PullRequest struct {
 	}
 	Draft     bool
 	Mergeable bool
-	Org       string
-	Head      Repo
-	Base      Repo
+	// Org       string
+	Head Repo
+	Base Repo
+
+	// This field is not part of the GH api but is useful
+	// to get the context of the PR when passing it around
+	Repo string
+
+	// This field is not part of the GH api
+	// It's used to suggest if a PR is for a release
+	// or not.
+	ReleaseVersion string
+}
+
+type Status struct {
+	State       string
+	Description string
+	Context     string
+	Created     string `json:"created_at"`
+	Updated     string `json:"updated_at"`
+}
+
+type RefStatus struct {
+	State    string
+	Statuses []Status
 }
 
 // Used to send PR update requests to the GitHub API.
@@ -95,6 +122,14 @@ func GetPr(repo string, id int) (PullRequest, error) {
 	if err != nil {
 		return PullRequest{}, err
 	}
+	return GetPrOrg(org, repo, id)
+}
+
+func GetPrOrg(org, repo string, id int) (PullRequest, error) {
+	org, err := GetOrg(repo)
+	if err != nil {
+		return PullRequest{}, err
+	}
 	client := getClient()
 
 	endpoint := fmt.Sprintf("repos/%s/%s/pulls/%d", org, repo, id)
@@ -108,6 +143,33 @@ func GetPr(repo string, id int) (PullRequest, error) {
 	}
 
 	return response, nil
+}
+
+func PreviewPr(repo, dir string, pr *PullRequest) {
+	org, _ := GetOrg(repo)
+	boldUnder := color.New(color.Bold, color.Underline).SprintFunc()
+	bold := color.New(color.Bold).SprintFunc()
+	cyan := color.New(color.FgCyan).SprintFunc()
+	fmt.Println(boldUnder("\nPr Preview"))
+	fmt.Println(bold("Local:"), "\t", cyan(dir))
+	fmt.Println(bold("Repo:"), "\t", cyan(fmt.Sprintf("%s/%s", org, repo)))
+	fmt.Println(bold("Title:"), "\t", cyan(pr.Title))
+	fmt.Print(bold("Body:\n"), cyan(pr.Body))
+	fmt.Println(bold("Commits:"))
+	exc := exec.Command(
+		"git",
+		"log",
+		"trunk...HEAD",
+		"--oneline",
+		"--no-merges",
+		"-10",
+	)
+	exc.Dir = dir
+	exc.Stdout = os.Stdout
+
+	if err := exc.Run(); err != nil {
+		fmt.Println(err)
+	}
 }
 
 func CreatePr(repo string, pr *PullRequest) error {
@@ -155,8 +217,8 @@ func CreatePr(repo string, pr *PullRequest) error {
 	return nil
 }
 
-func UpdatePr(repo string, pr *PullRequest, update PrUpdate) error {
-	org, err := GetOrg(repo)
+func UpdatePr(pr *PullRequest, update PrUpdate) error {
+	org, repo, err := getOrgRepo(pr)
 	if err != nil {
 		return err
 	}
@@ -227,7 +289,7 @@ func BuildRepoFilter(repo string, queries ...string) RepoFilter {
 	}
 
 	return RepoFilter{
-		Repo:  fmt.Sprintf("%s/%s", org, repo),
+		Repo:  repo,
 		Query: strings.Join(encoded, "+"),
 	}
 }
@@ -285,6 +347,7 @@ func FindGbmSyncedPrs(gbmPr PullRequest, filters []RepoFilter) ([]SearchResult, 
 
 		for _, pr := range resp.Items {
 			if strings.Contains(pr.Body, gbmPr.Url) {
+				pr.Repo = resp.Filter.Repo
 				sItems = append(sItems, pr)
 			}
 		}
@@ -293,6 +356,26 @@ func FindGbmSyncedPrs(gbmPr PullRequest, filters []RepoFilter) ([]SearchResult, 
 	}
 
 	return synced, nil
+}
+
+func GetPrStatus(pr *PullRequest) (RefStatus, error) {
+	org, repo, err := getOrgRepo(pr)
+	if err != nil {
+		utils.LogError("%s", err)
+		return RefStatus{}, err
+	}
+	client := getClient()
+	ref := pr.Head.Ref
+
+	endpoint := fmt.Sprintf("repos/%s/%s/commits/%s/status", org, repo, ref)
+	utils.LogDebug(endpoint)
+	fs := RefStatus{}
+	if err := client.Get(endpoint, &fs); err != nil {
+		fmt.Println(err)
+		return RefStatus{}, err
+	}
+
+	return fs, nil
 }
 
 // getClient returns a REST client for the GitHub API.
@@ -332,4 +415,15 @@ func labelRequest(repo string, prNum int, labels []string) ([]Label, error) {
 	}
 
 	return resp, nil
+}
+
+func getOrgRepo(pr *PullRequest) (org string, repo string, err error) {
+
+	if repo = pr.Repo; repo == "" {
+		return "", "", errors.New("Pr is missing a repo")
+	}
+	if org, err = GetOrg(repo); err != nil {
+		return "", "", fmt.Errorf("Unable to determine the org for the %s repo", repo)
+	}
+	return org, repo, nil
 }

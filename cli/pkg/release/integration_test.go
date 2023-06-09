@@ -2,7 +2,6 @@ package release
 
 import (
 	"embed"
-	"fmt"
 	"testing"
 
 	"github.com/andreyvit/diff"
@@ -32,8 +31,6 @@ This PR incorporates the 1.2.3 release of gutenberg-mobile.
 For more information about this release and testing instructions, please see the related Gutenberg-Mobile PR: https://wordpress.com
 `
 		got := renderBody(gbmPr)
-
-		fmt.Println(got)
 
 		if got != want {
 			t.Fatalf("strings are not equal: %s", diff.LineDiff(got, want))
