@@ -61,5 +61,5 @@ func init() {
 	PrepareCmd.Flags().BoolVarP(&Apps, "integrate", "", false, "prepare ios and android prs")
 	PrepareCmd.Flags().BoolVarP(&Android, "android", "", false, "prepare android pr")
 	PrepareCmd.Flags().BoolVarP(&Ios, "ios", "", false, "prepare ios pr")
-	IntegrateCmd.Flags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
+	PrepareCmd.Flags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
 }
