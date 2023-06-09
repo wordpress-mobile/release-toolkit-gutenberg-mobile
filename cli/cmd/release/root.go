@@ -2,7 +2,6 @@ package release
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/signal"
 	"syscall"
@@ -34,7 +33,7 @@ func init() {
 
 func setTempDir() {
 	var err error
-	if TempDir, err = ioutil.TempDir("", "gbm-"); err != nil {
+	if TempDir, err = os.MkdirTemp("", "gbm-"); err != nil {
 		fmt.Println("Error creating temp dir")
 		os.Exit(1)
 	}
