@@ -33,12 +33,12 @@ var PrepareCmd = &cobra.Command{
 			utils.LogInfo("📦 Running full release pipeline. Let's go! 🚀")
 		}
 
-		gbpr, _ := release.CreateGbPR(version, TempDir, true)
+		gbpr, _ := release.CreateGbPR(version, TempDir, Verbose)
 
 		utils.LogInfo("🏁 Gutenberg release ready to go, check it out: %s", gbpr.Url)
 
 		if Gbm {
-			gbmpr, _ := release.CreateGbmPr(version, TempDir, true)
+			gbmpr, _ := release.CreateGbmPr(version, TempDir, Verbose)
 
 			utils.LogInfo("🏁 Gutenberg Mobile release ready to go, check it out: %s", gbmpr.Url)
 		}
