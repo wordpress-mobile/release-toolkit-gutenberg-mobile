@@ -1,16 +1,9 @@
 package release
 
 import (
-	"os"
-
 	"github.com/spf13/cobra"
 	"github.com/wordpress-mobile/gbm-cli/internal/utils"
 	"github.com/wordpress-mobile/gbm-cli/pkg/release"
-)
-
-var (
-	Gbm  bool
-	Apps bool
 )
 
 // checklistCmd represents the checklist command
@@ -25,6 +18,8 @@ var PrepareCmd = &cobra.Command{
 
 		setTempDir()
 
+		results := []releaseResult{}
+
 		var err error
 
 		runIntegration := Apps || Android || Ios
@@ -33,26 +28,41 @@ var PrepareCmd = &cobra.Command{
 			utils.LogInfo("📦 Running full release pipeline. Let's go! 🚀")
 		}
 
-		gbpr, _ := release.CreateGbPR(version, TempDir, Verbose)
+		gbpr, err := release.CreateGbPR(version, TempDir, Verbose)
+		results = append(results, releaseResult{
+			pr:   gbpr,
+			err:  err,
+			repo: "gutenberg",
+		})
 
 		utils.LogInfo("🏁 Gutenberg release ready to go, check it out: %s", gbpr.Url)
 
 		if Gbm {
 			gbmpr, _ := release.CreateGbmPr(version, TempDir, Verbose)
 
+			results = append(results, releaseResult{
+				pr:   gbmpr,
+				err:  err,
+				repo: "gutenberg-mobile",
+			})
+
 			utils.LogInfo("🏁 Gutenberg Mobile release ready to go, check it out: %s", gbmpr.Url)
 		}
 
 		if runIntegration {
-			IntegrateCmd.Run(cmd, []string{version})
+			intResults := integrate(version)
+			results = append(results, intResults...)
+		}
+
+		for _, r := range results {
+			if r.err != nil {
+				utils.LogError("Error creating %s PR: %s", r.repo, r.err)
+			} else {
+				utils.LogInfo("Created %s PR: %s", r.repo, r.pr.Url)
+			}
 		}
 
 		utils.LogDebug("✔️ Done with %s", TempDir)
-
-		if err != nil {
-			println(err.Error())
-			os.Exit(1)
-		}
 	},
 }
 

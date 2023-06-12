@@ -7,12 +7,31 @@ import (
 	"syscall"
 
 	"github.com/spf13/cobra"
+	"github.com/wordpress-mobile/gbm-cli/internal/repo"
 )
 
 var (
 	TempDir string
 	Verbose bool
+
+	// Used by `integrate` and `prepare`
+	Ios     bool
+	Android bool
+
+	// Used by `integrate`
+	Update     bool
+	BaseBranch string
+
+	// Used by `prepare`
+	Gbm  bool
+	Apps bool
 )
+
+type releaseResult struct {
+	repo string
+	pr   repo.PullRequest
+	err  error
+}
 
 func cleanup() {
 	os.RemoveAll(TempDir)
@@ -57,4 +76,5 @@ func init() {
 	RootCmd.AddCommand(PrepareCmd)
 	RootCmd.AddCommand(IntegrateCmd)
 	RootCmd.AddCommand(StatusCmd)
+	RootCmd.AddCommand(UpdateCmd)
 }
