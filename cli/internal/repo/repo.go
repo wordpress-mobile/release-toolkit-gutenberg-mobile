@@ -57,7 +57,7 @@ func GetGbmReleasePr(version string) (PullRequest, error) {
 }
 
 func GetGbReleasePr(version string) (PullRequest, error) {
-	return getReleasePr("gutenberg", version)
+	return getReleasePr("gutenberg", "v"+version)
 }
 
 func getReleasePr(repo, version string) (PullRequest, error) {
