@@ -134,9 +134,5 @@ func CreatePr(gbmr *git.Repository, pr *repo.PullRequest, verbose bool) error {
 	}
 
 	l("Creating the PR")
-	if err := repo.CreatePr("gutenberg-mobile", pr); err != nil {
-		return err
-	}
-
-	return nil
+	return repo.CreatePr("gutenberg-mobile", pr)
 }
