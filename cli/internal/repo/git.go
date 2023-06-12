@@ -219,7 +219,7 @@ func CommitSubmodule(dir, message, submodule string, verbose bool) error {
 	return nil
 }
 
-func Tag(r *git.Repository, tag, message string, push bool) error {
+func Tag(r *git.Repository, tag string, push bool) error {
 
 	h, err := r.Head()
 	if err != nil {
