@@ -3,10 +3,12 @@ package release
 import (
 	"errors"
 	"fmt"
+	"os"
 	"regexp"
 
 	"github.com/wordpress-mobile/gbm-cli/internal/integration"
 	"github.com/wordpress-mobile/gbm-cli/internal/repo"
+	"github.com/wordpress-mobile/gbm-cli/internal/utils"
 	"github.com/wordpress-mobile/gbm-cli/pkg/render"
 )
 
@@ -16,8 +18,8 @@ func CreateAndroidPr(version, baseBranch, dir string, gbmPr repo.PullRequest, ve
 		Repo:        "WordPress-Android",
 		HeadBranch:  fmt.Sprintf("gutenberg/integrate_release_%s", version),
 		BaseBranch:  baseBranch,
-		RenderTitle: buildTitleRenderer(version),
-		RenderBody:  buildBodyRenderer(version, "templates/release/integrationPrBody.md"),
+		Title:       fmt.Sprintf("Integrate Gutenberg Mobile %s", version),
+		Body:        renderIntegrationBody(version, "templates/release/integrationPrBody.md", gbmPr),
 		Labels:      []repo.Label{{Name: "Gutenberg"}},
 		Draft:       true,
 		Dir:         dir,
@@ -26,7 +28,7 @@ func CreateAndroidPr(version, baseBranch, dir string, gbmPr repo.PullRequest, ve
 		UpdateVersion: buildUpdateAndroidVersion(fmt.Sprintf("%d-%s", gbmPr.Number, gbmPr.Head.Sha)),
 	}
 
-	return integration.CreateIntegrationPr(t, gbmPr, verbose)
+	return createPr(t, gbmPr, verbose)
 }
 
 func CreateIosPr(version, baseBranch, dir string, gbmPr repo.PullRequest, verbose bool) (repo.PullRequest, error) {
@@ -35,8 +37,8 @@ func CreateIosPr(version, baseBranch, dir string, gbmPr repo.PullRequest, verbos
 		Repo:        "WordPress-iOS",
 		HeadBranch:  fmt.Sprintf("gutenberg/integrate_release_%s", version),
 		BaseBranch:  baseBranch,
-		RenderTitle: buildTitleRenderer(version),
-		RenderBody:  buildBodyRenderer(version, "templates/release/integrationPrBody.md"),
+		Title:       fmt.Sprintf("Integrate Gutenberg Mobile %s", version),
+		Body:        renderIntegrationBody(version, "templates/release/integrationPrBody.md", gbmPr),
 		Labels:      []repo.Label{{Name: "Gutenberg"}},
 		Draft:       true,
 		Dir:         dir,
@@ -44,39 +46,50 @@ func CreateIosPr(version, baseBranch, dir string, gbmPr repo.PullRequest, verbos
 		// The initial PR will be created with a commit version
 		UpdateVersion: buildUpdateIosVersion(gbmPr.Head.Sha),
 	}
-
-	return integration.CreateIntegrationPr(t, gbmPr, verbose)
+	return createPr(t, gbmPr, verbose)
 }
 
-// Build a closure around the release version. This is later used to render the PR title.
-// We don't need the gbm PR here, but we need to keep the same signature as the other renderers.
-func buildTitleRenderer(version string) func(repo.PullRequest) string {
-	return func(_ repo.PullRequest) string {
-		return fmt.Sprintf("Integrate Gutenberg Mobile %s", version)
+func createPr(target integration.Target, gbmPr repo.PullRequest, verbose bool) (repo.PullRequest, error) {
+	rpo, err := integration.PrepareBranch(target, gbmPr, verbose)
+	if err != nil {
+		return repo.PullRequest{}, err
 	}
+
+	org, _ := repo.GetOrg(target.Repo)
+	prompt := fmt.Sprintf("\nReady to create the PR on %s/%s?", org, target.Repo)
+	cont := utils.Confirm(prompt)
+	if !cont {
+		utils.LogInfo("Bye 👋")
+		os.Exit(0)
+	}
+
+	pr := repo.PullRequest{
+		Title:  target.Title,
+		Body:   target.Body,
+		Head:   repo.Repo{Ref: target.HeadBranch},
+		Base:   repo.Repo{Ref: target.BaseBranch},
+		Labels: []repo.Label{{Name: "Gutenberg"}},
+		Draft:  true,
+	}
+
+	err = integration.CreatePr(target.Repo, rpo, &pr, verbose)
+	return pr, err
 }
 
-// Build a closure around the release version and template path.
-// This is later used to render the PR body.
-// The template path is passed in to make it easier to test.
-func buildBodyRenderer(version, templatePath string) func(repo.PullRequest) string {
-	return func(gbmPr repo.PullRequest) string {
-
-		data := struct {
-			Version  string
-			GbmPrUrl string
-		}{
-			Version:  version,
-			GbmPrUrl: gbmPr.Url,
-		}
-
-		body, err := render.Render(templatePath, data, nil)
-		if err != nil {
-			fmt.Println(err)
-		}
-		return body
-
+func renderIntegrationBody(version, templatePath string, gbmPr repo.PullRequest) string {
+	data := struct {
+		Version  string
+		GbmPrUrl string
+	}{
+		Version:  version,
+		GbmPrUrl: gbmPr.Url,
 	}
+
+	body, err := render.Render(templatePath, data, nil)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return body
 }
 
 func buildUpdateAndroidVersion(version string) integration.VersionUpdaterFunc {
