@@ -1,6 +1,8 @@
 package release
 
 import (
+	"os"
+
 	"github.com/spf13/cobra"
 	"github.com/wordpress-mobile/gbm-cli/internal/utils"
 	"github.com/wordpress-mobile/gbm-cli/pkg/release"
@@ -23,6 +25,15 @@ var PrepareCmd = &cobra.Command{
 		var err error
 
 		runIntegration := Apps || Android || Ios
+
+		// Before we start let's make sure the someone didn't forget a flag
+		if runIntegration && !Gbm {
+			cont := utils.Confirm("🤔 You didn't specify --gbm but also included an integration flag. Continuing will only create the Gutenberg PR, are you sure?")
+			if !cont {
+				utils.LogInfo("👋 Bye!")
+				os.Exit(0)
+			}
+		}
 
 		if Gbm && runIntegration {
 			utils.LogInfo("📦 Running full release pipeline. Let's go! 🚀")
@@ -49,7 +60,6 @@ var PrepareCmd = &cobra.Command{
 			utils.LogInfo("🏁 Gutenberg Mobile release ready to go, check it out: %s", gbmpr.Url)
 		}
 
-		// Make sure we only run the integration if we are also creating a gbm pr.
 		if Gbm && runIntegration {
 			intResults := integrate(version)
 			results = append(results, intResults...)
