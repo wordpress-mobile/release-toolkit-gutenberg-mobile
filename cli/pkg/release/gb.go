@@ -14,7 +14,7 @@ import (
 
 func CreateGbPR(version, dir string, verbose bool) (repo.PullRequest, error) {
 
-	l := logger(verbose)
+	l := logger()
 	pr := repo.PullRequest{}
 
 	gbBranchName := fmt.Sprintf("rnmobile/release_%s", version)
@@ -126,19 +126,9 @@ func CreateGbPR(version, dir string, verbose bool) (repo.PullRequest, error) {
 	pr.Base.Ref = "trunk"
 	pr.Head.Ref = gbBranchName
 
-	pd := struct {
-		Version  string
-		GbmPrUrl string
-	}{
-		Version:  version,
-		GbmPrUrl: "",
+	if err := renderGbPrBody(version, "", &pr); err != nil {
+		utils.LogWarn("Unable to render the GB PR body (err %s)", err)
 	}
-
-	body, err := render.Render("templates/release/gbPrBody.md", pd, nil)
-	if err != nil {
-		fmt.Println(err)
-	}
-	pr.Body = body
 
 	pr.Labels = []repo.Label{{
 		Name: "Mobile App - i.e. Android or iOS",
@@ -172,4 +162,21 @@ func CreateGbPR(version, dir string, verbose bool) (repo.PullRequest, error) {
 	}
 
 	return pr, nil
+}
+
+func renderGbPrBody(version, gbmPRUrl string, pr *repo.PullRequest) error {
+	pd := struct {
+		Version  string
+		GbmPrUrl string
+	}{
+		Version:  version,
+		GbmPrUrl: gbmPRUrl,
+	}
+
+	body, err := render.Render("templates/release/gbPrBody.md", pd, nil)
+	if err != nil {
+		return err
+	}
+	pr.Body = body
+	return nil
 }

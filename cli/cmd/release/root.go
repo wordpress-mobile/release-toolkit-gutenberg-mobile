@@ -2,18 +2,36 @@ package release
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/spf13/cobra"
+	"github.com/wordpress-mobile/gbm-cli/internal/repo"
 )
 
 var (
 	TempDir string
 	Verbose bool
+
+	// Used by `integrate` and `prepare`
+	Ios     bool
+	Android bool
+
+	// Used by `integrate`
+	Update     bool
+	BaseBranch string
+
+	// Used by `prepare`
+	Gbm  bool
+	Apps bool
 )
+
+type releaseResult struct {
+	repo string
+	pr   repo.PullRequest
+	err  error
+}
 
 func cleanup() {
 	os.RemoveAll(TempDir)
@@ -34,7 +52,7 @@ func init() {
 
 func setTempDir() {
 	var err error
-	if TempDir, err = ioutil.TempDir("", "gbm-"); err != nil {
+	if TempDir, err = os.MkdirTemp("", "gbm-"); err != nil {
 		fmt.Println("Error creating temp dir")
 		os.Exit(1)
 	}
@@ -58,4 +76,5 @@ func init() {
 	RootCmd.AddCommand(PrepareCmd)
 	RootCmd.AddCommand(IntegrateCmd)
 	RootCmd.AddCommand(StatusCmd)
+	RootCmd.AddCommand(UpdateCmd)
 }

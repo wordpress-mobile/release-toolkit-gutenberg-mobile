@@ -8,11 +8,6 @@ import (
 	"github.com/wordpress-mobile/gbm-cli/pkg/release"
 )
 
-var (
-	Gbm  bool
-	Apps bool
-)
-
 // checklistCmd represents the checklist command
 var PrepareCmd = &cobra.Command{
 	Use:   "prepare <version>",
@@ -25,21 +20,67 @@ var PrepareCmd = &cobra.Command{
 
 		setTempDir()
 
+		results := []releaseResult{}
+
 		var err error
 
-		gbpr, _ := release.CreateGbPR(version, TempDir, true)
+		runIntegration := Apps || Android || Ios
+
+		// Before we start let's make sure the someone didn't forget a flag
+		if runIntegration && !Gbm {
+			cont := utils.Confirm("🤔 You didn't specify --gbm but also included an integration flag. Continuing will only create the Gutenberg PR, are you sure?")
+			if !cont {
+				utils.LogInfo("👋 Bye!")
+				os.Exit(0)
+			}
+		}
+
+		if Gbm && runIntegration {
+			utils.LogInfo("📦 Running full release pipeline. Let's go! 🚀")
+		}
+
+		gbpr, err := release.CreateGbPR(version, TempDir, Verbose)
+		results = append(results, releaseResult{
+			pr:   gbpr,
+			err:  err,
+			repo: "gutenberg",
+		})
 
 		utils.LogInfo("🏁 Gutenberg release ready to go, check it out: %s", gbpr.Url)
 
-		utils.LogDebug("✔️ Done with %s", TempDir)
+		if Gbm {
+			gbmpr, _ := release.CreateGbmPr(version, TempDir, Verbose)
 
-		if err != nil {
-			println(err.Error())
-			os.Exit(1)
+			results = append(results, releaseResult{
+				pr:   gbmpr,
+				err:  err,
+				repo: "gutenberg-mobile",
+			})
+
+			utils.LogInfo("🏁 Gutenberg Mobile release ready to go, check it out: %s", gbmpr.Url)
 		}
+
+		if Gbm && runIntegration {
+			intResults := integrate(version)
+			results = append(results, intResults...)
+		}
+
+		for _, r := range results {
+			if r.err != nil {
+				utils.LogError("Error creating %s PR: %s", r.repo, r.err)
+			} else {
+				utils.LogInfo("Created %s PR: %s", r.repo, r.pr.Url)
+			}
+		}
+
+		utils.LogDebug("✔️ Done with %s", TempDir)
 	},
 }
 
 func init() {
-	IntegrateCmd.Flags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
+	PrepareCmd.Flags().BoolVarP(&Gbm, "gbm", "", false, "prepare gutenberg mobile pr")
+	PrepareCmd.Flags().BoolVarP(&Apps, "integrate", "", false, "prepare ios and android prs")
+	PrepareCmd.Flags().BoolVarP(&Android, "android", "", false, "prepare android pr")
+	PrepareCmd.Flags().BoolVarP(&Ios, "ios", "", false, "prepare ios pr")
+	PrepareCmd.Flags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
 }
