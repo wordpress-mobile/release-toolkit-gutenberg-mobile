@@ -42,7 +42,7 @@ func CreateGbmPr(version, dir string, verbose bool) (repo.PullRequest, error) {
 		return pr, err
 	}
 
-	renderBody(dir, &pr)
+	renderGbmBody(dir, &pr)
 
 	repo.PreviewPr("gutenberg-mobile", filepath.Join(dir, "gutenberg-mobile"), &pr)
 	org, _ := repo.GetOrg("gutenberg-mobile")
@@ -78,7 +78,7 @@ func CreateGbmPr(version, dir string, verbose bool) (repo.PullRequest, error) {
 	return pr, nil
 }
 
-func renderBody(dir string, pr *repo.PullRequest) {
+func renderGbmBody(dir string, pr *repo.PullRequest) {
 	version := pr.ReleaseVersion
 
 	// Read in the change log
@@ -114,9 +114,9 @@ func renderBody(dir string, pr *repo.PullRequest) {
 		utils.LogError("unable to collect release changes (err %s)", err)
 	}
 	rfs := []repo.RepoFilter{
-		repo.BuildRepoFilter("gutenberg", "is:open", "is:pr", `label:"Mobile App - i.e. Android or iOS"`),
-		repo.BuildRepoFilter("WordPress-Android", "is:open", "is:pr"),
-		repo.BuildRepoFilter("WordPress-iOS", "is:open", "is:pr"),
+		repo.BuildRepoFilter("gutenberg", "is:open", "is:pr", `label:"Mobile App - i.e. Android or iOS"`, fmt.Sprintf("v%s in:title", version)),
+		repo.BuildRepoFilter("WordPress-Android", "is:open", "is:pr", version+" in:title"),
+		repo.BuildRepoFilter("WordPress-iOS", "is:open", "is:pr", version+" in:title"),
 	}
 
 	synced, err := repo.FindGbmSyncedPrs(*pr, rfs)
