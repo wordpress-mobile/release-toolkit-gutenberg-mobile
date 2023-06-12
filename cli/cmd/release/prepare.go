@@ -49,7 +49,8 @@ var PrepareCmd = &cobra.Command{
 			utils.LogInfo("🏁 Gutenberg Mobile release ready to go, check it out: %s", gbmpr.Url)
 		}
 
-		if runIntegration {
+		// Make sure we only run the integration if we are also creating a gbm pr.
+		if Gbm && runIntegration {
 			intResults := integrate(version)
 			results = append(results, intResults...)
 		}
