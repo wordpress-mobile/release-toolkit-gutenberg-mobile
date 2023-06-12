@@ -74,7 +74,10 @@ func getReleasePr(repo, version string) (PullRequest, error) {
 	if res.TotalCount != 1 {
 		return PullRequest{}, fmt.Errorf("found multiple prs for %s", version)
 	}
-	pr := res.Items[0]
-	pr.Repo = repo
-	return pr, nil
+
+	// The search result is not exactly a PR,
+	// The api only returns partial RP info
+	result := res.Items[0]
+
+	return GetPr(repo, result.Number)
 }
