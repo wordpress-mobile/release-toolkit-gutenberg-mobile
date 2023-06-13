@@ -19,6 +19,7 @@ var PrepareCmd = &cobra.Command{
 		version := normalizeVersion(args[0])
 
 		setTempDir()
+		defer cleanup()
 
 		results := []releaseResult{}
 

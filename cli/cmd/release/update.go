@@ -1,7 +1,6 @@
 package release
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -17,27 +16,30 @@ var UpdateCmd = &cobra.Command{
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		version := normalizeVersion(args[0])
-		setTempDir()
+
+		// TODO: Might need to make sure the preios step is current on Gutenberg
 
 		utils.LogInfo("Checking if the Gutenberg Mobile PR is current")
 		gbmCurrent := release.IsGbmPrCurrent(version)
 
 		if !gbmCurrent {
 			utils.LogInfo("🚨 The Gutenberg Mobile PR is not current, updating Gutenberg")
-			utils.LogDebug("Updating Gutenberg is not yet implemented")
-			os.Exit(1)
+			setTempDir()
+			defer cleanup()
+			utils.LogDebug("Directory: %s", TempDir)
+			if gbPr, err := release.UpdateGbmPr(version, TempDir, true); err != nil {
+				utils.LogError("Error updating gbm PR: %s", err)
+				os.Exit(1)
+			} else {
+				utils.LogInfo("🏁 Gutenberg Mobile release updated, check it out: %s", gbPr.Url)
+			}
+
 		} else {
 			utils.LogInfo("The Gutenberg Mobile PR is current")
-		}
-		fmt.Println()
-
-		if gbmCurrent {
-			utils.LogInfo("Both Release PRs are current, nothing to do!")
-			os.Exit(0)
 		}
 	},
 }
 
 func init() {
-	UpdateCmd.Flags().BoolVarP(&Quite, "quite", "q", false, "slience output")
+	UpdateCmd.Flags().BoolVarP(&Quite, "quite", "q", false, "silence output")
 }
