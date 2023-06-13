@@ -92,4 +92,5 @@ func init() {
 	RootCmd.AddCommand(PrepareCmd)
 	RootCmd.AddCommand(IntegrateCmd)
 	RootCmd.AddCommand(StatusCmd)
+	RootCmd.AddCommand(UpdateCmd)
 }
