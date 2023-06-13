@@ -451,10 +451,10 @@ func labelRequest(repo string, prNum int, labels []string) ([]Label, error) {
 func getOrgRepo(pr *PullRequest) (org string, repo string, err error) {
 
 	if repo = pr.Repo; repo == "" {
-		return "", "", errors.New("Pr is missing a repo")
+		return "", "", errors.New("pr is missing a repo")
 	}
 	if org, err = GetOrg(repo); err != nil {
-		return "", "", fmt.Errorf("Unable to determine the org for the %s repo", repo)
+		return "", "", fmt.Errorf("unable to determine the org for the %s repo", repo)
 	}
 	return org, repo, nil
 }
