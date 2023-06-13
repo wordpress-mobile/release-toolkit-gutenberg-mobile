@@ -18,7 +18,7 @@ var IntegrateCmd = &cobra.Command{
 `,
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		version := args[0]
+		version := normalizeVersion(args[0])
 
 		results := integrate(version)
 
