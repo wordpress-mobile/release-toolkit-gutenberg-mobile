@@ -204,11 +204,7 @@ func TestUpdatePR(t *testing.T) {
 			JSON(labels)
 		defer gock.Off()
 
-		update := PrUpdate{
-			Title: "Updated TEST PR",
-		}
-
-		err := UpdatePr(&pr, update)
+		err := UpdatePr(&pr)
 		assertNoError(t, err)
 		assertEqual(t, pr, want)
 	})
@@ -231,11 +227,7 @@ func TestUpdatePR(t *testing.T) {
 			JSON(string(resp))
 		defer gock.Off()
 
-		update := PrUpdate{
-			Title: "Updated TEST PR",
-		}
-
-		err := UpdatePr(&pr, update)
+		err := UpdatePr(&pr)
 		assertNoError(t, err)
 		assertEqual(t, pr, want)
 	})

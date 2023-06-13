@@ -133,10 +133,6 @@ func GetPr(repo string, id int) (PullRequest, error) {
 }
 
 func GetPrOrg(org, repo string, id int) (PullRequest, error) {
-	org, err := GetOrg(repo)
-	if err != nil {
-		return PullRequest{}, err
-	}
 	client := getClient()
 
 	endpoint := fmt.Sprintf("repos/%s/%s/pulls/%d", org, repo, id)
@@ -148,6 +144,8 @@ func GetPrOrg(org, repo string, id int) (PullRequest, error) {
 	if response.Number == 0 {
 		return PullRequest{}, fmt.Errorf("pr not found %s", endpoint)
 	}
+
+	response.Repo = repo
 
 	return response, nil
 }
@@ -224,7 +222,7 @@ func CreatePr(repo string, pr *PullRequest) error {
 	return nil
 }
 
-func UpdatePr(pr *PullRequest, update PrUpdate) error {
+func UpdatePr(pr *PullRequest) error {
 	org, repo, err := getOrgRepo(pr)
 	if err != nil {
 		return err
@@ -232,6 +230,18 @@ func UpdatePr(pr *PullRequest, update PrUpdate) error {
 	client := getClient()
 
 	endpoint := fmt.Sprintf("repos/%s/%s/pulls/%d", org, repo, pr.Number)
+
+	update := struct {
+		Title string `json:"title,omitempty"`
+		Body  string `json:"body,omitempty"`
+		State string `json:"state,omitempty"`
+		Base  string `json:"base,omitempty"`
+	}{
+		Title: pr.Title,
+		Body:  pr.Body,
+		State: pr.State,
+		Base:  pr.Base.Ref,
+	}
 
 	var buf bytes.Buffer
 	if err := json.NewEncoder(&buf).Encode(update); err != nil {

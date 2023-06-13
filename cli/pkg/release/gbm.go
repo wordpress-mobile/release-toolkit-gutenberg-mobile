@@ -67,11 +67,8 @@ func CreateGbmPr(version, dir string, verbose bool) (repo.PullRequest, error) {
 	if err := renderGbPrBody(version, pr.Url, &gbPr); err != nil {
 		utils.LogWarn("unable to render the GB Pr body to update (err %s)", err)
 	}
-	prUp := repo.PrUpdate{
-		Body: pr.Body,
-	}
 
-	if err := repo.UpdatePr(&gbPr, prUp); err != nil {
+	if err := repo.UpdatePr(&gbPr); err != nil {
 		utils.LogWarn("unable to update the GB release pr (err %s)", err)
 	}
 
