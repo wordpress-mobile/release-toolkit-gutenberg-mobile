@@ -24,10 +24,10 @@ var PrepareCmd = &cobra.Command{
 
 		var err error
 
-		runIntegration := Apps || Android || Ios
+		runAnyIntegration := Android || Ios
 
 		// Before we start let's make sure the someone didn't forget a flag
-		if runIntegration && !Gbm {
+		if runAnyIntegration && !Gbm {
 			cont := utils.Confirm("🤔 You didn't specify --gbm but also included an integration flag. Continuing will only create the Gutenberg PR, are you sure?")
 			if !cont {
 				utils.LogInfo("👋 Bye!")
@@ -35,7 +35,7 @@ var PrepareCmd = &cobra.Command{
 			}
 		}
 
-		if Gbm && runIntegration {
+		if All {
 			utils.LogInfo("📦 Running full release pipeline. Let's go! 🚀")
 		}
 
@@ -48,7 +48,7 @@ var PrepareCmd = &cobra.Command{
 
 		utils.LogInfo("🏁 Gutenberg release ready to go, check it out: %s", gbpr.Url)
 
-		if Gbm {
+		if Gbm || All {
 			gbmpr, _ := release.CreateGbmPr(version, TempDir, !Quite)
 
 			results = append(results, releaseResult{
@@ -58,11 +58,12 @@ var PrepareCmd = &cobra.Command{
 			})
 
 			utils.LogInfo("🏁 Gutenberg Mobile release ready to go, check it out: %s", gbmpr.Url)
-		}
 
-		if Gbm && runIntegration {
-			intResults := integrate(version)
-			results = append(results, intResults...)
+			// Run the integrations if we are preparing all or any integration PRs
+			if All || runAnyIntegration {
+				intResults := integrate(version)
+				results = append(results, intResults...)
+			}
 		}
 
 		for _, r := range results {
@@ -78,9 +79,9 @@ var PrepareCmd = &cobra.Command{
 }
 
 func init() {
-	PrepareCmd.Flags().BoolVarP(&Gbm, "gbm", "", false, "prepare gutenberg mobile pr")
-	PrepareCmd.Flags().BoolVarP(&Apps, "integrate", "", false, "prepare ios and android prs")
-	PrepareCmd.Flags().BoolVarP(&Android, "android", "", false, "prepare android pr")
-	PrepareCmd.Flags().BoolVarP(&Ios, "ios", "", false, "prepare ios pr")
+	PrepareCmd.Flags().BoolVarP(&Gbm, "gbm", "", false, "prepare gutenberg mobile PR")
+	PrepareCmd.Flags().BoolVarP(&All, "all", "", false, "prepare all release PRs")
+	PrepareCmd.Flags().BoolVarP(&Android, "android", "", false, "prepare android PR - requires --gbm")
+	PrepareCmd.Flags().BoolVarP(&Ios, "ios", "", false, "prepare ios pr - requires --gbm")
 	PrepareCmd.Flags().BoolVarP(&Quite, "quite", "q", false, "silence output")
 }

@@ -24,8 +24,8 @@ var (
 	BaseBranch string
 
 	// Used by `prepare`
-	Gbm  bool
-	Apps bool
+	Gbm bool
+	All bool
 )
 
 type releaseResult struct {
@@ -47,7 +47,7 @@ func init() {
 	go func() {
 		<-c
 		cleanup()
-		os.Exit(1)
+		os.Exit(0)
 	}()
 }
 
