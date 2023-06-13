@@ -49,6 +49,7 @@ var PrepareCmd = &cobra.Command{
 		utils.LogInfo("🏁 Gutenberg release ready to go, check it out: %s", gbpr.Url)
 
 		if Gbm || All {
+
 			gbmpr, _ := release.CreateGbmPr(version, TempDir, !Quite)
 
 			results = append(results, releaseResult{
@@ -61,8 +62,10 @@ var PrepareCmd = &cobra.Command{
 
 			// Run the integrations if we are preparing all or any integration PRs
 			if All || runAnyIntegration {
-				intResults := integrate(version)
-				results = append(results, intResults...)
+				if cont := utils.Confirm("Ready to create the integration PRs?"); cont {
+					intResults := integrate(version)
+					results = append(results, intResults...)
+				}
 			}
 		}
 

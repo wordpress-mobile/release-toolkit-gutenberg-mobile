@@ -3,12 +3,10 @@ package release
 import (
 	"errors"
 	"fmt"
-	"os"
 	"regexp"
 
 	"github.com/wordpress-mobile/gbm-cli/internal/integration"
 	"github.com/wordpress-mobile/gbm-cli/internal/repo"
-	"github.com/wordpress-mobile/gbm-cli/internal/utils"
 	"github.com/wordpress-mobile/gbm-cli/pkg/render"
 )
 
@@ -53,14 +51,6 @@ func createPr(target integration.Target, gbmPr repo.PullRequest, verbose bool) (
 	rpo, err := integration.PrepareBranch(target, gbmPr, verbose)
 	if err != nil {
 		return repo.PullRequest{}, err
-	}
-
-	org, _ := repo.GetOrg(target.Repo)
-	prompt := fmt.Sprintf("\nReady to create the PR on %s/%s?", org, target.Repo)
-	cont := utils.Confirm(prompt)
-	if !cont {
-		utils.LogInfo("Bye 👋")
-		os.Exit(0)
 	}
 
 	pr := repo.PullRequest{
