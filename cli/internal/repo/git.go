@@ -98,20 +98,25 @@ func CloneGBM(dir string, pr PullRequest, verbose bool) (*git.Repository, error)
 	return Open(filepath.Join(dir, "gutenberg-mobile"))
 }
 
-func SubmoduleInit(dir string, verbose bool) error {
+func Switch(dir, branch string, create, verbose bool) error {
+
 	git := execGit(dir, verbose)
 
-	if err := git("submodule", "update", "--init"); err != nil {
-		return fmt.Errorf("submodule update failed (err %s)", err)
+	if create {
+		return git("switch", "-c", branch)
 	}
-	return nil
-}
 
-func Switch(dir, branch string, verbose bool) error {
+	// We do shallow checkouts so we need to fetch the branch
+	err := git("remote", "set-branches", "origin", branch)
+	if err != nil {
+		return fmt.Errorf("unable to set remote branches (err %s)", err)
+	}
+	err = git("fetch", "origin", "--depth", "1")
+	if err != nil {
+		return fmt.Errorf("unable to fetch branch (err %s)", err)
+	}
 
-	git := execGit(dir, verbose)
-
-	return git("switch", "-c", branch)
+	return git("switch", branch)
 }
 
 func Checkout(r *git.Repository, branch string) error {

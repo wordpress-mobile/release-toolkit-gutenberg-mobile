@@ -34,6 +34,7 @@ func CreateGbmPr(version, dir string, verbose bool) (repo.PullRequest, error) {
 		Repo:           "gutenberg-repo",
 	}
 
+	// TODO: Sometimes it can't find the GB pr right away
 	gbPr, err := GetGbReleasePr(version)
 	if err != nil {
 		return pr, fmt.Errorf("unable to get the GB release PR (err %s)", err)
@@ -69,6 +70,30 @@ func CreateGbmPr(version, dir string, verbose bool) (repo.PullRequest, error) {
 	}
 
 	return pr, nil
+}
+
+func UpdateGbmPr(version, dir string, verbose bool) (*repo.PullRequest, error) {
+	prs := GetReleasePrs(version, "gutenberg-mobile", "gutenberg")
+	gbPr := prs["gutenberg"]
+	gbmPr := prs["gutenberg-mobile"]
+	if gbPr == nil {
+		return nil, fmt.Errorf("unable to find the GB release PR")
+	}
+
+	if gbmPr == nil {
+		return nil, fmt.Errorf("unable to find the GBM release PR")
+	}
+
+	gbmPr.ReleaseVersion = version
+
+	rpo, err := gbm.PrepareBranch(dir, gbmPr, gbPr, verbose)
+	if err != nil {
+		return gbmPr, fmt.Errorf("issue preparing the branc (err %s)", err)
+	}
+
+	err = repo.Push(rpo, verbose)
+	return gbmPr, err
+
 }
 
 func renderGbmBody(dir string, pr *repo.PullRequest) {
