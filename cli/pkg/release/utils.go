@@ -328,7 +328,7 @@ func CollectReleaseChanges(version string, changelog, relnotes []byte) ([]Releas
 
 				prId, _ := strconv.Atoi(matches[0][1])
 
-				pr, err := repo.GetPrOrg("WordPress", "gutenberg", prId)
+				pr, err := repo.GetPr("gutenberg", prId)
 				if err != nil {
 					utils.LogWarn("There was an issue fetching a gutenberg pr #%d", prId)
 					continue
