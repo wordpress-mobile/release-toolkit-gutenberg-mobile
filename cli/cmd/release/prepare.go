@@ -50,7 +50,12 @@ var PrepareCmd = &cobra.Command{
 
 		if Gbm || All {
 
-			gbmpr, _ := release.CreateGbmPr(version, TempDir, !Quite)
+			gbmpr, err := release.CreateGbmPr(version, TempDir, !Quite)
+
+			if err != nil {
+				utils.LogError("Error creating gbm PR: %s", err)
+				os.Exit(1)
+			}
 
 			results = append(results, releaseResult{
 				pr:   gbmpr,
