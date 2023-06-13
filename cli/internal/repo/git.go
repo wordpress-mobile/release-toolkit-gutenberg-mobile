@@ -104,6 +104,7 @@ func Switch(dir, branch string, verbose bool) error {
 
 	return git("switch", "-c", branch)
 }
+
 func Checkout(r *git.Repository, branch string) error {
 	w, err := r.Worktree()
 	if err != nil {
@@ -114,35 +115,6 @@ func Checkout(r *git.Repository, branch string) error {
 		Branch: plumbing.NewBranchReferenceName(branch),
 		Create: true,
 	})
-}
-
-func CheckoutTag(r *git.Repository, tag string) error {
-	co := git.CheckoutOptions{
-		Branch: plumbing.ReferenceName("refs/tags/" + tag),
-	}
-	return checkout(r, &co)
-}
-
-func CheckoutBranch(r *git.Repository, branch string) error {
-	co := git.CheckoutOptions{
-		Branch: plumbing.NewRemoteReferenceName("origin", branch),
-	}
-	return checkout(r, &co)
-}
-
-func CheckoutSha(r *git.Repository, sha string) error {
-	co := git.CheckoutOptions{
-		Hash: plumbing.NewHash(sha),
-	}
-	return checkout(r, &co)
-}
-
-func checkout(r *git.Repository, o *git.CheckoutOptions) error {
-	w, err := r.Worktree()
-	if err != nil {
-		return err
-	}
-	return w.Checkout(o)
 }
 
 func IsPorcelain(r *git.Repository) (bool, error) {
@@ -219,23 +191,22 @@ func CommitSubmodule(dir, message, submodule string, verbose bool) error {
 	return nil
 }
 
-func Tag(r *git.Repository, tag string, push bool) error {
-
+func Tag(r *git.Repository, tag string, push bool) (*plumbing.Reference, error) {
 	h, err := r.Head()
 	if err != nil {
-		return err
+		return nil, err
 	}
-	_, err = r.CreateTag(tag, h.Hash(), &git.CreateTagOptions{
+	ref, err := r.CreateTag(tag, h.Hash(), &git.CreateTagOptions{
 		Message: tag,
 		Tagger:  getSignature(),
 	})
 	if err != nil {
-		return err
+		return ref, err
 	}
 	if push {
-		return PushTag(r, true)
+		return ref, PushTag(r, true)
 	}
-	return err
+	return ref, err
 }
 
 func Push(r *git.Repository, verbose bool) error {
