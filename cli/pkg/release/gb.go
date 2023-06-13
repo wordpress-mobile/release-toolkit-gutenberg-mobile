@@ -26,14 +26,18 @@ func CreateGbPR(version, dir string, verbose bool) (repo.PullRequest, error) {
 
 	if (existing != repo.Branch{}) {
 		l("Branch %s already exists", gbBranchName)
-		return pr, &repo.BranchError{Err: errors.New("branch already exists"), Type: "exists"}
+		pr, err := GetGbReleasePr(version)
+		if err != nil {
+			utils.LogWarn("Unable to get the GB release PR (err %s)", err)
+		}
+		return *pr, &repo.BranchError{Err: errors.New("branch already exists"), Type: "exists"}
 	}
 
 	gbmDir := filepath.Join(dir, "gutenberg-mobile")
 	gbDir := filepath.Join(gbmDir, "gutenberg")
 
 	l("Cloning GBM repo to %s", gbmDir)
-	_, err := repo.CloneGBM(dir, verbose)
+	_, err := repo.CloneGBM(dir, pr, verbose)
 	if err != nil {
 
 		return pr, err
