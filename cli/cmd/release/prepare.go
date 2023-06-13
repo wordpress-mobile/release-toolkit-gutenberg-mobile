@@ -39,7 +39,7 @@ var PrepareCmd = &cobra.Command{
 			utils.LogInfo("📦 Running full release pipeline. Let's go! 🚀")
 		}
 
-		gbpr, err := release.CreateGbPR(version, TempDir, Verbose)
+		gbpr, err := release.CreateGbPR(version, TempDir, !Quite)
 		results = append(results, releaseResult{
 			pr:   gbpr,
 			err:  err,
@@ -49,7 +49,7 @@ var PrepareCmd = &cobra.Command{
 		utils.LogInfo("🏁 Gutenberg release ready to go, check it out: %s", gbpr.Url)
 
 		if Gbm {
-			gbmpr, _ := release.CreateGbmPr(version, TempDir, Verbose)
+			gbmpr, _ := release.CreateGbmPr(version, TempDir, !Quite)
 
 			results = append(results, releaseResult{
 				pr:   gbmpr,
@@ -82,5 +82,5 @@ func init() {
 	PrepareCmd.Flags().BoolVarP(&Apps, "integrate", "", false, "prepare ios and android prs")
 	PrepareCmd.Flags().BoolVarP(&Android, "android", "", false, "prepare android pr")
 	PrepareCmd.Flags().BoolVarP(&Ios, "ios", "", false, "prepare ios pr")
-	PrepareCmd.Flags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
+	PrepareCmd.Flags().BoolVarP(&Quite, "quite", "q", false, "silence output")
 }

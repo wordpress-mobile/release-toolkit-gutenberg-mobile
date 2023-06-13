@@ -13,6 +13,7 @@ import (
 var (
 	TempDir string
 	Verbose bool
+	Quite   bool
 
 	// Used by `integrate` and `prepare`
 	Ios     bool
@@ -76,5 +77,4 @@ func init() {
 	RootCmd.AddCommand(PrepareCmd)
 	RootCmd.AddCommand(IntegrateCmd)
 	RootCmd.AddCommand(StatusCmd)
-	RootCmd.AddCommand(UpdateCmd)
 }
