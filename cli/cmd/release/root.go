@@ -13,6 +13,7 @@ import (
 var (
 	TempDir string
 	Verbose bool
+	Quite   bool
 
 	// Used by `integrate` and `prepare`
 	Ios     bool
@@ -23,8 +24,8 @@ var (
 	BaseBranch string
 
 	// Used by `prepare`
-	Gbm  bool
-	Apps bool
+	Gbm bool
+	All bool
 )
 
 type releaseResult struct {
@@ -46,7 +47,7 @@ func init() {
 	go func() {
 		<-c
 		cleanup()
-		os.Exit(1)
+		os.Exit(0)
 	}()
 }
 
@@ -76,5 +77,4 @@ func init() {
 	RootCmd.AddCommand(PrepareCmd)
 	RootCmd.AddCommand(IntegrateCmd)
 	RootCmd.AddCommand(StatusCmd)
-	RootCmd.AddCommand(UpdateCmd)
 }
