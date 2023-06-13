@@ -188,8 +188,18 @@ func CommitAll(r *git.Repository, message string) error {
 	return CommitOptions(r, message, git.CommitOptions{All: true})
 }
 
+func GetSubmodule(r *git.Repository, path string) (*git.Submodule, error) {
+	w, err := r.Worktree()
+	if err != nil {
+		return nil, err
+	}
+
+	return w.Submodule(path)
+}
+
 // go-git has an open issue about committing submodules
 // https://github.com/go-git/go-git/issues/248
+// https://stackoverflow.com/a/71263056/1373043
 // This drops dow to `git` to commit the submodule update
 func CommitSubmodule(dir, message, submodule string, verbose bool) error {
 
@@ -203,6 +213,36 @@ func CommitSubmodule(dir, message, submodule string, verbose bool) error {
 		return fmt.Errorf("unable to commit submodule update %s : %s", submodule, err)
 	}
 	return nil
+}
+
+type NotPorcelainError struct {
+	Err error
+}
+
+func (r *NotPorcelainError) Error() string {
+	return r.Err.Error()
+}
+
+func IsSubmoduleCurrent(s *git.Submodule, expectedHash string) (bool, error) {
+
+	// Check if the submodule is porcelain
+	sr, err := s.Repository()
+	if clean, err := IsPorcelain(sr); err != nil {
+		return false, err
+	} else if !clean {
+		return false, &NotPorcelainError{fmt.Errorf("submodule %s is not clean", s.Config().Name)}
+	}
+
+	if err != nil {
+		return false, err
+	}
+	stat, err := s.Status()
+	if err != nil {
+		return false, err
+	}
+	eh := plumbing.NewHash(expectedHash)
+
+	return stat.Current == eh, nil
 }
 
 func Tag(r *git.Repository, tag string, push bool) (*plumbing.Reference, error) {
