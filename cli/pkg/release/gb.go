@@ -156,11 +156,12 @@ func CreateGbPR(version, dir string, verbose bool) (repo.PullRequest, error) {
 		return pr, fmt.Errorf("unable to create the pr")
 	}
 
-	l("Pushing the release tag")
-	if err := repo.Tag(gbr, fmt.Sprint("rnmobile/", version), fmt.Sprint("Mobile Release v", version), true); err != nil {
-		utils.LogWarn("Unable to push the release tag: %s", err)
-	}
-
+	/*
+		l("Pushing the release tag")
+		if err := repo.Tag(gbr, fmt.Sprint("rnmobile/", version), fmt.Sprint("Mobile Release v", version), true); err != nil {
+			utils.LogWarn("Unable to push the release tag: %s", err)
+		}
+	*/
 	return pr, nil
 }
 
