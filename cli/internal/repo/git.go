@@ -77,13 +77,22 @@ func Open(path string) (*git.Repository, error) {
 
 // go-git has an issue with cloning submodules https://github.com/go-git/go-git/issues/488
 // Dropping down to git for now
-func CloneGBM(dir string, verbose bool) (*git.Repository, error) {
+func CloneGBM(dir string, pr PullRequest, verbose bool) (*git.Repository, error) {
 	git := execGit(dir, verbose)
 
 	org, _ := GetOrg("gutenberg-mobile")
 	url := fmt.Sprintf("git@github.com:%s/%s.git", org, "gutenberg-mobile")
 
-	if err := git("clone", url, "--recursive", "--depth", "1", "gutenberg-mobile"); err != nil {
+	cmd := []string{"clone", "--recurse-submodules", "--depth", "1"}
+
+	// check to see if the remote branch exists
+	if err := git("ls-remote", "--exit-code", "--heads", url, pr.Head.Ref); err != nil {
+		cmd = append(cmd, url)
+	} else {
+		cmd = append(cmd, "--branch", pr.Head.Ref, url)
+	}
+
+	if err := git(cmd...); err != nil {
 		return nil, fmt.Errorf("unable to clone gutenberg mobile %s", err)
 	}
 	return Open(filepath.Join(dir, "gutenberg-mobile"))

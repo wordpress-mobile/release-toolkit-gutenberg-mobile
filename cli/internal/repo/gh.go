@@ -124,30 +124,30 @@ type GhContents struct {
 }
 
 // GetPr returns a PullRequest struct for the given repo and PR number.
-func GetPr(repo string, id int) (PullRequest, error) {
+func GetPr(repo string, id int) (*PullRequest, error) {
 	org, err := GetOrg(repo)
 	if err != nil {
-		return PullRequest{}, err
+		return nil, err
 	}
 	return GetPrOrg(org, repo, id)
 }
 
-func GetPrOrg(org, repo string, id int) (PullRequest, error) {
+func GetPrOrg(org, repo string, id int) (*PullRequest, error) {
 	client := getClient()
 
 	endpoint := fmt.Sprintf("repos/%s/%s/pulls/%d", org, repo, id)
-	response := PullRequest{}
-	if err := client.Get(endpoint, &response); err != nil {
-		return PullRequest{}, err
+	pr := &PullRequest{}
+	if err := client.Get(endpoint, pr); err != nil {
+		return nil, err
 	}
 
-	if response.Number == 0 {
-		return PullRequest{}, fmt.Errorf("pr not found %s", endpoint)
+	if pr.Number == 0 {
+		return nil, fmt.Errorf("pr not found %s", endpoint)
 	}
 
-	response.Repo = repo
+	pr.Repo = repo
 
-	return response, nil
+	return pr, nil
 }
 
 func PreviewPr(repo, dir string, pr *PullRequest) {

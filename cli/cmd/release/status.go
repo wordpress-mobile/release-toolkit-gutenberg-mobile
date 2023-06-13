@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/wordpress-mobile/gbm-cli/internal/repo"
 	"github.com/wordpress-mobile/gbm-cli/internal/utils"
+	"github.com/wordpress-mobile/gbm-cli/pkg/release"
 )
 
 // renderCmd represents the render command
@@ -20,7 +21,7 @@ var StatusCmd = &cobra.Command{
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		version := normalizeVersion(args[0])
-		gbmPr, err := repo.GetGbmReleasePr(version)
+		gbmPr, err := release.GetGbmReleasePr(version)
 		if err != nil {
 			utils.LogError("%v", err)
 			os.Exit(1)
@@ -32,7 +33,7 @@ var StatusCmd = &cobra.Command{
 			repo.BuildRepoFilter("WordPress-Android", "is:open", "is:pr"),
 			repo.BuildRepoFilter("WordPress-iOS", "is:open", "is:pr"),
 		}
-		results, err := repo.FindGbmSyncedPrs(gbmPr, rfs)
+		results, err := repo.FindGbmSyncedPrs(*gbmPr, rfs)
 
 		if err != nil {
 			utils.LogError("%v", err)
@@ -47,7 +48,7 @@ var StatusCmd = &cobra.Command{
 		gray := color.New(color.FgHiBlack).SprintFunc()
 
 		renderRow(t, cyan("Repo"), cyan("PR"), cyan("State"), cyan("Draft"), cyan("Mergeable"))
-		renderRow(t, "gutenberg-mobile", gbmPr.Url, gbmPr.State, draftStr(gbmPr), mergeableStr(gbmPr))
+		renderRow(t, "gutenberg-mobile", gbmPr.Url, gbmPr.State, draftStr(*gbmPr), mergeableStr(*gbmPr))
 
 		// Render results in a table
 		for _, res := range results {
