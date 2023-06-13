@@ -87,6 +87,28 @@ func UpdateReleaseNotes(version, path string) error {
 	return readWriteNotes(version, path, releaseNotesUpdater)
 }
 
+// Check to see if the Gutenberg submodule in GBM is pointing to the
+// head of the Gutenberg release PR
+func IsGbmPrCurrent(version string) bool {
+	gbPr, err := repo.GetGbReleasePr(version)
+	if err != nil {
+		utils.LogWarn("Error getting Gutenberg Pr: %s", err)
+		return false
+	}
+	pr, err := repo.GetGbmReleasePr(version)
+	if err != nil {
+		utils.LogWarn("Error getting GB Mobile Pr: %s", err)
+		return false
+	}
+	submoduleStat, err := repo.GetContents("gutenberg-mobile", "gutenberg", pr.Head.Ref)
+	if err != nil {
+		utils.LogWarn("Error getting submodule status: %s", err)
+		return false
+	}
+
+	return gbPr.Head.Sha == submoduleStat.Sha
+}
+
 // See UpdateReleaseNotes
 // This handles the string replacement
 func releaseNotesUpdater(version string, notes []byte) []byte {

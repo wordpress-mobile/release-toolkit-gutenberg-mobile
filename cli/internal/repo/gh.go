@@ -116,6 +116,13 @@ func IsExistingBranchError(err error) bool {
 	return err.(*BranchError).Type == "exists"
 }
 
+type GhContents struct {
+	Name string
+	Sha  string
+	Type string
+	Url  string
+}
+
 // GetPr returns a PullRequest struct for the given repo and PR number.
 func GetPr(repo string, id int) (PullRequest, error) {
 	org, err := GetOrg(repo)
@@ -376,6 +383,20 @@ func GetPrStatus(pr *PullRequest) (RefStatus, error) {
 	}
 
 	return fs, nil
+}
+
+func GetContents(repo, file, branch string) (GhContents, error) {
+	org, err := GetOrg(repo)
+	if err != nil {
+		return GhContents{}, err
+	}
+	client := getClient()
+	endpoint := fmt.Sprintf("repos/%s/%s/contents/%s?ref=%s", org, repo, file, branch)
+	response := GhContents{}
+	if err := client.Get(endpoint, &response); err != nil {
+		return GhContents{}, err
+	}
+	return response, nil
 }
 
 // getClient returns a REST client for the GitHub API.
