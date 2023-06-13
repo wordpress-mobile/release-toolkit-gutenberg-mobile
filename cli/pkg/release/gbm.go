@@ -21,9 +21,6 @@ import (
 */
 
 func CreateGbmPr(version, dir string, verbose bool) (repo.PullRequest, error) {
-
-	l := logger()
-
 	l("\nPreparing Gutenberg Mobile Release PR")
 
 	headBranch := "release/" + version

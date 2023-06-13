@@ -15,10 +15,8 @@ import (
 	"github.com/wordpress-mobile/gbm-cli/internal/utils"
 )
 
-func logger() func(string, ...interface{}) {
-	return func(f string, a ...interface{}) {
-		utils.LogInfo(f, a...)
-	}
+func l(f string, a ...interface{}) {
+	utils.LogInfo(f, a...)
 }
 
 type AztecSrc struct {
