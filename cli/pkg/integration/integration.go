@@ -1,7 +1,6 @@
 package integration
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -62,7 +61,7 @@ func init() {
 
 // Creates an integration PR for the given target
 // It will return an ExitingPrError if the branch already exists
-func PrepareBranch(target Target, gbmPr repo.PullRequest, verbose bool) (*git.Repository, error) {
+func PrepareBranch(target *Target, gbmPr repo.PullRequest, verbose bool) (*git.Repository, error) {
 
 	targetRepo := target.Repo
 	targetOrg, _ := repo.GetOrg(targetRepo)
@@ -76,26 +75,32 @@ func PrepareBranch(target Target, gbmPr repo.PullRequest, verbose bool) (*git.Re
 
 	exBranch, _ := repo.SearchBranch(targetRepo, headBranch)
 
-	// TODO - Should also check if the PR already exists ???
-	// Right now we are just checking if the branch exists
-	// But we could push successfully and then fail to create the PR
-	if (exBranch != repo.Branch{}) {
-		return nil, &repo.BranchError{Err: errors.New("branch already exists"), Type: "exists"}
-	}
-
 	dir := filepath.Join(target.Dir, targetRepo)
-
-	l("Cloning %s into %s", targetRepo, dir)
-
 	repoUrl := fmt.Sprintf("git@github.com:%s/%s.git", targetOrg, targetRepo)
-	r, err := repo.Clone(repoUrl, baseBranch, dir, verbose)
-	if err != nil {
-		return nil, err
-	}
 
-	l("Checking out %s", headBranch)
-	if err := repo.Checkout(r, headBranch); err != nil {
-		return r, err
+	var (
+		r   *git.Repository
+		err error
+	)
+
+	// Clone at the existing branch if it exists
+	if (exBranch != repo.Branch{}) {
+		l("Cloning %s ref:%s into %s", targetRepo, headBranch, dir)
+		r, err = repo.Clone(repoUrl, headBranch, dir, verbose)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		l("Cloning %s ref:%s into %s", targetRepo, baseBranch, dir)
+		r, err = repo.Clone(repoUrl, baseBranch, dir, verbose)
+		if err != nil {
+			return nil, err
+		}
+
+		l("Checking out %s", headBranch)
+		if err := repo.Checkout(r, headBranch); err != nil {
+			return r, err
+		}
 	}
 
 	l("Updating Gutenberg Mobile version")

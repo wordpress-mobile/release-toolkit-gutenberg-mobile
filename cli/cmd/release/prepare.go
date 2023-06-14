@@ -2,6 +2,7 @@ package release
 
 import (
 	"os"
+	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/wordpress-mobile/gbm-cli/internal/utils"
@@ -42,7 +43,7 @@ var PrepareCmd = &cobra.Command{
 
 		gbpr, err := release.CreateGbPR(version, TempDir, !Quite)
 		results = append(results, releaseResult{
-			pr:   gbpr,
+			pr:   &gbpr,
 			err:  err,
 			repo: "gutenberg",
 		})
@@ -50,7 +51,9 @@ var PrepareCmd = &cobra.Command{
 		utils.LogInfo("🏁 Gutenberg release ready to go, check it out: %s", gbpr.Url)
 
 		if Gbm || All {
-
+			// Try sleeping for a second to avoid rate limiting
+			// Too fast and the GB Pr might not be ready
+			time.Sleep(time.Second)
 			gbmpr, err := release.CreateGbmPr(version, TempDir, !Quite)
 
 			if err != nil {
@@ -59,7 +62,7 @@ var PrepareCmd = &cobra.Command{
 			}
 
 			results = append(results, releaseResult{
-				pr:   gbmpr,
+				pr:   &gbmpr,
 				err:  err,
 				repo: "gutenberg-mobile",
 			})
@@ -69,7 +72,7 @@ var PrepareCmd = &cobra.Command{
 			// Run the integrations if we are preparing all or any integration PRs
 			if All || runAnyIntegration {
 				if cont := utils.Confirm("Ready to create the integration PRs?"); cont {
-					intResults := integrate(version)
+					intResults := createIntegration(version)
 					results = append(results, intResults...)
 				}
 			}
@@ -82,8 +85,6 @@ var PrepareCmd = &cobra.Command{
 				utils.LogInfo("Created %s PR: %s", r.repo, r.pr.Url)
 			}
 		}
-
-		utils.LogDebug("✔️ Done with %s", TempDir)
 	},
 }
 

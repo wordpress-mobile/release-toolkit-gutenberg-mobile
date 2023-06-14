@@ -294,6 +294,7 @@ type ReleaseChanges struct {
 	Issues []string
 }
 
+// TODO: split this up into changelog parser and release notes parser
 func CollectReleaseChanges(version string, changelog, relnotes []byte) ([]ReleaseChanges, error) {
 	changesRe := regexp.MustCompile(`(?s)\d+\.\d+\.\d+(.*?)\d+\.\d+\.\d+`)
 	// rnChangesRe := regexp.MustCompile(`(?s)\d+\.\d+\.\d+(.*?)\d+\.\d+\.\d+`)
@@ -413,6 +414,14 @@ func GetGbmReleasePr(version string) (*repo.PullRequest, error) {
 
 func GetGbReleasePr(version string) (*repo.PullRequest, error) {
 	return getReleasePr("gutenberg", version)
+}
+
+func GetAndroidReleasePr(version string) (*repo.PullRequest, error) {
+	return getReleasePr("WordPress-Android", version)
+}
+
+func GetIosReleasePr(version string) (*repo.PullRequest, error) {
+	return getReleasePr("WordPress-iOS", version)
 }
 
 func GetReleasePrs(version string, repos ...string) map[string]*repo.PullRequest {

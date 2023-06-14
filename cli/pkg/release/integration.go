@@ -10,47 +10,49 @@ import (
 	"github.com/wordpress-mobile/gbm-cli/pkg/render"
 )
 
-func CreateAndroidPr(version, baseBranch, dir string, gbmPr repo.PullRequest, verbose bool) (repo.PullRequest, error) {
+type IntegrateOp func(string, string, string, repo.PullRequest, bool) (*repo.PullRequest, error)
 
-	t := integration.Target{
-		Repo:        "WordPress-Android",
-		HeadBranch:  fmt.Sprintf("gutenberg/integrate_release_%s", version),
-		BaseBranch:  baseBranch,
-		Title:       fmt.Sprintf("Integrate Gutenberg Mobile %s", version),
-		Body:        renderIntegrationBody(version, "templates/release/integrationPrBody.md", gbmPr),
-		Labels:      []repo.Label{{Name: "Gutenberg"}},
-		Draft:       true,
-		Dir:         dir,
-		VersionFile: "build.gradle",
-		// The initial PR will be created with the prNumber-sha format
-		UpdateVersion: buildUpdateAndroidVersion(fmt.Sprintf("%d-%s", gbmPr.Number, gbmPr.Head.Sha)),
-	}
-
+func CreateAndroidPr(version, baseBranch, dir string, gbmPr repo.PullRequest, verbose bool) (*repo.PullRequest, error) {
+	pointTo := fmt.Sprintf("%d-%s", gbmPr.Number, gbmPr.Head.Sha)
+	t := androidTarget(version, pointTo, baseBranch, dir, gbmPr)
 	return createPr(t, gbmPr, verbose)
 }
 
-func CreateIosPr(version, baseBranch, dir string, gbmPr repo.PullRequest, verbose bool) (repo.PullRequest, error) {
-
-	t := integration.Target{
-		Repo:        "WordPress-iOS",
-		HeadBranch:  fmt.Sprintf("gutenberg/integrate_release_%s", version),
-		BaseBranch:  baseBranch,
-		Title:       fmt.Sprintf("Integrate Gutenberg Mobile %s", version),
-		Body:        renderIntegrationBody(version, "templates/release/integrationPrBody.md", gbmPr),
-		Labels:      []repo.Label{{Name: "Gutenberg"}},
-		Draft:       true,
-		Dir:         dir,
-		VersionFile: "Gutenberg/version.rb",
-		// The initial PR will be created with a commit version
-		UpdateVersion: buildUpdateIosVersion(gbmPr.Head.Sha),
-	}
+func CreateIosPr(version, baseBranch, dir string, gbmPr repo.PullRequest, verbose bool) (*repo.PullRequest, error) {
+	t := iosTarget(version, gbmPr.Head.Sha, baseBranch, dir, gbmPr)
 	return createPr(t, gbmPr, verbose)
 }
 
-func createPr(target integration.Target, gbmPr repo.PullRequest, verbose bool) (repo.PullRequest, error) {
+func UpdateAndroidPr(version, baseBranch, dir string, gbmPr repo.PullRequest, verbose bool) (*repo.PullRequest, error) {
+	aPr, err := GetAndroidReleasePr(version)
+	if err != nil {
+		return nil, err
+	}
+	pointTo := updateVersion(version, &gbmPr)
+	re := regexp.MustCompile(`^v`)
+
+	// Check if it's a release tag
+	if !re.MatchString(pointTo) {
+		pointTo = fmt.Sprintf("%d-%s", gbmPr.Number, pointTo)
+	}
+	t := androidTarget(version, pointTo, baseBranch, dir, gbmPr)
+	return aPr, updatePr(t, gbmPr, verbose)
+}
+
+func UpdateIosPr(version, baseBranch, dir string, gbmPr repo.PullRequest, verbose bool) (*repo.PullRequest, error) {
+	iPr, err := GetIosReleasePr(version)
+	if err != nil {
+		return nil, err
+	}
+	pointTo := updateVersion(version, &gbmPr)
+	t := iosTarget(version, pointTo, baseBranch, dir, gbmPr)
+	return iPr, updatePr(t, gbmPr, verbose)
+}
+
+func createPr(target *integration.Target, gbmPr repo.PullRequest, verbose bool) (*repo.PullRequest, error) {
 	rpo, err := integration.PrepareBranch(target, gbmPr, verbose)
 	if err != nil {
-		return repo.PullRequest{}, err
+		return nil, err
 	}
 
 	pr := repo.PullRequest{
@@ -63,7 +65,63 @@ func createPr(target integration.Target, gbmPr repo.PullRequest, verbose bool) (
 	}
 
 	err = integration.CreatePr(target.Repo, rpo, &pr, verbose)
-	return pr, err
+	return &pr, err
+}
+
+// Returns either the gbm PR sha or the release tag if the release was
+// published. If it can't reach the release then it returns the gbm PR sha.
+func updateVersion(version string, gbmPr *repo.PullRequest) string {
+	vVersion := "v" + version
+	sha := gbmPr.Head.Sha
+	release, err := repo.GetRelease("gutenberg-mobile", vVersion)
+	if err != nil {
+		return sha
+	}
+
+	if release.PublishedDate == "" {
+		return vVersion
+	}
+
+	return sha
+}
+
+func updatePr(target *integration.Target, gbmPr repo.PullRequest, verbose bool) error {
+	rpo, err := integration.PrepareBranch(target, gbmPr, verbose)
+	if err != nil {
+		return err
+	}
+	l("Pushing changes")
+	return repo.Push(rpo, verbose)
+}
+
+func androidTarget(version, pointTo, baseBranch, dir string, gbmPr repo.PullRequest) *integration.Target {
+	return &integration.Target{
+		Repo:          "WordPress-Android",
+		HeadBranch:    fmt.Sprintf("gutenberg/integrate_release_%s", version),
+		BaseBranch:    baseBranch,
+		Title:         fmt.Sprintf("Integrate Gutenberg Mobile %s", version),
+		Body:          renderIntegrationBody(version, "templates/release/integrationPrBody.md", gbmPr),
+		Labels:        []repo.Label{{Name: "Gutenberg"}},
+		Draft:         true,
+		Dir:           dir,
+		VersionFile:   "build.gradle",
+		UpdateVersion: buildUpdateAndroidVersion(pointTo),
+	}
+}
+
+func iosTarget(version, pointTo, baseBranch, dir string, gbmPr repo.PullRequest) *integration.Target {
+	return &integration.Target{
+		Repo:          "WordPress-iOS",
+		HeadBranch:    fmt.Sprintf("gutenberg/integrate_release_%s", version),
+		BaseBranch:    baseBranch,
+		Title:         fmt.Sprintf("Integrate Gutenberg Mobile %s", version),
+		Body:          renderIntegrationBody(version, "templates/release/integrationPrBody.md", gbmPr),
+		Labels:        []repo.Label{{Name: "Gutenberg"}},
+		Draft:         true,
+		Dir:           dir,
+		VersionFile:   "Gutenberg/version.rb",
+		UpdateVersion: buildUpdateIosVersion(pointTo),
+	}
 }
 
 func renderIntegrationBody(version, templatePath string, gbmPr repo.PullRequest) string {
