@@ -1,6 +1,7 @@
 package release
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/andreyvit/diff"
@@ -58,7 +59,7 @@ REPO_NAME = 'gutenberg-mobile'
 		want := []byte(`
 # frozen_string_literal: true
 GUTENBERG_CONFIG = {
-  #commit: '123'
+  # commit: '',
   tag: 'v1.0.0'
 }
 
@@ -100,12 +101,12 @@ REPO_NAME = 'gutenberg-mobile'
 		assertNoDiff(t, want, got)
 	})
 
-	t.Run("Updates a tag to a tag", func(t *testing.T) {
+	t.Run("Updates a tag to an alpha tag", func(t *testing.T) {
 		updateIosVersion := buildUpdateIosVersion("v1.97.0-alpha")
 		config := []byte(`
 # frozen_string_literal: true
 GUTENBERG_CONFIG = {
-  #commit: '',
+  # commit: '',
   tag: 'v1.96.0'
 }
 
@@ -116,7 +117,7 @@ REPO_NAME = 'gutenberg-mobile'
 		want := []byte(`
 # frozen_string_literal: true
 GUTENBERG_CONFIG = {
-  #commit: '',
+  # commit: '',
   tag: 'v1.97.0-alpha'
 }
 
@@ -128,6 +129,37 @@ REPO_NAME = 'gutenberg-mobile'
 		assertNoError(t, err)
 		assertNoDiff(t, want, got)
 	})
+
+	t.Run("Updates an alpha tag to a commit", func(t *testing.T) {
+		updateIosVersion := buildUpdateIosVersion("123")
+		config := []byte(`
+# frozen_string_literal: true
+GUTENBERG_CONFIG = {
+  # commit: '',
+  tag: 'v1.97.0-alpha1'
+}
+
+GITHUB_ORG = 'wordpress-mobile'
+REPO_NAME = 'gutenberg-mobile'
+`)
+
+		want := []byte(`
+# frozen_string_literal: true
+GUTENBERG_CONFIG = {
+  commit: '123'
+  #tag: 'v1.97.0-alpha1'
+}
+
+GITHUB_ORG = 'wordpress-mobile'
+REPO_NAME = 'gutenberg-mobile'
+`)
+
+		got, err := updateIosVersion(config, repo.PullRequest{})
+		assertNoError(t, err)
+		fmt.Println(string(got))
+		assertNoDiff(t, want, got)
+	})
+
 }
 
 func assertError(t *testing.T, err error) {

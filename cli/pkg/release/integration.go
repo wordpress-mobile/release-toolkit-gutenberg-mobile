@@ -100,8 +100,8 @@ func buildUpdateIosVersion(version string) integration.VersionUpdaterFunc {
 	return func(config []byte, _ repo.PullRequest) ([]byte, error) {
 		// Set up regexps for tag or commit
 		tagRe := regexp.MustCompile(`v\d+\.\d+\.\d+`)
-		tagLineRe := regexp.MustCompile(`([\r\n]\s*)#*(tag:.*)`)
-		commitLineRe := regexp.MustCompile(`([\r\n]\s*)#*(commit:.*)`)
+		tagLineRe := regexp.MustCompile(`([\r\n]\s*)#?\s*(tag:.*)`)
+		commitLineRe := regexp.MustCompile(`([\r\n]\s*)#?\s*(commit:.*)`)
 
 		var (
 			updated []byte
@@ -110,7 +110,7 @@ func buildUpdateIosVersion(version string) integration.VersionUpdaterFunc {
 		// TODO return an error if we can't find a tag or a commit line
 		// If matching a version tag, replace the tag line with the new tag
 		if tagRe.MatchString(version) {
-			updated = commitLineRe.ReplaceAll(config, []byte("${1}#${2}"))
+			updated = commitLineRe.ReplaceAll(config, []byte("${1}# commit: '',"))
 			tagRepl := []byte(fmt.Sprintf(`${1}tag: '%s'`, version))
 			updated = tagLineRe.ReplaceAll(updated, tagRepl)
 		} else {
