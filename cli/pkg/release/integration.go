@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/wordpress-mobile/gbm-cli/internal/integration"
 	"github.com/wordpress-mobile/gbm-cli/internal/repo"
+	"github.com/wordpress-mobile/gbm-cli/pkg/integration"
 	"github.com/wordpress-mobile/gbm-cli/pkg/render"
 )
 
