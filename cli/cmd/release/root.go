@@ -13,7 +13,6 @@ import (
 
 var (
 	TempDir string
-	Verbose bool
 	Quite   bool
 
 	// Used by `integrate` and `prepare`

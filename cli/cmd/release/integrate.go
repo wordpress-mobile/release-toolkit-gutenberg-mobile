@@ -38,7 +38,7 @@ func init() {
 	IntegrateCmd.Flags().BoolVarP(&Android, "android", "a", false, "target android release")
 	IntegrateCmd.Flags().BoolVarP(&Update, "update", "u", false, "update existing PR")
 	IntegrateCmd.Flags().StringVarP(&BaseBranch, "base-branch", "b", "trunk", "base branch for the PR")
-	IntegrateCmd.Flags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
+	IntegrateCmd.Flags().BoolVarP(&Quite, "quite", "q", false, "silence output")
 }
 
 func integrate(version string) (results []releaseResult) {
@@ -58,10 +58,8 @@ func integrate(version string) (results []releaseResult) {
 	if !Ios && !Android {
 		Ios = true
 		Android = true
-	} else {
-		// if we are only doing one, set verbose to true
-		Verbose = true
 	}
+
 	numPr := 0 // number of PRs to create
 
 	// Use goroutines to create the PRs concurrently
@@ -69,7 +67,7 @@ func integrate(version string) (results []releaseResult) {
 		numPr++
 		utils.LogInfo("Creating iOS PR at %s/Wordpress-iOS", repo.WpMobileOrg)
 		go func() {
-			pr, err := release.CreateIosPr(version, BaseBranch, TempDir, *gbmPr, Verbose)
+			pr, err := release.CreateIosPr(version, BaseBranch, TempDir, *gbmPr, !Quite)
 			rChan <- releaseResult{"WordPress-iOS", pr, err}
 		}()
 	}
@@ -78,7 +76,7 @@ func integrate(version string) (results []releaseResult) {
 		numPr++
 		utils.LogInfo("Creating Android PR at %s/WordPress-Android", repo.WpMobileOrg)
 		go func() {
-			pr, err := release.CreateAndroidPr(version, BaseBranch, TempDir, *gbmPr, Verbose)
+			pr, err := release.CreateAndroidPr(version, BaseBranch, TempDir, *gbmPr, !Quite)
 			rChan <- releaseResult{"WordPress-Android", pr, err}
 		}()
 	}
