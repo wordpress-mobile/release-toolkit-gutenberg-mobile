@@ -47,6 +47,10 @@ func PrepareBranch(dir string, pr *repo.PullRequest, gbPr *repo.PullRequest, ver
 			return nil, fmt.Errorf("issue opening gutenberg-mobile (err %s)", err)
 		}
 	}
+
+	if err := repo.Switch(gbmDir, "gutenberg-mobile", pr.Head.Ref, verbose); err != nil {
+		return nil, err
+	}
 	// Set up GB
 	if err := setupGb(gbmDir, gbmr, gbPr, verbose); err != nil {
 		return nil, err
@@ -113,7 +117,7 @@ func setupGb(gbmDir string, gbmr *git.Repository, gbPr *repo.PullRequest, verbos
 	if curr, err := repo.IsSubmoduleCurrent(gb, gbPr.Head.Sha); err != nil {
 		return fmt.Errorf("issue checking the submodule (err %s)", err)
 	} else if !curr {
-		if err := repo.Switch(filepath.Join(gbmDir, "gutenberg"), gbPr.Head.Ref, false, verbose); err != nil {
+		if err := repo.Switch(filepath.Join(gbmDir, "gutenberg"), "gutenberg", gbPr.Head.Ref, verbose); err != nil {
 			return fmt.Errorf("unable to switch to %s (err %s)", gbPr.Head.Ref, err)
 		}
 	}
@@ -130,6 +134,7 @@ func setupGb(gbmDir string, gbmr *git.Repository, gbPr *repo.PullRequest, verbos
 
 func CreatePr(gbmr *git.Repository, pr *repo.PullRequest, verbose bool) error {
 
+	// TODO: make sure we are not on trunk before pushing
 	l("Pushing the branch")
 	if err := repo.Push(gbmr, verbose); err != nil {
 		return err
