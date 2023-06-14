@@ -27,6 +27,9 @@ var (
 	// Used by `prepare`
 	Gbm bool
 	All bool
+
+	// Used by `publish`
+	SkipChecks bool
 )
 
 type releaseResult struct {

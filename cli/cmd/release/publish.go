@@ -29,7 +29,7 @@ var PublishCmd = &cobra.Command{
 		l("  - Gutenberg Mobile: %s", gbmPr.Url)
 		l("  - Gutenberg: %s\n", gbPr.Url)
 
-		if ready, reasons := release.IsReadyToPublish(version, skips, !Quite); !ready {
+		if ready, reasons := release.IsReadyToPublish(version, SkipChecks, !Quite); !ready {
 			lWarn("🚨 The release is not ready to be published\n\n Reasons:")
 			for _, reason := range reasons {
 				lWarn("  - %s", reason)
@@ -44,4 +44,6 @@ var PublishCmd = &cobra.Command{
 }
 
 func init() {
+	PublishCmd.Flags().BoolVarP(&Quite, "quite", "q", false, "silence output")
+	PublishCmd.Flags().BoolVarP(&SkipChecks, "skip-checks", "", false, "Skip the Check runs on the PR")
 }
