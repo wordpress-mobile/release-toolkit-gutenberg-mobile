@@ -2,7 +2,6 @@ package utils
 
 import (
 	"bufio"
-	"fmt"
 	"log"
 	"os"
 	"regexp"
@@ -21,29 +20,43 @@ func init() {
 }
 
 func LogInfo(format string, args ...interface{}) {
-	c := color.New(color.FgCyan, color.Bold)
-	l.Printf(c.Sprintf(format, args...))
-	// color can leave the cursor in a weird place if not calling Unset()
+	l.Printf(InfoString(format, args...))
 	color.Unset()
 }
 
 func LogDebug(format string, args ...interface{}) {
-	c := color.New(color.FgGreen, color.Bold)
-	l.Printf(c.Sprintf(fmt.Sprint("DEBUG ", format), args...))
-	color.Unset()
-}
-
-// TODO: Allow calling with just the error  (LogError(err))
-func LogError(format string, args ...interface{}) {
-	c := color.New(color.FgRed, color.Bold)
-	l.Printf(c.Sprintf(fmt.Sprint("ERROR ", format), args...))
+	l.Printf(DebugString(format, args...))
 	color.Unset()
 }
 
 func LogWarn(format string, args ...interface{}) {
-	c := color.New(color.FgYellow, color.Bold)
-	l.Printf(c.Sprintf(fmt.Sprint("WARN ", format), args...))
+	l.Printf(WarnString(format, args...))
 	color.Unset()
+}
+
+func LogError(format string, args ...interface{}) {
+	l.Printf(ErrorString(format, args...))
+	color.Unset()
+}
+
+func InfoString(format string, args ...interface{}) string {
+	c := color.New(color.FgCyan, color.Bold).SprintfFunc()
+	return c(format, args...)
+}
+
+func WarnString(format string, args ...interface{}) string {
+	c := color.New(color.FgYellow, color.Bold).SprintfFunc()
+	return c(format, args...)
+}
+
+func DebugString(format string, args ...interface{}) string {
+	c := color.New(color.FgGreen, color.Bold).SprintfFunc()
+	return c("[DEBUG] "+format, args...)
+}
+
+func ErrorString(format string, args ...interface{}) string {
+	c := color.New(color.FgRed, color.Bold).SprintfFunc()
+	return c("[ERROR]"+format, args...)
 }
 
 func IsScheduledRelease(version string) bool {

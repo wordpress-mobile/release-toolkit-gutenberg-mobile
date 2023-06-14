@@ -3,6 +3,10 @@ package repo
 import (
 	"fmt"
 	"os"
+	"os/exec"
+
+	"github.com/fatih/color"
+	"github.com/wordpress-mobile/gbm-cli/internal/utils"
 )
 
 var (
@@ -50,4 +54,40 @@ func GetOrg(repo string) (string, error) {
 	default:
 		return "", fmt.Errorf("unknown repo: %s", repo)
 	}
+}
+
+func PreviewPr(repo, dir string, pr *PullRequest) {
+	org, _ := GetOrg(repo)
+	boldUnder := color.New(color.Bold, color.Underline).SprintFunc()
+	bold := color.New(color.Bold).SprintFunc()
+	cyan := color.New(color.FgCyan).SprintFunc()
+	fmt.Println(boldUnder("\nPr Preview"))
+	fmt.Println(bold("Local:"), "\t", cyan(dir))
+	fmt.Println(bold("Repo:"), "\t", cyan(fmt.Sprintf("%s/%s", org, repo)))
+	fmt.Println(bold("Title:"), "\t", cyan(pr.Title))
+	fmt.Print(bold("Body:\n"), cyan(pr.Body))
+	fmt.Println(bold("Commits:"))
+
+	git := execGit(dir, true)
+
+	git("log", pr.Base.Ref+"...HEAD", "--oneline", "--no-merges", "-10")
+}
+
+// Use this to drop down to `git` when go-git is not playing well.
+func execGit(dir string, verbose bool) func(...string) error {
+	return func(cmds ...string) error {
+		cmd := exec.Command("git", cmds...)
+		cmd.Dir = dir
+
+		if verbose {
+			cmd.Stdout = os.Stdout
+			cmd.Stderr = os.Stderr
+		}
+
+		return cmd.Run()
+	}
+}
+
+func l(f string, a ...interface{}) {
+	utils.LogInfo(f, a...)
 }
