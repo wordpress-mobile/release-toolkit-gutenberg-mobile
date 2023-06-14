@@ -44,6 +44,15 @@ func CreateGbmPr(version, dir string, verbose bool) (repo.PullRequest, error) {
 		return pr, err
 	}
 
+	l("Update the release notes")
+	rnPath := filepath.Join(dir, "gutenberg-mobile", "RELEASE-NOTES.txt")
+	if err := UpdateReleaseNotes(version, rnPath); err != nil {
+		return pr, err
+	}
+	if err := repo.CommitAll(gbmr, fmt.Sprintf("Release script: Update release notes for version %s", version)); err != nil {
+		return pr, err
+	}
+
 	renderGbmBody(dir, &pr)
 
 	repo.PreviewPr("gutenberg-mobile", filepath.Join(dir, "gutenberg-mobile"), &pr)
