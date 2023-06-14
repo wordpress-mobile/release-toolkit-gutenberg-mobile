@@ -9,11 +9,11 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/wordpress-mobile/gbm-cli/internal/repo"
+	"github.com/wordpress-mobile/gbm-cli/internal/utils"
 )
 
 var (
 	TempDir string
-	Verbose bool
 	Quite   bool
 
 	// Used by `integrate` and `prepare`
@@ -31,12 +31,20 @@ var (
 
 type releaseResult struct {
 	repo string
-	pr   repo.PullRequest
+	pr   *repo.PullRequest
 	err  error
 }
 
 func cleanup() {
 	os.RemoveAll(TempDir)
+}
+
+func l(f string, a ...interface{}) {
+	utils.LogInfo(fmt.Sprintf(f, a...))
+}
+
+func lWarn(f string, a ...interface{}) {
+	utils.LogWarn(fmt.Sprintf(f, a...))
 }
 
 func init() {

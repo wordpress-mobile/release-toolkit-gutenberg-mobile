@@ -20,16 +20,27 @@ var IntegrateCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		version := normalizeVersion(args[0])
 
-		results := integrate(version)
+		// Set up the integration operations based on the update flag\
+
+		var (
+			results []releaseResult
+			message string
+		)
+		if Update {
+			results = updateIntegration(version)
+			message = "updating"
+		} else {
+			results = createIntegration(version)
+			message = "creating"
+		}
 
 		for _, r := range results {
 			if r.err != nil {
-				utils.LogError("Error creating %s PR: %s", r.repo, r.err)
+				utils.LogError("Error %s %s PR: %s", message, r.repo, r.err)
 			} else {
-				utils.LogInfo("Created %s PR: %s", r.repo, r.pr.Url)
+				utils.LogInfo("Queuing work for %s %s PR: %s", message, r.repo, r.pr.Url)
 			}
 		}
-
 	},
 }
 
@@ -38,10 +49,18 @@ func init() {
 	IntegrateCmd.Flags().BoolVarP(&Android, "android", "a", false, "target android release")
 	IntegrateCmd.Flags().BoolVarP(&Update, "update", "u", false, "update existing PR")
 	IntegrateCmd.Flags().StringVarP(&BaseBranch, "base-branch", "b", "trunk", "base branch for the PR")
-	IntegrateCmd.Flags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
+	IntegrateCmd.Flags().BoolVarP(&Quite, "quite", "q", false, "silence output")
 }
 
-func integrate(version string) (results []releaseResult) {
+func createIntegration(version string) (results []releaseResult) {
+	return integrate(version, release.CreateAndroidPr, release.CreateIosPr)
+}
+
+func updateIntegration(version string) (results []releaseResult) {
+	return integrate(version, release.UpdateAndroidPr, release.UpdateIosPr)
+}
+
+func integrate(version string, androidOp, iosOp release.IntegrateOp) (results []releaseResult) {
 
 	gbmPr, err := release.GetGbmReleasePr(version)
 	if err != nil {
@@ -58,27 +77,25 @@ func integrate(version string) (results []releaseResult) {
 	if !Ios && !Android {
 		Ios = true
 		Android = true
-	} else {
-		// if we are only doing one, set verbose to true
-		Verbose = true
 	}
+
 	numPr := 0 // number of PRs to create
 
 	// Use goroutines to create the PRs concurrently
 	if Ios {
 		numPr++
-		utils.LogInfo("Creating iOS PR at %s/Wordpress-iOS", repo.WpMobileOrg)
+		utils.LogInfo("Working on iOS PR at %s/Wordpress-iOS", repo.WpMobileOrg)
 		go func() {
-			pr, err := release.CreateIosPr(version, BaseBranch, TempDir, *gbmPr, Verbose)
+			pr, err := iosOp(version, BaseBranch, TempDir, *gbmPr, !Quite)
 			rChan <- releaseResult{"WordPress-iOS", pr, err}
 		}()
 	}
 
 	if Android {
 		numPr++
-		utils.LogInfo("Creating Android PR at %s/WordPress-Android", repo.WpMobileOrg)
+		utils.LogInfo("Working on Android PR at %s/WordPress-Android", repo.WpMobileOrg)
 		go func() {
-			pr, err := release.CreateAndroidPr(version, BaseBranch, TempDir, *gbmPr, Verbose)
+			pr, err := androidOp(version, BaseBranch, TempDir, *gbmPr, !Quite)
 			rChan <- releaseResult{"WordPress-Android", pr, err}
 		}()
 	}

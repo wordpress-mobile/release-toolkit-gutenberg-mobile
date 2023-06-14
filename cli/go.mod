@@ -4,12 +4,12 @@ go 1.20
 
 require (
 	github.com/andreyvit/diff v0.0.0-20170406064948-c7f18ee00883
-	github.com/briandowns/spinner v1.23.0
 	github.com/cli/go-gh v1.2.1
 	github.com/cli/go-gh/v2 v2.0.0
 	github.com/fatih/color v1.15.0
 	github.com/go-git/go-git/v5 v5.7.0
 	github.com/spf13/cobra v1.7.0
+
 	gopkg.in/h2non/gock.v1 v1.1.2
 )
 

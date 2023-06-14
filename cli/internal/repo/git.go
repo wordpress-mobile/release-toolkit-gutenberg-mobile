@@ -3,7 +3,6 @@ package repo
 import (
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"time"
 
@@ -309,19 +308,4 @@ func PushTag(r *git.Repository, verbose bool) error {
 		return nil
 	}
 	return err
-}
-
-// Use this to drop down to `git` when go-git is not playing well.
-func execGit(dir string, verbose bool) func(...string) error {
-	return func(cmds ...string) error {
-		cmd := exec.Command("git", cmds...)
-		cmd.Dir = dir
-
-		if verbose {
-			cmd.Stdout = os.Stdout
-			cmd.Stderr = os.Stderr
-		}
-
-		return cmd.Run()
-	}
 }
