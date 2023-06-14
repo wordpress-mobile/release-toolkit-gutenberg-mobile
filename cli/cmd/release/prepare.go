@@ -16,9 +16,10 @@ var PrepareCmd = &cobra.Command{
 `,
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		version := args[0]
+		version := normalizeVersion(args[0])
 
 		setTempDir()
+		defer cleanup()
 
 		results := []releaseResult{}
 
@@ -49,7 +50,13 @@ var PrepareCmd = &cobra.Command{
 		utils.LogInfo("🏁 Gutenberg release ready to go, check it out: %s", gbpr.Url)
 
 		if Gbm || All {
-			gbmpr, _ := release.CreateGbmPr(version, TempDir, !Quite)
+
+			gbmpr, err := release.CreateGbmPr(version, TempDir, !Quite)
+
+			if err != nil {
+				utils.LogError("Error creating gbm PR: %s", err)
+				os.Exit(1)
+			}
 
 			results = append(results, releaseResult{
 				pr:   gbmpr,
@@ -61,8 +68,10 @@ var PrepareCmd = &cobra.Command{
 
 			// Run the integrations if we are preparing all or any integration PRs
 			if All || runAnyIntegration {
-				intResults := integrate(version)
-				results = append(results, intResults...)
+				if cont := utils.Confirm("Ready to create the integration PRs?"); cont {
+					intResults := integrate(version)
+					results = append(results, intResults...)
+				}
 			}
 		}
 

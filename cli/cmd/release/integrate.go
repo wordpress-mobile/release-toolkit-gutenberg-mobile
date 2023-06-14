@@ -18,7 +18,7 @@ var IntegrateCmd = &cobra.Command{
 `,
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		version := args[0]
+		version := normalizeVersion(args[0])
 
 		results := integrate(version)
 
@@ -43,7 +43,7 @@ func init() {
 
 func integrate(version string) (results []releaseResult) {
 
-	gbmPr, err := repo.GetGbmReleasePr(version)
+	gbmPr, err := release.GetGbmReleasePr(version)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -69,7 +69,7 @@ func integrate(version string) (results []releaseResult) {
 		numPr++
 		utils.LogInfo("Creating iOS PR at %s/Wordpress-iOS", repo.WpMobileOrg)
 		go func() {
-			pr, err := release.CreateIosPr(version, BaseBranch, TempDir, gbmPr, Verbose)
+			pr, err := release.CreateIosPr(version, BaseBranch, TempDir, *gbmPr, Verbose)
 			rChan <- releaseResult{"WordPress-iOS", pr, err}
 		}()
 	}
@@ -78,7 +78,7 @@ func integrate(version string) (results []releaseResult) {
 		numPr++
 		utils.LogInfo("Creating Android PR at %s/WordPress-Android", repo.WpMobileOrg)
 		go func() {
-			pr, err := release.CreateAndroidPr(version, BaseBranch, TempDir, gbmPr, Verbose)
+			pr, err := release.CreateAndroidPr(version, BaseBranch, TempDir, *gbmPr, Verbose)
 			rChan <- releaseResult{"WordPress-Android", pr, err}
 		}()
 	}

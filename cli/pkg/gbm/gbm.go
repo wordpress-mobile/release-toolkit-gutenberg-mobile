@@ -1,7 +1,6 @@
 package gbm
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -12,12 +11,8 @@ import (
 	"github.com/wordpress-mobile/gbm-cli/internal/utils"
 )
 
-func logger(v bool) func(string, ...interface{}) {
-	return func(f string, a ...interface{}) {
-		if v {
-			utils.LogInfo("\nGBM "+f, a...)
-		}
-	}
+func l(f string, a ...interface{}) {
+	utils.LogInfo("\nGBM "+f, a...)
 }
 
 func excNpm(dir string, verbose bool) func(cmds ...string) error {
@@ -26,22 +21,22 @@ func excNpm(dir string, verbose bool) func(cmds ...string) error {
 	}
 }
 
-func PrepareBranch(dir string, pr *repo.PullRequest, verbose bool) (*git.Repository, error) {
-	l := logger(verbose)
+func PrepareBranch(dir string, pr *repo.PullRequest, gbPr *repo.PullRequest, verbose bool) (*git.Repository, error) {
 
 	gbmDir := filepath.Join(dir, "gutenberg-mobile")
 	npm := excNpm(gbmDir, verbose)
 
-	d := utils.LogDebug
 	version := pr.ReleaseVersion
-	var gbmr *git.Repository
-	var err error
-
+	var (
+		gbmr *git.Repository
+		err  error
+	)
 	// If we already have a copy of GBM, initialize the repo
 	// Otherwise clone at pr.Base
 	if _, ok := os.Stat(gbmDir); ok != nil {
+		os.MkdirAll(gbmDir, os.ModePerm)
 		l("Cloning Gutenberg Mobile")
-		gbmr, err = repo.CloneGBM(gbmDir, verbose)
+		gbmr, err = repo.CloneGBM(dir, *pr, verbose)
 		if err != nil {
 			return nil, err
 		}
@@ -53,25 +48,12 @@ func PrepareBranch(dir string, pr *repo.PullRequest, verbose bool) (*git.Reposit
 		}
 	}
 
-	if err := repo.Switch(gbmDir, pr.Head.Ref, verbose); err != nil {
-		return nil, fmt.Errorf("unable to switch to %s (err %s)", pr.Head.Ref, err)
-	}
-
-	l("Checking Gutenberg")
-	// Check if Gutenberg is porcelain
-	gbr, err := repo.Open(filepath.Join(gbmDir, "gutenberg"))
-	if err != nil {
+	if err := repo.Switch(gbmDir, "gutenberg-mobile", pr.Head.Ref, verbose); err != nil {
 		return nil, err
 	}
-	if clean, err := repo.IsPorcelain(gbr); err != nil {
+	// Set up GB
+	if err := setupGb(gbmDir, gbmr, gbPr, verbose); err != nil {
 		return nil, err
-	} else if !clean {
-		return nil, errors.New("gutenberg has some uncommitted changes")
-	}
-
-	l("Updating Gutenberg")
-	if err = repo.CommitSubmodule(gbmDir, "Release script: Updating gutenberg ref", "gutenberg", verbose); err != nil {
-		return nil, fmt.Errorf("failed to update gutenberg: %s", err)
 	}
 
 	l("Set up Node")
@@ -92,7 +74,7 @@ func PrepareBranch(dir string, pr *repo.PullRequest, verbose bool) (*git.Reposit
 	if err := exc.PodInstall(xcfDir, verbose); err != nil {
 		return nil, err
 	}
-	d("about to commit xcf")
+
 	if err := repo.CommitAll(gbmr, "Release script: Sync XCFramework `Podfile.lock`"); err != nil {
 		return nil, err
 	}
@@ -117,17 +99,42 @@ func PrepareBranch(dir string, pr *repo.PullRequest, verbose bool) (*git.Reposit
 	}
 
 	l("Updating the bundle")
-	if err := repo.CommitAll(gbmr, "Release script: Update bundle for"+version); err != nil {
+	if err := repo.CommitAll(gbmr, "Release script: Update bundle for "+version); err != nil {
 		return nil, err
 	}
 
 	return gbmr, nil
 }
 
+func setupGb(gbmDir string, gbmr *git.Repository, gbPr *repo.PullRequest, verbose bool) error {
+
+	l("Checking Gutenberg")
+
+	gb, err := repo.GetSubmodule(gbmr, "gutenberg")
+	if err != nil {
+		return err
+	}
+	if curr, err := repo.IsSubmoduleCurrent(gb, gbPr.Head.Sha); err != nil {
+		return fmt.Errorf("issue checking the submodule (err %s)", err)
+	} else if !curr {
+		if err := repo.Switch(filepath.Join(gbmDir, "gutenberg"), "gutenberg", gbPr.Head.Ref, verbose); err != nil {
+			return fmt.Errorf("unable to switch to %s (err %s)", gbPr.Head.Ref, err)
+		}
+	}
+
+	l("Updating Gutenberg")
+	if clean, _ := repo.IsPorcelain(gbmr); !clean {
+		if err = repo.CommitSubmodule(gbmDir, "Release script: Updating gutenberg ref", "gutenberg", verbose); err != nil {
+			return fmt.Errorf("failed to update gutenberg: %s", err)
+		}
+	}
+
+	return nil
+}
+
 func CreatePr(gbmr *git.Repository, pr *repo.PullRequest, verbose bool) error {
 
-	l := logger(verbose)
-
+	// TODO: make sure we are not on trunk before pushing
 	l("Pushing the branch")
 	if err := repo.Push(gbmr, verbose); err != nil {
 		return err

@@ -77,33 +77,62 @@ func Open(path string) (*git.Repository, error) {
 
 // go-git has an issue with cloning submodules https://github.com/go-git/go-git/issues/488
 // Dropping down to git for now
-func CloneGBM(dir string, verbose bool) (*git.Repository, error) {
+func CloneGBM(dir string, pr PullRequest, verbose bool) (*git.Repository, error) {
 	git := execGit(dir, verbose)
 
 	org, _ := GetOrg("gutenberg-mobile")
 	url := fmt.Sprintf("git@github.com:%s/%s.git", org, "gutenberg-mobile")
 
-	if err := git("clone", url, "--recursive", "--depth", "1", "gutenberg-mobile"); err != nil {
+	cmd := []string{"clone", "--recurse-submodules", "--depth", "1"}
+
+	fmt.Println("Checking remote branch...")
+	// check to see if the remote branch exists
+	if err := git("ls-remote", "--exit-code", "--heads", url, pr.Head.Ref); err != nil {
+		cmd = append(cmd, url)
+	} else {
+		cmd = append(cmd, "--branch", pr.Head.Ref, url)
+	}
+
+	if err := git(cmd...); err != nil {
 		return nil, fmt.Errorf("unable to clone gutenberg mobile %s", err)
 	}
 	return Open(filepath.Join(dir, "gutenberg-mobile"))
 }
 
-func SubmoduleInit(dir string, verbose bool) error {
+func Switch(dir, repo, branch string, verbose bool) error {
+
 	git := execGit(dir, verbose)
 
-	if err := git("submodule", "update", "--init"); err != nil {
-		return fmt.Errorf("submodule update failed (err %s)", err)
+	create := !remoteExists(dir, repo, branch, verbose)
+
+	if create {
+		return git("switch", "-c", branch)
 	}
-	return nil
+
+	// We do shallow checkouts so we need to fetch the branch
+	err := git("remote", "set-branches", "origin", branch)
+	if err != nil {
+		return fmt.Errorf("unable to set remote branches (err %s)", err)
+	}
+	err = git("fetch", "origin", "--depth", "1")
+	if err != nil {
+		return fmt.Errorf("unable to fetch branch (err %s)", err)
+	}
+
+	return git("switch", branch)
 }
 
-func Switch(dir, branch string, verbose bool) error {
-
+func remoteExists(dir, repo, ref string, verbose bool) bool {
 	git := execGit(dir, verbose)
 
-	return git("switch", "-c", branch)
+	org, _ := GetOrg("gutenberg-mobile")
+	url := fmt.Sprintf("git@github.com:%s/%s.git", org, "gutenberg-mobile")
+	if err := git("ls-remote", "--exit-code", "--heads", url, ref); err != nil {
+		return false
+	}
+	return true
 }
+
 func Checkout(r *git.Repository, branch string) error {
 	w, err := r.Worktree()
 	if err != nil {
@@ -114,35 +143,6 @@ func Checkout(r *git.Repository, branch string) error {
 		Branch: plumbing.NewBranchReferenceName(branch),
 		Create: true,
 	})
-}
-
-func CheckoutTag(r *git.Repository, tag string) error {
-	co := git.CheckoutOptions{
-		Branch: plumbing.ReferenceName("refs/tags/" + tag),
-	}
-	return checkout(r, &co)
-}
-
-func CheckoutBranch(r *git.Repository, branch string) error {
-	co := git.CheckoutOptions{
-		Branch: plumbing.NewRemoteReferenceName("origin", branch),
-	}
-	return checkout(r, &co)
-}
-
-func CheckoutSha(r *git.Repository, sha string) error {
-	co := git.CheckoutOptions{
-		Hash: plumbing.NewHash(sha),
-	}
-	return checkout(r, &co)
-}
-
-func checkout(r *git.Repository, o *git.CheckoutOptions) error {
-	w, err := r.Worktree()
-	if err != nil {
-		return err
-	}
-	return w.Checkout(o)
 }
 
 func IsPorcelain(r *git.Repository) (bool, error) {
@@ -202,8 +202,18 @@ func CommitAll(r *git.Repository, message string) error {
 	return CommitOptions(r, message, git.CommitOptions{All: true})
 }
 
+func GetSubmodule(r *git.Repository, path string) (*git.Submodule, error) {
+	w, err := r.Worktree()
+	if err != nil {
+		return nil, err
+	}
+
+	return w.Submodule(path)
+}
+
 // go-git has an open issue about committing submodules
 // https://github.com/go-git/go-git/issues/248
+// https://stackoverflow.com/a/71263056/1373043
 // This drops dow to `git` to commit the submodule update
 func CommitSubmodule(dir, message, submodule string, verbose bool) error {
 
@@ -219,23 +229,52 @@ func CommitSubmodule(dir, message, submodule string, verbose bool) error {
 	return nil
 }
 
-func Tag(r *git.Repository, tag string, push bool) error {
+type NotPorcelainError struct {
+	Err error
+}
 
+func (r *NotPorcelainError) Error() string {
+	return r.Err.Error()
+}
+
+func IsSubmoduleCurrent(s *git.Submodule, expectedHash string) (bool, error) {
+
+	// Check if the submodule is porcelain
+	sr, err := s.Repository()
+	if clean, err := IsPorcelain(sr); err != nil {
+		return false, err
+	} else if !clean {
+		return false, &NotPorcelainError{fmt.Errorf("submodule %s is not clean", s.Config().Name)}
+	}
+
+	if err != nil {
+		return false, err
+	}
+	stat, err := s.Status()
+	if err != nil {
+		return false, err
+	}
+	eh := plumbing.NewHash(expectedHash)
+
+	return stat.Current == eh, nil
+}
+
+func Tag(r *git.Repository, tag string, push bool) (*plumbing.Reference, error) {
 	h, err := r.Head()
 	if err != nil {
-		return err
+		return nil, err
 	}
-	_, err = r.CreateTag(tag, h.Hash(), &git.CreateTagOptions{
+	ref, err := r.CreateTag(tag, h.Hash(), &git.CreateTagOptions{
 		Message: tag,
 		Tagger:  getSignature(),
 	})
 	if err != nil {
-		return err
+		return ref, err
 	}
 	if push {
-		return PushTag(r, true)
+		return ref, PushTag(r, true)
 	}
-	return err
+	return ref, err
 }
 
 func Push(r *git.Repository, verbose bool) error {

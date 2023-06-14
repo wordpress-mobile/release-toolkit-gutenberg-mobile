@@ -116,33 +116,38 @@ func IsExistingBranchError(err error) bool {
 	return err.(*BranchError).Type == "exists"
 }
 
+type GhContents struct {
+	Name string
+	Sha  string
+	Type string
+	Url  string
+}
+
 // GetPr returns a PullRequest struct for the given repo and PR number.
-func GetPr(repo string, id int) (PullRequest, error) {
+func GetPr(repo string, id int) (*PullRequest, error) {
 	org, err := GetOrg(repo)
 	if err != nil {
-		return PullRequest{}, err
+		return nil, err
 	}
 	return GetPrOrg(org, repo, id)
 }
 
-func GetPrOrg(org, repo string, id int) (PullRequest, error) {
-	org, err := GetOrg(repo)
-	if err != nil {
-		return PullRequest{}, err
-	}
+func GetPrOrg(org, repo string, id int) (*PullRequest, error) {
 	client := getClient()
 
 	endpoint := fmt.Sprintf("repos/%s/%s/pulls/%d", org, repo, id)
-	response := PullRequest{}
-	if err := client.Get(endpoint, &response); err != nil {
-		return PullRequest{}, err
+	pr := &PullRequest{}
+	if err := client.Get(endpoint, pr); err != nil {
+		return nil, err
 	}
 
-	if response.Number == 0 {
-		return PullRequest{}, fmt.Errorf("pr not found %s", endpoint)
+	if pr.Number == 0 {
+		return nil, fmt.Errorf("pr not found %s", endpoint)
 	}
 
-	return response, nil
+	pr.Repo = repo
+
+	return pr, nil
 }
 
 func PreviewPr(repo, dir string, pr *PullRequest) {
@@ -217,7 +222,7 @@ func CreatePr(repo string, pr *PullRequest) error {
 	return nil
 }
 
-func UpdatePr(pr *PullRequest, update PrUpdate) error {
+func UpdatePr(pr *PullRequest) error {
 	org, repo, err := getOrgRepo(pr)
 	if err != nil {
 		return err
@@ -225,6 +230,18 @@ func UpdatePr(pr *PullRequest, update PrUpdate) error {
 	client := getClient()
 
 	endpoint := fmt.Sprintf("repos/%s/%s/pulls/%d", org, repo, pr.Number)
+
+	update := struct {
+		Title string `json:"title,omitempty"`
+		Body  string `json:"body,omitempty"`
+		State string `json:"state,omitempty"`
+		Base  string `json:"base,omitempty"`
+	}{
+		Title: pr.Title,
+		Body:  pr.Body,
+		State: pr.State,
+		Base:  pr.Base.Ref,
+	}
 
 	var buf bytes.Buffer
 	if err := json.NewEncoder(&buf).Encode(update); err != nil {
@@ -378,6 +395,20 @@ func GetPrStatus(pr *PullRequest) (RefStatus, error) {
 	return fs, nil
 }
 
+func GetContents(repo, file, branch string) (GhContents, error) {
+	org, err := GetOrg(repo)
+	if err != nil {
+		return GhContents{}, err
+	}
+	client := getClient()
+	endpoint := fmt.Sprintf("repos/%s/%s/contents/%s?ref=%s", org, repo, file, branch)
+	response := GhContents{}
+	if err := client.Get(endpoint, &response); err != nil {
+		return GhContents{}, err
+	}
+	return response, nil
+}
+
 // getClient returns a REST client for the GitHub API.
 func getClient() *api.RESTClient {
 	client, err := api.DefaultRESTClient()
@@ -420,10 +451,10 @@ func labelRequest(repo string, prNum int, labels []string) ([]Label, error) {
 func getOrgRepo(pr *PullRequest) (org string, repo string, err error) {
 
 	if repo = pr.Repo; repo == "" {
-		return "", "", errors.New("Pr is missing a repo")
+		return "", "", errors.New("pr is missing a repo")
 	}
 	if org, err = GetOrg(repo); err != nil {
-		return "", "", fmt.Errorf("Unable to determine the org for the %s repo", repo)
+		return "", "", fmt.Errorf("unable to determine the org for the %s repo", repo)
 	}
 	return org, repo, nil
 }

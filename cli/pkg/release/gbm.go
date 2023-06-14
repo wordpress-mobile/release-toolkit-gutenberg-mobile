@@ -21,9 +21,6 @@ import (
 */
 
 func CreateGbmPr(version, dir string, verbose bool) (repo.PullRequest, error) {
-
-	l := logger()
-
 	l("\nPreparing Gutenberg Mobile Release PR")
 
 	headBranch := "release/" + version
@@ -37,8 +34,22 @@ func CreateGbmPr(version, dir string, verbose bool) (repo.PullRequest, error) {
 		Repo:           "gutenberg-repo",
 	}
 
-	gbmr, err := gbm.PrepareBranch(dir, &pr, verbose)
+	// TODO: Sometimes it can't find the GB pr right away
+	gbPr, err := GetGbReleasePr(version)
 	if err != nil {
+		return pr, fmt.Errorf("unable to get the GB release PR (err %s)", err)
+	}
+	gbmr, err := gbm.PrepareBranch(dir, &pr, gbPr, verbose)
+	if err != nil {
+		return pr, err
+	}
+
+	l("Update the release notes")
+	rnPath := filepath.Join(dir, "gutenberg-mobile", "RELEASE-NOTES.txt")
+	if err := UpdateReleaseNotes(version, rnPath); err != nil {
+		return pr, err
+	}
+	if err := repo.CommitAll(gbmr, fmt.Sprintf("Release script: Update release notes for version %s", version)); err != nil {
 		return pr, err
 	}
 
@@ -59,23 +70,39 @@ func CreateGbmPr(version, dir string, verbose bool) (repo.PullRequest, error) {
 	}
 
 	// Update the gb release pr
-	gbPr, err := repo.GetGbReleasePr(version)
-	if err != nil {
-		utils.LogWarn("Couldn't get the GB release PR (err %s)", err)
-	}
-
-	if err := renderGbPrBody(version, pr.Url, &gbPr); err != nil {
+	if err := renderGbPrBody(version, pr.Url, gbPr); err != nil {
 		utils.LogWarn("unable to render the GB Pr body to update (err %s)", err)
 	}
-	prUp := repo.PrUpdate{
-		Body: pr.Body,
-	}
 
-	if err := repo.UpdatePr(&gbPr, prUp); err != nil {
+	if err := repo.UpdatePr(gbPr); err != nil {
 		utils.LogWarn("unable to update the GB release pr (err %s)", err)
 	}
 
 	return pr, nil
+}
+
+func UpdateGbmPr(version, dir string, verbose bool) (*repo.PullRequest, error) {
+	prs := GetReleasePrs(version, "gutenberg-mobile", "gutenberg")
+	gbPr := prs["gutenberg"]
+	gbmPr := prs["gutenberg-mobile"]
+	if gbPr == nil {
+		return nil, fmt.Errorf("unable to find the GB release PR")
+	}
+
+	if gbmPr == nil {
+		return nil, fmt.Errorf("unable to find the GBM release PR")
+	}
+
+	gbmPr.ReleaseVersion = version
+
+	rpo, err := gbm.PrepareBranch(dir, gbmPr, gbPr, verbose)
+	if err != nil {
+		return gbmPr, fmt.Errorf("issue preparing the branc (err %s)", err)
+	}
+
+	err = repo.Push(rpo, verbose)
+	return gbmPr, err
+
 }
 
 func renderGbmBody(dir string, pr *repo.PullRequest) {

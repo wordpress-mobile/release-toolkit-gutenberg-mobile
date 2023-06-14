@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"regexp"
 	"syscall"
 
 	"github.com/spf13/cobra"
@@ -59,6 +60,20 @@ func setTempDir() {
 	}
 }
 
+func normalizeVersion(version string) string {
+	v := version
+	if version[0] == 'v' {
+		v = version[1:]
+	}
+
+	re := regexp.MustCompile(`\d+\.\d+\.\d+`)
+	if !re.MatchString(v) {
+		fmt.Println("Invalid version")
+		os.Exit(1)
+	}
+	return v
+}
+
 // renderCmd represents the render command
 var RootCmd = &cobra.Command{
 	Use:   "release",
@@ -77,4 +92,5 @@ func init() {
 	RootCmd.AddCommand(PrepareCmd)
 	RootCmd.AddCommand(IntegrateCmd)
 	RootCmd.AddCommand(StatusCmd)
+	RootCmd.AddCommand(UpdateCmd)
 }

@@ -15,10 +15,8 @@ import (
 	"github.com/wordpress-mobile/gbm-cli/internal/utils"
 )
 
-func logger() func(string, ...interface{}) {
-	return func(f string, a ...interface{}) {
-		utils.LogInfo(f, a...)
-	}
+func l(f string, a ...interface{}) {
+	utils.LogInfo(f, a...)
 }
 
 type AztecSrc struct {
@@ -85,6 +83,28 @@ func updatePackageJsonVersion(version string, packJson []byte) ([]byte, error) {
 // the new version and adding a new "Unreleased" section
 func UpdateReleaseNotes(version, path string) error {
 	return readWriteNotes(version, path, releaseNotesUpdater)
+}
+
+// Check to see if the Gutenberg submodule in GBM is pointing to the
+// head of the Gutenberg release PR
+func IsGbmPrCurrent(version string) bool {
+	gbPr, err := GetGbReleasePr(version)
+	if err != nil {
+		utils.LogWarn("Error getting Gutenberg Pr: %s", err)
+		return false
+	}
+	pr, err := GetGbmReleasePr(version)
+	if err != nil {
+		utils.LogWarn("Error getting GB Mobile Pr: %s", err)
+		return false
+	}
+	submoduleStat, err := repo.GetContents("gutenberg-mobile", "gutenberg", pr.Head.Ref)
+	if err != nil {
+		utils.LogWarn("Error getting submodule status: %s", err)
+		return false
+	}
+
+	return gbPr.Head.Sha == submoduleStat.Sha
 }
 
 // See UpdateReleaseNotes
@@ -306,7 +326,7 @@ func CollectReleaseChanges(version string, changelog, relnotes []byte) ([]Releas
 
 				prId, _ := strconv.Atoi(matches[0][1])
 
-				pr, err := repo.GetPrOrg("WordPress", "gutenberg", prId)
+				pr, err := repo.GetPr("gutenberg", prId)
 				if err != nil {
 					utils.LogWarn("There was an issue fetching a gutenberg pr #%d", prId)
 					continue
@@ -336,7 +356,7 @@ func CollectReleaseChanges(version string, changelog, relnotes []byte) ([]Releas
 					PrUrl:  pr.Url,
 					Number: pr.Number,
 				}
-				checkPRforIssues(pr, &rc)
+				checkPRforIssues(*pr, &rc)
 				prs = append(prs, rc)
 			}
 		}
@@ -368,14 +388,12 @@ func CollectReleaseChanges(version string, changelog, relnotes []byte) ([]Releas
 					PrUrl:  pr.Url,
 					Number: pr.Number,
 				}
-				checkPRforIssues(pr, &rc)
+				checkPRforIssues(*pr, &rc)
 				prs = append(prs, rc)
 
 			}
 		}
-
 	}
-
 	return prs, nil
 }
 
@@ -387,4 +405,64 @@ func checkPRforIssues(pr repo.PullRequest, rc *ReleaseChanges) {
 	for _, m := range matches {
 		rc.Issues = append(rc.Issues, m[1])
 	}
+}
+
+func GetGbmReleasePr(version string) (*repo.PullRequest, error) {
+	return getReleasePr("gutenberg-mobile", version)
+}
+
+func GetGbReleasePr(version string) (*repo.PullRequest, error) {
+	return getReleasePr("gutenberg", version)
+}
+
+func GetReleasePrs(version string, repos ...string) map[string]*repo.PullRequest {
+	results := map[string]*repo.PullRequest{}
+
+	chn := make(chan *repo.PullRequest)
+
+	for _, r := range repos {
+		go func(r string) {
+			if pr, err := getReleasePr(r, version); err != nil {
+				utils.LogWarn("Could not find a release pr at %s", r)
+			} else if pr == nil {
+				chn <- &repo.PullRequest{Repo: r}
+			} else {
+				chn <- pr
+			}
+		}(r)
+	}
+
+	for range repos {
+		pr := <-chn
+		results[pr.Repo] = pr
+	}
+
+	return results
+}
+
+func getReleasePr(rpo, version string) (*repo.PullRequest, error) {
+
+	// We add a v to the version for the GB pr title.
+	// TODO: Should we keep the title more consistent?
+	if rpo == "gutenberg" {
+		version = "v" + version
+	}
+	filter := repo.BuildRepoFilter(rpo, "is:pr", fmt.Sprintf("%s in:title", version))
+
+	res, err := repo.SearchPrs(filter)
+	if err != nil {
+		return nil, err
+	}
+	if res.TotalCount == 0 {
+		return nil, fmt.Errorf("no release PRs found for `%s`", version)
+	}
+	if res.TotalCount != 1 {
+		return nil, fmt.Errorf("found multiple prs for %s", version)
+	}
+
+	// The search result is not exactly a PR,
+	// The api only returns partial RP info
+	result := res.Items[0]
+
+	return repo.GetPr(rpo, result.Number)
 }
