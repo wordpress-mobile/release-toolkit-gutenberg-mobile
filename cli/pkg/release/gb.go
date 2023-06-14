@@ -146,6 +146,8 @@ func CreateGbPR(version, dir string, verbose bool) (repo.PullRequest, error) {
 		os.Exit(0)
 	}
 
+	// TODO: Warn if the submodule remote is not set to the script config
+	// Right now it will use what ever is in the Gutenberg Mobile gitmodules file
 	l("Creating the PR")
 	if err := repo.Push(gbr, verbose); err != nil {
 		return pr, err
