@@ -101,4 +101,5 @@ func init() {
 	RootCmd.AddCommand(IntegrateCmd)
 	RootCmd.AddCommand(StatusCmd)
 	RootCmd.AddCommand(UpdateCmd)
+	RootCmd.AddCommand(PublishCmd)
 }
