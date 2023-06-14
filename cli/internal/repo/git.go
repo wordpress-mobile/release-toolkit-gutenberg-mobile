@@ -85,6 +85,7 @@ func CloneGBM(dir string, pr PullRequest, verbose bool) (*git.Repository, error)
 
 	cmd := []string{"clone", "--recurse-submodules", "--depth", "1"}
 
+	fmt.Println("Checking remote branch...")
 	// check to see if the remote branch exists
 	if err := git("ls-remote", "--exit-code", "--heads", url, pr.Head.Ref); err != nil {
 		cmd = append(cmd, url)
@@ -98,9 +99,11 @@ func CloneGBM(dir string, pr PullRequest, verbose bool) (*git.Repository, error)
 	return Open(filepath.Join(dir, "gutenberg-mobile"))
 }
 
-func Switch(dir, branch string, create, verbose bool) error {
+func Switch(dir, repo, branch string, verbose bool) error {
 
 	git := execGit(dir, verbose)
+
+	create := !remoteExists(dir, repo, branch, verbose)
 
 	if create {
 		return git("switch", "-c", branch)
@@ -117,6 +120,17 @@ func Switch(dir, branch string, create, verbose bool) error {
 	}
 
 	return git("switch", branch)
+}
+
+func remoteExists(dir, repo, ref string, verbose bool) bool {
+	git := execGit(dir, verbose)
+
+	org, _ := GetOrg("gutenberg-mobile")
+	url := fmt.Sprintf("git@github.com:%s/%s.git", org, "gutenberg-mobile")
+	if err := git("ls-remote", "--exit-code", "--heads", url, ref); err != nil {
+		return false
+	}
+	return true
 }
 
 func Checkout(r *git.Repository, branch string) error {
