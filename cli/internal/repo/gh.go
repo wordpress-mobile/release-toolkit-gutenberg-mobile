@@ -5,13 +5,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
 	"net/url"
 	"os"
-	"os/exec"
 	"strings"
 
 	"github.com/cli/go-gh/v2/pkg/api"
-	"github.com/fatih/color"
 	"github.com/wordpress-mobile/gbm-cli/internal/utils"
 )
 
@@ -27,21 +26,24 @@ type Repo struct {
 
 // PullRequest represents a GitHub pull request.
 // Not all fields are populated by all API calls.
+
+type User struct {
+	Login string
+}
 type PullRequest struct {
-	Number int
-	Url    string `json:"html_url"`
-	Body   string
-	Title  string
-	Labels []Label `json:"labels"`
-	State  string
-	User   struct {
-		Login string
-	}
-	Draft     bool
-	Mergeable bool
-	// Org       string
-	Head Repo
-	Base Repo
+	Number             int
+	Url                string `json:"html_url"`
+	ApiUrl             string `json:"url"`
+	Body               string
+	Title              string
+	Labels             []Label `json:"labels"`
+	State              string
+	User               User
+	Draft              bool
+	Mergeable          bool
+	Head               Repo
+	Base               Repo
+	RequestedReviewers []User `json:"requested_reviewers"`
 
 	// This field is not part of the GH api but is useful
 	// to get the context of the PR when passing it around
@@ -123,6 +125,22 @@ type GhContents struct {
 	Url  string
 }
 
+type Release struct {
+	Url           string `json:"url"`
+	TagName       string `json:"tag_name"`
+	PublishedDate string `json:"published_at"`
+	Draft         bool   `json:"draft"`
+	Prerelease    bool   `json:"prerelease"`
+	Target        string `json:"target_commitish"`
+}
+
+type ReleaseProps struct {
+	TagName         string `json:"tag_name"`
+	TargetCommitish string `json:"target_commitish"`
+	Name            string `json:"name"`
+	Body            string `json:"body"`
+}
+
 // GetPr returns a PullRequest struct for the given repo and PR number.
 func GetPr(repo string, id int) (*PullRequest, error) {
 	org, err := GetOrg(repo)
@@ -148,33 +166,6 @@ func GetPrOrg(org, repo string, id int) (*PullRequest, error) {
 	pr.Repo = repo
 
 	return pr, nil
-}
-
-func PreviewPr(repo, dir string, pr *PullRequest) {
-	org, _ := GetOrg(repo)
-	boldUnder := color.New(color.Bold, color.Underline).SprintFunc()
-	bold := color.New(color.Bold).SprintFunc()
-	cyan := color.New(color.FgCyan).SprintFunc()
-	fmt.Println(boldUnder("\nPr Preview"))
-	fmt.Println(bold("Local:"), "\t", cyan(dir))
-	fmt.Println(bold("Repo:"), "\t", cyan(fmt.Sprintf("%s/%s", org, repo)))
-	fmt.Println(bold("Title:"), "\t", cyan(pr.Title))
-	fmt.Print(bold("Body:\n"), cyan(pr.Body))
-	fmt.Println(bold("Commits:"))
-	exc := exec.Command(
-		"git",
-		"log",
-		"trunk...HEAD",
-		"--oneline",
-		"--no-merges",
-		"-10",
-	)
-	exc.Dir = dir
-	exc.Stdout = os.Stdout
-
-	if err := exc.Run(); err != nil {
-		fmt.Println(err)
-	}
 }
 
 func CreatePr(repo string, pr *PullRequest) error {
@@ -296,7 +287,7 @@ func BuildRepoFilter(repo string, queries ...string) RepoFilter {
 	// We just need to warn if the org is not found.
 	org, err := GetOrg(repo)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Warning: %s\n", err)
+		l(utils.WarnString("could not find org for %s", err))
 	}
 	var encoded []string
 	queries = append(queries, fmt.Sprintf("repo:%s/%s", org, repo))
@@ -351,7 +342,7 @@ func FindGbmSyncedPrs(gbmPr PullRequest, filters []RepoFilter) ([]SearchResult, 
 
 			// just log the error and continue
 			if err != nil {
-				fmt.Println(err)
+				l(utils.WarnString("could not search for %s", err))
 			}
 			prChan <- res
 		}(rf)
@@ -378,17 +369,14 @@ func FindGbmSyncedPrs(gbmPr PullRequest, filters []RepoFilter) ([]SearchResult, 
 func GetPrStatus(pr *PullRequest) (RefStatus, error) {
 	org, repo, err := getOrgRepo(pr)
 	if err != nil {
-		utils.LogError("%s", err)
 		return RefStatus{}, err
 	}
 	client := getClient()
 	ref := pr.Head.Ref
 
 	endpoint := fmt.Sprintf("repos/%s/%s/commits/%s/status", org, repo, ref)
-	utils.LogDebug(endpoint)
 	fs := RefStatus{}
 	if err := client.Get(endpoint, &fs); err != nil {
-		fmt.Println(err)
 		return RefStatus{}, err
 	}
 
@@ -407,6 +395,146 @@ func GetContents(repo, file, branch string) (GhContents, error) {
 		return GhContents{}, err
 	}
 	return response, nil
+}
+
+func GetRelease(repo, version string) (Release, error) {
+	org, err := GetOrg(repo)
+	if err != nil {
+		return Release{}, err
+	}
+	client := getClient()
+	endpoint := fmt.Sprintf("repos/%s/%s/releases/tags/%s", org, repo, version)
+	response := Release{}
+	if err := client.Get(endpoint, &response); err != nil {
+		return Release{}, err
+	}
+	return response, nil
+}
+
+func CreateRelease(repo string, rp *ReleaseProps) error {
+	client := getClient()
+	org, err := GetOrg(repo)
+	if err != nil {
+		return err
+	}
+	endpoint := fmt.Sprintf("repos/%s/%s/releases", org, repo)
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(rp); err != nil {
+		return err
+	}
+
+	resp := http.Response{}
+
+	if err := client.Post(endpoint, &buf, resp); err != nil {
+		return err
+	}
+	if resp.StatusCode != 201 {
+		return fmt.Errorf("Error creating release: %s", resp.Status)
+	}
+	return nil
+}
+
+type Review struct {
+	State string `json:"state"`
+}
+
+// The PR is considered approved if the last review is approved and there are no pending reviews.
+// We don't care which commit was approved, just that the PR is approved.
+func IsPrApproved(pr *PullRequest) bool {
+	client := getClient()
+	org, repo, err := getOrgRepo(pr)
+	if err != nil {
+		return false
+	}
+	endpoint := fmt.Sprintf("repos/%s/%s/pulls/%d/reviews", org, repo, pr.Number)
+
+	reviews := []Review{}
+
+	if err := client.Get(endpoint, &reviews); err != nil {
+		l(utils.WarnString("Error getting reviews: %v", err))
+		return false
+	}
+
+	numR := len(reviews)
+
+	if numR == 0 {
+		return false
+	}
+
+	// If the last review is not approved, not approved
+	if reviews[numR-1].State != "APPROVED" {
+		return false
+	}
+
+	// Check to see if there is an additional review request
+	if pr.RequestedReviewers != nil && len(pr.RequestedReviewers) > 0 {
+		return false
+	}
+
+	return true
+}
+
+type CheckRun struct {
+	Name       string `json:"name"`
+	Status     string `json:"status"`
+	Conclusion string `json:"conclusion"`
+}
+type CheckRuns struct {
+	TotalCount int        `json:"total_count"`
+	CheckRuns  []CheckRun `json:"check_runs"`
+}
+
+// Checks to see if the run checks are passing.
+// Use verbose to output which checks are failing.
+// Also accepts a list of checks to skip.
+func IsPrPassing(pr *PullRequest, skipRuns []CheckRun, verbose bool) bool {
+	org, repo, err := getOrgRepo(pr)
+	if err != nil {
+		return false
+	}
+	client := getClient()
+	endpoint := fmt.Sprintf("repos/%s/%s/commits/%s/check-runs", org, repo, pr.Head.Sha)
+	checkRuns := CheckRuns{}
+	if err := client.Get(endpoint, &checkRuns); err != nil {
+		l(utils.WarnString("Error getting check runs: %v", err))
+		return false
+	}
+
+	ok := func(c string) bool {
+		if c == "neutral" || c == "skipped" || c == "success" {
+			return true
+		}
+		return false
+	}
+
+	skipped := func(n string) bool {
+		for _, sr := range skipRuns {
+			if sr.Name == n {
+				return true
+			}
+		}
+		return false
+	}
+
+	if verbose {
+		l(utils.InfoString("Checking runs checks for %s/%s@%s", org, repo, pr.Head.Sha))
+	}
+	passed := true
+	for _, checkRun := range checkRuns.CheckRuns {
+		if checkRun.Status == "completed" && !ok(checkRun.Conclusion) {
+			if !skipped(checkRun.Name) {
+				passed = false
+				if verbose {
+					l(utils.WarnString("Check run '%s' failed with conclusion %s", checkRun.Name, checkRun.Conclusion))
+				}
+			}
+		}
+	}
+	if verbose {
+		l("")
+	}
+
+	return passed
 }
 
 // getClient returns a REST client for the GitHub API.
