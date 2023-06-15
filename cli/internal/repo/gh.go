@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/cli/go-gh/v2/pkg/api"
 	"github.com/wordpress-mobile/gbm-cli/internal/utils"
@@ -283,7 +284,6 @@ func RemoveAllLabels(repo string, pr *PullRequest) error {
 
 // Build a RepoFilter from a repo name and a list of queries.
 func BuildRepoFilter(repo string, queries ...string) RepoFilter {
-
 	// We just need to warn if the org is not found.
 	org, err := GetOrg(repo)
 	if err != nil {
@@ -428,10 +428,86 @@ func CreateRelease(repo string, rp *ReleaseProps) error {
 	if err := client.Post(endpoint, &buf, resp); err != nil {
 		return err
 	}
-	if resp.StatusCode != 201 {
-		return fmt.Errorf("Error creating release: %s", resp.Status)
-	}
 	return nil
+}
+
+type Tagger struct {
+	Name  string `json:"name"`
+	Email string `json:"email"`
+	Date  string `json:"date"`
+}
+type AnnotatedTag struct {
+	Tag     string `json:"tag"`
+	Message string `json:"message"`
+	Type    string `json:"type"`
+	Tagger  Tagger `json:"tagger"`
+	Sha     string `json:"sha"`
+}
+
+func CreateLightweightTag(repo string, tag *AnnotatedTag) error {
+
+	if tag.Sha == "" {
+		return errors.New("sha is required")
+	}
+	body := struct {
+		Ref string `json:"ref"`
+		Sha string `json:"sha"`
+	}{
+		Ref: fmt.Sprintf("refs/tags/%s", tag.Tag),
+		Sha: tag.Sha,
+	}
+	org, _ := GetOrg(repo)
+	client := getClient()
+	endpoint := fmt.Sprintf("repos/%s/%s/git/refs", org, repo)
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(body); err != nil {
+		return err
+	}
+
+	resp := http.Response{}
+
+	return client.Post(endpoint, &buf, resp)
+}
+
+func CreateAnnotatedTag(repo, sha, tag, message string) (*AnnotatedTag, error) {
+	org, _ := GetOrg(repo)
+	client := getClient()
+
+	endpoint := fmt.Sprintf("repos/%s/%s/git/tags", org, repo)
+
+	sig := getSignature()
+
+	t := struct {
+		Tag     string `json:"tag"`
+		Message string `json:"message"`
+		Object  string `json:"object"`
+		Type    string `json:"type"`
+		Tagger  Tagger `json:"tagger"`
+	}{
+		Tag:     tag,
+		Message: message,
+		Object:  sha,
+		Type:    "commit",
+		Tagger: Tagger{
+			Name:  sig.Name,
+			Email: sig.Email,
+			Date:  sig.When.Format(time.RFC3339),
+		},
+	}
+
+	resp := &AnnotatedTag{}
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(t); err != nil {
+		return resp, err
+	}
+	if err := client.Post(endpoint, &buf, resp); err != nil {
+		return resp, err
+	}
+	if err := CreateLightweightTag(repo, resp); err != nil {
+		return resp, err
+	}
+	return resp, nil
 }
 
 type Review struct {

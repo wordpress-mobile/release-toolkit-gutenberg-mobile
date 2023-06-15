@@ -30,6 +30,7 @@ var (
 
 	// Used by `publish`
 	SkipChecks bool
+	Integrate  bool
 )
 
 type releaseResult struct {

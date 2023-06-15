@@ -68,11 +68,19 @@ func IsReadyToPublish(version string, skipChecks, verbose bool) (bool, []string)
 }
 
 func TagGb(version string, verbose bool) error {
+	pr, err := GetGbReleasePr(version)
+	if err != nil {
+		return fmt.Errorf("unable to get the GB release PR: %w", err)
+	}
+
+	if _, err := repo.CreateAnnotatedTag("gutenberg", pr.Head.Sha, "rnmobile/"+version, pr.Title); err != nil {
+		return fmt.Errorf("unable to create the GB release tag: %w", err)
+	}
+
 	return nil
 }
 
 func PublishGbmRelease(version string, verbose bool) error {
-
 	// Get the new release notes for the GBM release
 	org, _ := repo.GetOrg("gutenberg-mobile")
 	rnUrl := fmt.Sprintf("https://raw.githubusercontent.com/%s/gutenberg-mobile/release/%s/RELEASE-NOTES.txt", org, version)
@@ -94,12 +102,15 @@ func PublishGbmRelease(version string, verbose bool) error {
 
 	// Render the release body
 	data := struct {
+		Version string
 		Changes []ReleaseChanges
 	}{
+		Version: "v" + version,
 		Changes: changes,
 	}
 
 	body, err := render.Render("templates/release/gbmReleaseBody.md", data, nil)
+
 	if err != nil {
 		return err
 	}
