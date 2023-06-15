@@ -27,6 +27,10 @@ var (
 	// Used by `prepare`
 	Gbm bool
 	All bool
+
+	// Used by `publish`
+	SkipChecks bool
+	Integrate  bool
 )
 
 type releaseResult struct {
@@ -101,4 +105,5 @@ func init() {
 	RootCmd.AddCommand(IntegrateCmd)
 	RootCmd.AddCommand(StatusCmd)
 	RootCmd.AddCommand(UpdateCmd)
+	RootCmd.AddCommand(PublishCmd)
 }

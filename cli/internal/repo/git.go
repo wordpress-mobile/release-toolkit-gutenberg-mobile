@@ -34,7 +34,6 @@ func getAuth() *http.BasicAuth {
 }
 
 func getSignature() *object.Signature {
-	// Load the config from 'gh'
 	config, _ := config.LoadConfig(config.GlobalScope)
 	u := config.User
 	s := object.Signature{
