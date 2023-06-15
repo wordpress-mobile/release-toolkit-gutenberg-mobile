@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/andreyvit/diff"
-	"github.com/wordpress-mobile/gbm-cli/internal/repo"
+	"github.com/wordpress-mobile/gbm-cli/internal/gh"
 )
 
 func TestUpdateIosVersion(t *testing.T) {
@@ -36,7 +36,7 @@ GITHUB_ORG = 'wordpress-mobile'
 REPO_NAME = 'gutenberg-mobile'
 `)
 
-		got, err := updateIosVersion(config, repo.PullRequest{})
+		got, err := updateIosVersion(config, gh.PullRequest{})
 		assertNoError(t, err)
 		assertNoDiff(t, want, got)
 
@@ -67,7 +67,7 @@ GITHUB_ORG = 'wordpress-mobile'
 REPO_NAME = 'gutenberg-mobile'
 `)
 
-		got, err := updateIosVersion(config, repo.PullRequest{})
+		got, err := updateIosVersion(config, gh.PullRequest{})
 		assertNoError(t, err)
 		assertNoDiff(t, want, got)
 	})
@@ -96,7 +96,7 @@ GITHUB_ORG = 'wordpress-mobile'
 REPO_NAME = 'gutenberg-mobile'
 `)
 
-		got, err := updateIosVersion(config, repo.PullRequest{})
+		got, err := updateIosVersion(config, gh.PullRequest{})
 		assertNoError(t, err)
 		assertNoDiff(t, want, got)
 	})
@@ -125,7 +125,7 @@ GITHUB_ORG = 'wordpress-mobile'
 REPO_NAME = 'gutenberg-mobile'
 `)
 
-		got, err := updateIosVersion(config, repo.PullRequest{})
+		got, err := updateIosVersion(config, gh.PullRequest{})
 		assertNoError(t, err)
 		assertNoDiff(t, want, got)
 	})
@@ -154,7 +154,7 @@ GITHUB_ORG = 'wordpress-mobile'
 REPO_NAME = 'gutenberg-mobile'
 `)
 
-		got, err := updateIosVersion(config, repo.PullRequest{})
+		got, err := updateIosVersion(config, gh.PullRequest{})
 		assertNoError(t, err)
 		fmt.Println(string(got))
 		assertNoDiff(t, want, got)

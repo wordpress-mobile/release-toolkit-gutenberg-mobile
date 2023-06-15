@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/wordpress-mobile/gbm-cli/internal/gh"
 	"github.com/wordpress-mobile/gbm-cli/internal/repo"
 	"github.com/wordpress-mobile/gbm-cli/internal/utils"
 	"github.com/wordpress-mobile/gbm-cli/pkg/render"
@@ -40,12 +41,12 @@ func IsReadyToPublish(version string, skipChecks, verbose bool) (bool, []string)
 		reasons = append(reasons, "GB PR is not mergeable")
 	}
 
-	if !repo.IsPrApproved(gbPr) {
+	if !gh.IsPrApproved(gbPr) {
 		ok = false
 		reasons = append(reasons, "GB PR is not approved")
 	}
 
-	if !repo.IsPrApproved(gbmPr) {
+	if !gh.IsPrApproved(gbmPr) {
 		ok = false
 		reasons = append(reasons, "GBM PR is not approved")
 	}
@@ -53,12 +54,12 @@ func IsReadyToPublish(version string, skipChecks, verbose bool) (bool, []string)
 	if skipChecks {
 		l(utils.WarnString("Skipping check runs"))
 	} else {
-		if !repo.IsPrPassing(gbPr, nil, verbose) {
+		if !gh.IsPrPassing(gbPr, nil, verbose) {
 			ok = false
 			reasons = append(reasons, "GB PR is not passing")
 		}
 
-		if !repo.IsPrPassing(gbmPr, nil, verbose) {
+		if !gh.IsPrPassing(gbmPr, nil, verbose) {
 			ok = false
 			reasons = append(reasons, "GBM PR is not passing")
 		}
@@ -73,7 +74,7 @@ func TagGb(version string, verbose bool) error {
 		return fmt.Errorf("unable to get the GB release PR: %w", err)
 	}
 
-	if _, err := repo.CreateAnnotatedTag("gutenberg", pr.Head.Sha, "rnmobile/"+version, pr.Title); err != nil {
+	if _, err := gh.CreateAnnotatedTag("gutenberg", pr.Head.Sha, "rnmobile/"+version, pr.Title); err != nil {
 		return fmt.Errorf("unable to create the GB release tag: %w", err)
 	}
 
@@ -116,12 +117,12 @@ func PublishGbmRelease(version string, verbose bool) error {
 	}
 
 	// Create the release
-	rp := &repo.ReleaseProps{
+	rp := &gh.ReleaseProps{
 		TagName:         "v" + version,
 		TargetCommitish: "release/" + version,
 		Name:            "Release " + version,
 		Body:            body,
 	}
 
-	return repo.CreateRelease("gutenberg-mobile", rp)
+	return gh.CreateRelease("gutenberg-mobile", rp)
 }

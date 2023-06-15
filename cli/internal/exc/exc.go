@@ -40,6 +40,20 @@ func PodInstall(dir string, verbose bool) error {
 	return exc(verbose, dir, "bundle", "exec", "pod", "install")
 }
 
+func ExecGit(dir string, verbose bool) func(...string) error {
+	return func(cmds ...string) error {
+		cmd := exec.Command("git", cmds...)
+		cmd.Dir = dir
+
+		if verbose {
+			cmd.Stdout = os.Stdout
+			cmd.Stderr = os.Stderr
+		}
+
+		return cmd.Run()
+	}
+}
+
 func exc(verbose bool, dir, cmd string, args ...string) error {
 	exc := exec.Command(cmd, args...)
 

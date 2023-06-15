@@ -8,7 +8,7 @@ import (
 func TestInitOrgs(t *testing.T) {
 
 	t.Run("It sets up the default orgs", func(t *testing.T) {
-		initOrgs()
+		InitOrgs()
 		assertEqual(t, WordPressOrg, "WordPress")
 		assertEqual(t, AutomatticOrg, "Automattic")
 		assertEqual(t, WpMobileOrg, "wordpress-mobile")
@@ -20,7 +20,7 @@ func TestInitOrgs(t *testing.T) {
 		t.Setenv("GBM_AUTOMATTIC_ORG", "my-automattic")
 		defer clearEnv(t)
 
-		initOrgs()
+		InitOrgs()
 
 		assertEqual(t, WordPressOrg, "my-wordpress")
 		assertEqual(t, AutomatticOrg, "my-automattic")
@@ -63,5 +63,5 @@ func clearEnv(t testing.TB) {
 	t.Setenv("GBM_WPMOBILE_ORG", "")
 	t.Setenv("GBM_WORDPRESS_ORG", "")
 	t.Setenv("GBM_AUTOMATTIC_ORG", "")
-	initOrgs()
+	InitOrgs()
 }

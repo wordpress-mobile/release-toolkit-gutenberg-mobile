@@ -1,4 +1,4 @@
-package repo
+package gh
 
 import (
 	"bytes"
@@ -12,8 +12,16 @@ import (
 	"time"
 
 	"github.com/cli/go-gh/v2/pkg/api"
+	"github.com/fatih/color"
+
+	"github.com/wordpress-mobile/gbm-cli/internal/exc"
+	rpo "github.com/wordpress-mobile/gbm-cli/internal/repo"
 	"github.com/wordpress-mobile/gbm-cli/internal/utils"
 )
+
+func l(f string, a ...interface{}) {
+	utils.LogInfo(f, a...)
+}
 
 type Label struct {
 	Name string
@@ -55,7 +63,6 @@ type PullRequest struct {
 	// or not.
 	ReleaseVersion string
 }
-
 type Status struct {
 	State       string
 	Description string
@@ -144,7 +151,7 @@ type ReleaseProps struct {
 
 // GetPr returns a PullRequest struct for the given repo and PR number.
 func GetPr(repo string, id int) (*PullRequest, error) {
-	org, err := GetOrg(repo)
+	org, err := rpo.GetOrg(repo)
 	if err != nil {
 		return nil, err
 	}
@@ -171,7 +178,7 @@ func GetPrOrg(org, repo string, id int) (*PullRequest, error) {
 
 func CreatePr(repo string, pr *PullRequest) error {
 	client := getClient()
-	org, err := GetOrg(repo)
+	org, err := rpo.GetOrg(repo)
 	if err != nil {
 		return err
 	}
@@ -285,7 +292,7 @@ func RemoveAllLabels(repo string, pr *PullRequest) error {
 // Build a RepoFilter from a repo name and a list of queries.
 func BuildRepoFilter(repo string, queries ...string) RepoFilter {
 	// We just need to warn if the org is not found.
-	org, err := GetOrg(repo)
+	org, err := rpo.GetOrg(repo)
 	if err != nil {
 		l(utils.WarnString("could not find org for %s", err))
 	}
@@ -316,7 +323,7 @@ func SearchPrs(filter RepoFilter) (SearchResult, error) {
 
 // SearchBranch returns a branch for the given repo and branch name.
 func SearchBranch(repo, branch string) (Branch, error) {
-	org, err := GetOrg(repo)
+	org, err := rpo.GetOrg(repo)
 	if err != nil {
 		return Branch{}, err
 	}
@@ -384,7 +391,7 @@ func GetPrStatus(pr *PullRequest) (RefStatus, error) {
 }
 
 func GetContents(repo, file, branch string) (GhContents, error) {
-	org, err := GetOrg(repo)
+	org, err := rpo.GetOrg(repo)
 	if err != nil {
 		return GhContents{}, err
 	}
@@ -398,7 +405,7 @@ func GetContents(repo, file, branch string) (GhContents, error) {
 }
 
 func GetRelease(repo, version string) (Release, error) {
-	org, err := GetOrg(repo)
+	org, err := rpo.GetOrg(repo)
 	if err != nil {
 		return Release{}, err
 	}
@@ -413,7 +420,7 @@ func GetRelease(repo, version string) (Release, error) {
 
 func CreateRelease(repo string, rp *ReleaseProps) error {
 	client := getClient()
-	org, err := GetOrg(repo)
+	org, err := rpo.GetOrg(repo)
 	if err != nil {
 		return err
 	}
@@ -456,7 +463,7 @@ func CreateLightweightTag(repo string, tag *AnnotatedTag) error {
 		Ref: fmt.Sprintf("refs/tags/%s", tag.Tag),
 		Sha: tag.Sha,
 	}
-	org, _ := GetOrg(repo)
+	org, _ := rpo.GetOrg(repo)
 	client := getClient()
 	endpoint := fmt.Sprintf("repos/%s/%s/git/refs", org, repo)
 	var buf bytes.Buffer
@@ -470,12 +477,12 @@ func CreateLightweightTag(repo string, tag *AnnotatedTag) error {
 }
 
 func CreateAnnotatedTag(repo, sha, tag, message string) (*AnnotatedTag, error) {
-	org, _ := GetOrg(repo)
+	org, _ := rpo.GetOrg(repo)
 	client := getClient()
 
 	endpoint := fmt.Sprintf("repos/%s/%s/git/tags", org, repo)
 
-	sig := getSignature()
+	sig := rpo.Signature()
 
 	t := struct {
 		Tag     string `json:"tag"`
@@ -624,7 +631,7 @@ func getClient() *api.RESTClient {
 }
 
 func labelRequest(repo string, prNum int, labels []string) ([]Label, error) {
-	org, err := GetOrg(repo)
+	org, err := rpo.GetOrg(repo)
 	if err != nil {
 		return nil, err
 	}
@@ -657,8 +664,25 @@ func getOrgRepo(pr *PullRequest) (org string, repo string, err error) {
 	if repo = pr.Repo; repo == "" {
 		return "", "", errors.New("pr is missing a repo")
 	}
-	if org, err = GetOrg(repo); err != nil {
+	if org, err = rpo.GetOrg(repo); err != nil {
 		return "", "", fmt.Errorf("unable to determine the org for the %s repo", repo)
 	}
 	return org, repo, nil
+}
+
+func PreviewPr(repo, dir string, pr *PullRequest) {
+	org, _ := rpo.GetOrg(repo)
+	boldUnder := color.New(color.Bold, color.Underline).SprintFunc()
+	bold := color.New(color.Bold).SprintFunc()
+	cyan := color.New(color.FgCyan).SprintFunc()
+	fmt.Println(boldUnder("\nPr Preview"))
+	fmt.Println(bold("Local:"), "\t", cyan(dir))
+	fmt.Println(bold("Repo:"), "\t", cyan(fmt.Sprintf("%s/%s", org, repo)))
+	fmt.Println(bold("Title:"), "\t", cyan(pr.Title))
+	fmt.Print(bold("Body:\n"), cyan(pr.Body))
+	fmt.Println(bold("Commits:"))
+
+	git := exc.ExecGit(dir, true)
+
+	git("log", pr.Base.Ref+"...HEAD", "--oneline", "--no-merges", "-10")
 }

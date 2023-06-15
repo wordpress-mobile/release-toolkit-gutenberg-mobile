@@ -1,17 +1,16 @@
-package repo
+package git
 
 import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"time"
 
-	"github.com/cli/go-gh/v2/pkg/auth"
-	"github.com/go-git/go-git/v5"
+	g "github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing"
-	"github.com/go-git/go-git/v5/plumbing/object"
-	"github.com/go-git/go-git/v5/plumbing/transport/http"
+	"github.com/wordpress-mobile/gbm-cli/internal/exc"
+	"github.com/wordpress-mobile/gbm-cli/internal/gh"
+	rpo "github.com/wordpress-mobile/gbm-cli/internal/repo"
 	"github.com/wordpress-mobile/gbm-cli/internal/utils"
 )
 
@@ -22,32 +21,9 @@ type SubmoduleRef struct {
 	Sha    string
 }
 
-func getAuth() *http.BasicAuth {
-	// load host and auth from 'gh'
-	host, _ := auth.DefaultHost()
-	token, _ := auth.TokenForHost(host)
-	user := getSignature()
-	return &http.BasicAuth{
-		Username: user.Name, // this can be anything since we are using a token
-		Password: token,
-	}
-}
-
-func getSignature() *object.Signature {
-	config, _ := config.LoadConfig(config.GlobalScope)
-	u := config.User
-	s := object.Signature{
-		Name:  u.Name,
-		Email: u.Email,
-		When:  time.Now(),
-	}
-
-	return &s
-}
-
-func Clone(url, branch, path string, verbose bool) (*git.Repository, error) {
-	opts := &git.CloneOptions{
-		Auth:              getAuth(),
+func Clone(url, branch, path string, verbose bool) (*g.Repository, error) {
+	opts := &g.CloneOptions{
+		Auth:              rpo.Auth(),
 		URL:               url,
 		ReferenceName:     plumbing.ReferenceName(branch),
 		Depth:             1,
@@ -58,15 +34,15 @@ func Clone(url, branch, path string, verbose bool) (*git.Repository, error) {
 		opts.Progress = os.Stdout
 	}
 
-	r, err := git.PlainClone(path, false, opts)
+	r, err := g.PlainClone(path, false, opts)
 	if err != nil {
 		return nil, err
 	}
 	return r, nil
 }
 
-func Open(path string) (*git.Repository, error) {
-	r, err := git.PlainOpen(path)
+func Open(path string) (*g.Repository, error) {
+	r, err := g.PlainOpen(path)
 	if err != nil {
 		return nil, fmt.Errorf("unable to open repo at %s (err %s)", path, err)
 	}
@@ -75,10 +51,10 @@ func Open(path string) (*git.Repository, error) {
 
 // go-git has an issue with cloning submodules https://github.com/go-git/go-git/issues/488
 // Dropping down to git for now
-func CloneGBM(dir string, pr PullRequest, verbose bool) (*git.Repository, error) {
-	git := execGit(dir, verbose)
+func CloneGBM(dir string, pr gh.PullRequest, verbose bool) (*g.Repository, error) {
+	git := exc.ExecGit(dir, verbose)
 
-	org, _ := GetOrg("gutenberg-mobile")
+	org, _ := rpo.GetOrg("gutenberg-mobile")
 	url := fmt.Sprintf("git@github.com:%s/%s.git", org, "gutenberg-mobile")
 
 	cmd := []string{"clone", "--recurse-submodules", "--depth", "1"}
@@ -99,7 +75,7 @@ func CloneGBM(dir string, pr PullRequest, verbose bool) (*git.Repository, error)
 
 func Switch(dir, repo, branch string, verbose bool) error {
 
-	git := execGit(dir, verbose)
+	git := exc.ExecGit(dir, verbose)
 
 	create := !remoteExists(dir, repo, branch, verbose)
 
@@ -121,9 +97,9 @@ func Switch(dir, repo, branch string, verbose bool) error {
 }
 
 func remoteExists(dir, repo, ref string, verbose bool) bool {
-	git := execGit(dir, verbose)
+	git := exc.ExecGit(dir, verbose)
 
-	org, _ := GetOrg("gutenberg-mobile")
+	org, _ := rpo.GetOrg("gutenberg-mobile")
 	url := fmt.Sprintf("git@github.com:%s/%s.git", org, "gutenberg-mobile")
 	if err := git("ls-remote", "--exit-code", "--heads", url, ref); err != nil {
 		return false
@@ -131,19 +107,19 @@ func remoteExists(dir, repo, ref string, verbose bool) bool {
 	return true
 }
 
-func Checkout(r *git.Repository, branch string) error {
+func Checkout(r *g.Repository, branch string) error {
 	w, err := r.Worktree()
 	if err != nil {
 		return err
 	}
 
-	return w.Checkout(&git.CheckoutOptions{
+	return w.Checkout(&g.CheckoutOptions{
 		Branch: plumbing.NewBranchReferenceName(branch),
 		Create: true,
 	})
 }
 
-func IsPorcelain(r *git.Repository) (bool, error) {
+func IsPorcelain(r *g.Repository) (bool, error) {
 	w, err := r.Worktree()
 	if err != nil {
 		return false, err
@@ -155,7 +131,7 @@ func IsPorcelain(r *git.Repository) (bool, error) {
 	return status.IsClean(), nil
 }
 
-func Add(r *git.Repository, files ...string) error {
+func Add(r *g.Repository, files ...string) error {
 	w, err := r.Worktree()
 	if err != nil {
 		return err
@@ -170,11 +146,11 @@ func Add(r *git.Repository, files ...string) error {
 	return nil
 }
 
-func Commit(r *git.Repository, message string, files ...string) error {
-	return CommitOptions(r, message, git.CommitOptions{}, files...)
+func Commit(r *g.Repository, message string, files ...string) error {
+	return CommitOptions(r, message, g.CommitOptions{}, files...)
 }
 
-func CommitOptions(r *git.Repository, message string, opts git.CommitOptions, files ...string) error {
+func CommitOptions(r *g.Repository, message string, opts g.CommitOptions, files ...string) error {
 	w, err := r.Worktree()
 
 	for _, f := range files {
@@ -189,18 +165,18 @@ func CommitOptions(r *git.Repository, message string, opts git.CommitOptions, fi
 	}
 
 	if opts.Author == nil {
-		opts.Author = getSignature()
+		opts.Author = rpo.Signature()
 	}
 	_, err = w.Commit(message, &opts)
 
 	return err
 }
 
-func CommitAll(r *git.Repository, message string) error {
-	return CommitOptions(r, message, git.CommitOptions{All: true})
+func CommitAll(r *g.Repository, message string) error {
+	return CommitOptions(r, message, g.CommitOptions{All: true})
 }
 
-func GetSubmodule(r *git.Repository, path string) (*git.Submodule, error) {
+func GetSubmodule(r *g.Repository, path string) (*g.Submodule, error) {
 	w, err := r.Worktree()
 	if err != nil {
 		return nil, err
@@ -215,7 +191,7 @@ func GetSubmodule(r *git.Repository, path string) (*git.Submodule, error) {
 // This drops dow to `git` to commit the submodule update
 func CommitSubmodule(dir, message, submodule string, verbose bool) error {
 
-	git := execGit(dir, verbose)
+	git := exc.ExecGit(dir, verbose)
 
 	if err := git("add", submodule); err != nil {
 		return fmt.Errorf("unable to add submodule %s in %s :%s", submodule, dir, err)
@@ -235,7 +211,7 @@ func (r *NotPorcelainError) Error() string {
 	return r.Err.Error()
 }
 
-func IsSubmoduleCurrent(s *git.Submodule, expectedHash string) (bool, error) {
+func IsSubmoduleCurrent(s *g.Submodule, expectedHash string) (bool, error) {
 
 	// Check if the submodule is porcelain
 	sr, err := s.Repository()
@@ -257,14 +233,14 @@ func IsSubmoduleCurrent(s *git.Submodule, expectedHash string) (bool, error) {
 	return stat.Current == eh, nil
 }
 
-func Tag(r *git.Repository, tag string, push bool) (*plumbing.Reference, error) {
+func Tag(r *g.Repository, tag string, push bool) (*plumbing.Reference, error) {
 	h, err := r.Head()
 	if err != nil {
 		return nil, err
 	}
-	ref, err := r.CreateTag(tag, h.Hash(), &git.CreateTagOptions{
+	ref, err := r.CreateTag(tag, h.Hash(), &g.CreateTagOptions{
 		Message: tag,
-		Tagger:  getSignature(),
+		Tagger:  rpo.Signature(),
 	})
 	if err != nil {
 		return ref, err
@@ -275,10 +251,10 @@ func Tag(r *git.Repository, tag string, push bool) (*plumbing.Reference, error) 
 	return ref, err
 }
 
-func Push(r *git.Repository, verbose bool) error {
-	opts := &git.PushOptions{
+func Push(r *g.Repository, verbose bool) error {
+	opts := &g.PushOptions{
 		RemoteName: "origin",
-		Auth:       getAuth(),
+		Auth:       rpo.Auth(),
 	}
 	if verbose {
 		opts.Progress = os.Stdout
@@ -286,24 +262,24 @@ func Push(r *git.Repository, verbose bool) error {
 
 	err := r.Push(opts)
 
-	if err == git.NoErrAlreadyUpToDate {
+	if err == g.NoErrAlreadyUpToDate {
 		return nil
 	}
 	return err
 }
 
-func PushTag(r *git.Repository, verbose bool) error {
-	opts := &git.PushOptions{
+func PushTag(r *g.Repository, verbose bool) error {
+	opts := &g.PushOptions{
 		RemoteName: "origin",
 		RefSpecs:   []config.RefSpec{config.RefSpec("refs/tags/*:refs/tags/*")},
-		Auth:       getAuth(),
+		Auth:       rpo.Auth(),
 	}
 	if verbose {
 		opts.Progress = os.Stdout
 	}
 	err := r.Push(opts)
 
-	if err == git.NoErrAlreadyUpToDate {
+	if err == g.NoErrAlreadyUpToDate {
 		return nil
 	}
 	return err

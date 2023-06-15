@@ -7,35 +7,37 @@ import (
 	"path/filepath"
 
 	"github.com/wordpress-mobile/gbm-cli/internal/exc"
+	"github.com/wordpress-mobile/gbm-cli/internal/gh"
+	"github.com/wordpress-mobile/gbm-cli/internal/git"
 	"github.com/wordpress-mobile/gbm-cli/internal/repo"
 	"github.com/wordpress-mobile/gbm-cli/internal/utils"
 	"github.com/wordpress-mobile/gbm-cli/pkg/render"
 )
 
-func CreateGbPR(version, dir string, verbose bool) (repo.PullRequest, error) {
-	pr := repo.PullRequest{}
+func CreateGbPR(version, dir string, verbose bool) (gh.PullRequest, error) {
+	pr := gh.PullRequest{}
 
 	gbBranchName := fmt.Sprintf("rnmobile/release_%s", version)
 	org, _ := repo.GetOrg("gutenberg-mobile")
 	l("Preparing the %s release from %s/%s", version, org, "gutenberg-mobile")
 
 	l("Checking if branch %s exists", gbBranchName)
-	existing, _ := repo.SearchBranch("gutenberg", gbBranchName)
+	existing, _ := gh.SearchBranch("gutenberg", gbBranchName)
 
-	if (existing != repo.Branch{}) {
+	if (existing != gh.Branch{}) {
 		l("Branch %s already exists", gbBranchName)
 		pr, err := GetGbReleasePr(version)
 		if err != nil {
 			utils.LogWarn("Unable to get the GB release PR (err %s)", err)
 		}
-		return *pr, &repo.BranchError{Err: errors.New("branch already exists"), Type: "exists"}
+		return *pr, &gh.BranchError{Err: errors.New("branch already exists"), Type: "exists"}
 	}
 
 	gbmDir := filepath.Join(dir, "gutenberg-mobile")
 	gbDir := filepath.Join(gbmDir, "gutenberg")
 
 	l("Cloning GBM repo to %s", gbmDir)
-	_, err := repo.CloneGBM(dir, pr, verbose)
+	_, err := git.CloneGBM(dir, pr, verbose)
 	if err != nil {
 
 		return pr, err
@@ -61,11 +63,11 @@ func CreateGbPR(version, dir string, verbose bool) (repo.PullRequest, error) {
 	l("Release version validated")
 
 	l("Switching gutenberg to %s", gbBranchName)
-	gbr, err := repo.Open(gbDir)
+	gbr, err := git.Open(gbDir)
 	if err != nil {
 		return pr, err
 	}
-	if err := repo.Checkout(gbr, gbBranchName); err != nil {
+	if err := git.Checkout(gbr, gbBranchName); err != nil {
 		return pr, err
 	}
 
@@ -89,7 +91,7 @@ func CreateGbPR(version, dir string, verbose bool) (repo.PullRequest, error) {
 		}
 	}
 
-	if err := repo.CommitAll(gbr, fmt.Sprintf("Release script: Update react-native-editor version to %s", version)); err != nil {
+	if err := git.CommitAll(gbr, fmt.Sprintf("Release script: Update react-native-editor version to %s", version)); err != nil {
 		return pr, err
 	}
 
@@ -104,10 +106,10 @@ func CreateGbPR(version, dir string, verbose bool) (repo.PullRequest, error) {
 	if err := exc.NpmRunCorePreios(gbmDir, verbose); err != nil {
 		return pr, err
 	}
-	if clean, err := repo.IsPorcelain(gbr); err != nil {
+	if clean, err := git.IsPorcelain(gbr); err != nil {
 		utils.LogWarn("Could not check if the repo is clean: %s", err)
 	} else if !clean {
-		if err := repo.CommitAll(gbr, "Release script: Update podfile"); err != nil {
+		if err := git.CommitAll(gbr, "Release script: Update podfile"); err != nil {
 			return pr, err
 		}
 	}
@@ -117,7 +119,7 @@ func CreateGbPR(version, dir string, verbose bool) (repo.PullRequest, error) {
 	if err := UpdateChangeLog(version, chnPath); err != nil {
 		return pr, err
 	}
-	if err := repo.CommitAll(gbr, fmt.Sprintf("Release script: Update changelog for version %s", version)); err != nil {
+	if err := git.CommitAll(gbr, fmt.Sprintf("Release script: Update changelog for version %s", version)); err != nil {
 		return pr, err
 	}
 
@@ -132,11 +134,11 @@ func CreateGbPR(version, dir string, verbose bool) (repo.PullRequest, error) {
 		utils.LogWarn("Unable to render the GB PR body (err %s)", err)
 	}
 
-	pr.Labels = []repo.Label{{
+	pr.Labels = []gh.Label{{
 		Name: "Mobile App - i.e. Android or iOS",
 	}}
 
-	repo.PreviewPr("gutenberg", gbDir, &pr)
+	gh.PreviewPr("gutenberg", gbDir, &pr)
 
 	prompt := fmt.Sprintf("\nReady to create the PR on %s/gutenberg?", org)
 	cont := utils.Confirm(prompt)
@@ -149,10 +151,10 @@ func CreateGbPR(version, dir string, verbose bool) (repo.PullRequest, error) {
 	// TODO: Warn if the submodule remote is not set to the script config
 	// Right now it will use what ever is in the Gutenberg Mobile gitmodules file
 	l("Creating the PR")
-	if err := repo.Push(gbr, verbose); err != nil {
+	if err := git.Push(gbr, verbose); err != nil {
 		return pr, err
 	}
-	if err := repo.CreatePr("gutenberg", &pr); err != nil {
+	if err := gh.CreatePr("gutenberg", &pr); err != nil {
 		return pr, err
 	}
 
@@ -169,7 +171,7 @@ func CreateGbPR(version, dir string, verbose bool) (repo.PullRequest, error) {
 	return pr, nil
 }
 
-func renderGbPrBody(version, gbmPRUrl string, pr *repo.PullRequest) error {
+func renderGbPrBody(version, gbmPRUrl string, pr *gh.PullRequest) error {
 	pd := struct {
 		Version  string
 		GbmPrUrl string

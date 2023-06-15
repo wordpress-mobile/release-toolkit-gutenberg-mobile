@@ -5,9 +5,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/go-git/go-git/v5"
+	g "github.com/go-git/go-git/v5"
 	"github.com/wordpress-mobile/gbm-cli/internal/exc"
-	"github.com/wordpress-mobile/gbm-cli/internal/repo"
+	"github.com/wordpress-mobile/gbm-cli/internal/gh"
+	"github.com/wordpress-mobile/gbm-cli/internal/git"
 	"github.com/wordpress-mobile/gbm-cli/internal/utils"
 )
 
@@ -21,14 +22,14 @@ func excNpm(dir string, verbose bool) func(cmds ...string) error {
 	}
 }
 
-func PrepareBranch(dir string, pr *repo.PullRequest, gbPr *repo.PullRequest, verbose bool) (*git.Repository, error) {
+func PrepareBranch(dir string, pr *gh.PullRequest, gbPr *gh.PullRequest, verbose bool) (*g.Repository, error) {
 
 	gbmDir := filepath.Join(dir, "gutenberg-mobile")
 	npm := excNpm(gbmDir, verbose)
 
 	version := pr.ReleaseVersion
 	var (
-		gbmr *git.Repository
+		gbmr *g.Repository
 		err  error
 	)
 	// If we already have a copy of GBM, initialize the repo
@@ -36,19 +37,19 @@ func PrepareBranch(dir string, pr *repo.PullRequest, gbPr *repo.PullRequest, ver
 	if _, ok := os.Stat(gbmDir); ok != nil {
 		os.MkdirAll(gbmDir, os.ModePerm)
 		l("Cloning Gutenberg Mobile")
-		gbmr, err = repo.CloneGBM(dir, *pr, verbose)
+		gbmr, err = git.CloneGBM(dir, *pr, verbose)
 		if err != nil {
 			return nil, err
 		}
 	} else {
 		l("Initializing Gutenberg Mobile Repo at %s", gbmDir)
-		gbmr, err = repo.Open(gbmDir)
+		gbmr, err = git.Open(gbmDir)
 		if err != nil {
 			return nil, fmt.Errorf("issue opening gutenberg-mobile (err %s)", err)
 		}
 	}
 
-	if err := repo.Switch(gbmDir, "gutenberg-mobile", pr.Head.Ref, verbose); err != nil {
+	if err := git.Switch(gbmDir, "gutenberg-mobile", pr.Head.Ref, verbose); err != nil {
 		return nil, err
 	}
 	// Set up GB
@@ -75,7 +76,7 @@ func PrepareBranch(dir string, pr *repo.PullRequest, gbPr *repo.PullRequest, ver
 		return nil, err
 	}
 
-	if err := repo.CommitAll(gbmr, "Release script: Sync XCFramework `Podfile.lock`"); err != nil {
+	if err := git.CommitAll(gbmr, "Release script: Sync XCFramework `Podfile.lock`"); err != nil {
 		return nil, err
 	}
 
@@ -87,7 +88,7 @@ func PrepareBranch(dir string, pr *repo.PullRequest, gbPr *repo.PullRequest, ver
 			return nil, err
 		}
 
-		if err := repo.Commit(gbmr, "Update Version", "package.json", "package-lock.json"); err != nil {
+		if err := git.Commit(gbmr, "Update Version", "package.json", "package-lock.json"); err != nil {
 			return nil, err
 		}
 
@@ -99,32 +100,32 @@ func PrepareBranch(dir string, pr *repo.PullRequest, gbPr *repo.PullRequest, ver
 	}
 
 	l("Updating the bundle")
-	if err := repo.CommitAll(gbmr, "Release script: Update bundle for "+version); err != nil {
+	if err := git.CommitAll(gbmr, "Release script: Update bundle for "+version); err != nil {
 		return nil, err
 	}
 
 	return gbmr, nil
 }
 
-func setupGb(gbmDir string, gbmr *git.Repository, gbPr *repo.PullRequest, verbose bool) error {
+func setupGb(gbmDir string, gbmr *g.Repository, gbPr *gh.PullRequest, verbose bool) error {
 
 	l("Checking Gutenberg")
 
-	gb, err := repo.GetSubmodule(gbmr, "gutenberg")
+	gb, err := git.GetSubmodule(gbmr, "gutenberg")
 	if err != nil {
 		return err
 	}
-	if curr, err := repo.IsSubmoduleCurrent(gb, gbPr.Head.Sha); err != nil {
+	if curr, err := git.IsSubmoduleCurrent(gb, gbPr.Head.Sha); err != nil {
 		return fmt.Errorf("issue checking the submodule (err %s)", err)
 	} else if !curr {
-		if err := repo.Switch(filepath.Join(gbmDir, "gutenberg"), "gutenberg", gbPr.Head.Ref, verbose); err != nil {
+		if err := git.Switch(filepath.Join(gbmDir, "gutenberg"), "gutenberg", gbPr.Head.Ref, verbose); err != nil {
 			return fmt.Errorf("unable to switch to %s (err %s)", gbPr.Head.Ref, err)
 		}
 	}
 
 	l("Updating Gutenberg")
-	if clean, _ := repo.IsPorcelain(gbmr); !clean {
-		if err = repo.CommitSubmodule(gbmDir, "Release script: Updating gutenberg ref", "gutenberg", verbose); err != nil {
+	if clean, _ := git.IsPorcelain(gbmr); !clean {
+		if err = git.CommitSubmodule(gbmDir, "Release script: Updating gutenberg ref", "gutenberg", verbose); err != nil {
 			return fmt.Errorf("failed to update gutenberg: %s", err)
 		}
 	}
@@ -132,14 +133,14 @@ func setupGb(gbmDir string, gbmr *git.Repository, gbPr *repo.PullRequest, verbos
 	return nil
 }
 
-func CreatePr(gbmr *git.Repository, pr *repo.PullRequest, verbose bool) error {
+func CreatePr(gbmr *g.Repository, pr *gh.PullRequest, verbose bool) error {
 
 	// TODO: make sure we are not on trunk before pushing
 	l("Pushing the branch")
-	if err := repo.Push(gbmr, verbose); err != nil {
+	if err := git.Push(gbmr, verbose); err != nil {
 		return err
 	}
 
 	l("Creating the PR")
-	return repo.CreatePr("gutenberg-mobile", pr)
+	return gh.CreatePr("gutenberg-mobile", pr)
 }

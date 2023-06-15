@@ -8,7 +8,7 @@ import (
 	"syscall"
 
 	"github.com/spf13/cobra"
-	"github.com/wordpress-mobile/gbm-cli/internal/repo"
+	"github.com/wordpress-mobile/gbm-cli/internal/gh"
 	"github.com/wordpress-mobile/gbm-cli/internal/utils"
 )
 
@@ -35,7 +35,7 @@ var (
 
 type releaseResult struct {
 	repo string
-	pr   *repo.PullRequest
+	pr   *gh.PullRequest
 	err  error
 }
 
@@ -101,7 +101,7 @@ var RootCmd = &cobra.Command{
 }
 
 func init() {
-	RootCmd.AddCommand(PrepareCmd)
+	RootCmd.AddCommand(CutCmd)
 	RootCmd.AddCommand(IntegrateCmd)
 	RootCmd.AddCommand(StatusCmd)
 	RootCmd.AddCommand(UpdateCmd)
