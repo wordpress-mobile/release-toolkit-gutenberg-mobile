@@ -3,6 +3,7 @@ package release
 import (
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 
@@ -55,7 +56,7 @@ func CreateGbmPr(version, dir string, verbose bool) (gh.PullRequest, error) {
 		return pr, err
 	}
 
-	renderGbmBody(dir, &pr)
+	RenderGbmBody(dir, &pr)
 
 	gh.PreviewPr("gutenberg-mobile", filepath.Join(dir, "gutenberg-mobile"), &pr)
 	org, _ := repo.GetOrg("gutenberg-mobile")
@@ -107,36 +108,11 @@ func UpdateGbmPr(version, dir string, verbose bool) (*gh.PullRequest, error) {
 
 }
 
-func renderGbmBody(dir string, pr *gh.PullRequest) {
+func RenderGbmBody(dir string, pr *gh.PullRequest) error {
 	version := pr.ReleaseVersion
 
-	// Read in the change log
-	clPath := filepath.Join(dir, "gutenberg-mobile", "gutenberg", "packages", "react-native-editor", "CHANGELOG.md")
-	cl := []byte{}
-	if clf, err := os.Open(clPath); err != nil {
-		utils.LogError("unable to open the change log (err %s)", err)
-	} else {
-		defer clf.Close()
-		if data, err := io.ReadAll(clf); err != nil {
-			utils.LogError("unable to read the change log (err %s)", err)
-		} else {
-			cl = data
-		}
-	}
-
-	// Read in the release notes
-	rnPath := filepath.Join(dir, "gutenberg-mobile", "RELEASE-NOTES.txt")
-	rn := []byte{}
-	if rnf, err := os.Open(rnPath); err != nil {
-		utils.LogError("unable to open the release notes (err %err)", err)
-	} else {
-		defer rnf.Close()
-		if data, err := io.ReadAll(rnf); err != nil {
-			utils.LogError("unable to read the release notes (err %s)", err)
-		} else {
-			rn = data
-		}
-	}
+	cl := getChangeLog(dir, pr)
+	rn := getReleaseNotes(dir, pr)
 
 	rc, err := CollectReleaseChanges(version, cl, rn)
 	if err != nil {
@@ -173,7 +149,83 @@ func renderGbmBody(dir string, pr *gh.PullRequest) {
 	if err != nil {
 		utils.LogError("unable to render the GBM pr body (err %s)", err)
 		pr.Body = "TBD"
+		return err
 	}
 
 	pr.Body = body
+	return nil
+}
+
+func getChangeLog(dir string, gbmPr *gh.PullRequest) []byte {
+
+	var buff io.ReadCloser
+	cl := []byte{}
+
+	if dir == "" {
+		org, _ := repo.GetOrg("gutenberg")
+		gbPr, err := GetGbReleasePr(gbmPr.ReleaseVersion)
+		if err != nil {
+			utils.LogError("unable to get the GB release PR (err %s)", err)
+			return []byte{}
+		}
+		endpoint := fmt.Sprintf("https://raw.githubusercontent.com/%s/gutenberg/%s/packages/react-native-editor/CHANGELOG.md", org, gbPr.Head.Sha)
+
+		if resp, err := http.Get(endpoint); err != nil {
+			utils.LogError("unable to get the change log (err %s)", err)
+		} else {
+			defer resp.Body.Close()
+			buff = resp.Body
+		}
+	} else {
+		// Read in the change log
+		clPath := filepath.Join(dir, "gutenberg-mobile", "gutenberg", "packages", "react-native-editor", "CHANGELOG.md")
+		if clf, err := os.Open(clPath); err != nil {
+			utils.LogError("unable to open the change log (err %s)", err)
+		} else {
+			defer clf.Close()
+			buff = clf
+
+		}
+	}
+	if data, err := io.ReadAll(buff); err != nil {
+		utils.LogError("unable to read the change log (err %s)", err)
+	} else {
+		cl = data
+	}
+
+	return cl
+}
+
+func getReleaseNotes(dir string, gbmPr *gh.PullRequest) []byte {
+	var buff io.ReadCloser
+	rn := []byte{}
+
+	if dir == "" {
+		org, _ := repo.GetOrg("gutenberg-mobile")
+		endpoint := fmt.Sprintf("https://raw.githubusercontent.com/%s/gutenberg-mobile/%s/RELEASE-NOTES.txt", org, gbmPr.Head.Sha)
+
+		if resp, err := http.Get(endpoint); err != nil {
+			utils.LogError("unable to get the change log (err %s)", err)
+		} else {
+			defer resp.Body.Close()
+			buff = resp.Body
+		}
+	} else {
+		// Read in the release notes
+		rnPath := filepath.Join(dir, "gutenberg-mobile", "RELEASE-NOTES.txt")
+
+		if rnf, err := os.Open(rnPath); err != nil {
+			utils.LogError("unable to open the release notes (err %err)", err)
+		} else {
+			defer rnf.Close()
+			buff = rnf
+		}
+	}
+	if data, err := io.ReadAll(buff); err != nil {
+		utils.LogError("unable to read the release notes (err %s)", err)
+	} else {
+		rn = data
+	}
+
+	return rn
 }

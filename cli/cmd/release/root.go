@@ -106,5 +106,4 @@ func init() {
 	RootCmd.AddCommand(StatusCmd)
 	RootCmd.AddCommand(UpdateCmd)
 	RootCmd.AddCommand(PublishCmd)
-
 }

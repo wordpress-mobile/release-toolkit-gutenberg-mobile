@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/wordpress-mobile/gbm-cli/internal/gh"
 	"github.com/wordpress-mobile/gbm-cli/internal/repo"
 	"github.com/wordpress-mobile/gbm-cli/internal/utils"
 	"github.com/wordpress-mobile/gbm-cli/pkg/release"
@@ -53,14 +54,14 @@ func init() {
 }
 
 func createIntegration(version string) (results []releaseResult) {
-	return integrate(version, release.CreateAndroidPr, release.CreateIosPr)
+	return integrate(version, release.CreateAndroidPr, release.CreateIosPr, true)
 }
 
 func updateIntegration(version string) (results []releaseResult) {
-	return integrate(version, release.UpdateAndroidPr, release.UpdateIosPr)
+	return integrate(version, release.UpdateAndroidPr, release.UpdateIosPr, false)
 }
 
-func integrate(version string, androidOp, iosOp release.IntegrateOp) (results []releaseResult) {
+func integrate(version string, androidOp, iosOp release.IntegrateOp, updateGBM bool) (results []releaseResult) {
 
 	gbmPr, err := release.GetGbmReleasePr(version)
 	if err != nil {
@@ -103,6 +104,20 @@ func integrate(version string, androidOp, iosOp release.IntegrateOp) (results []
 	for i := 0; i < numPr; i++ {
 		r := <-rChan
 		results = append(results, r)
+	}
+
+	// if we're updating GBM, do that now
+	if updateGBM {
+		l("Updating GBM PR with integration PRs")
+		if err := release.RenderGbmBody("", gbmPr); err != nil {
+			l(utils.WarnString("Unable to update the GBM PR body: %s", err))
+			return results
+		}
+
+		if err := gh.UpdatePr(gbmPr); err != nil {
+			l(utils.WarnString("Unable to update the GBM PR: %s", err))
+		}
+
 	}
 
 	return results
