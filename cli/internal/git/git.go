@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	goGit "github.com/go-git/go-git/v5"
+	g "github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/wordpress-mobile/gbm-cli/internal/exc"
@@ -14,8 +14,6 @@ import (
 	"github.com/wordpress-mobile/gbm-cli/internal/utils"
 )
 
-type Repository goGit.Repository
-
 type SubmoduleRef struct {
 	Repo   string
 	Tag    string
@@ -23,8 +21,8 @@ type SubmoduleRef struct {
 	Sha    string
 }
 
-func Clone(url, branch, path string, verbose bool) (*goGit.Repository, error) {
-	opts := &goGit.CloneOptions{
+func Clone(url, branch, path string, verbose bool) (*g.Repository, error) {
+	opts := &g.CloneOptions{
 		Auth:              rpo.Auth(),
 		URL:               url,
 		ReferenceName:     plumbing.ReferenceName(branch),
@@ -36,15 +34,15 @@ func Clone(url, branch, path string, verbose bool) (*goGit.Repository, error) {
 		opts.Progress = os.Stdout
 	}
 
-	r, err := goGit.PlainClone(path, false, opts)
+	r, err := g.PlainClone(path, false, opts)
 	if err != nil {
 		return nil, err
 	}
 	return r, nil
 }
 
-func Open(path string) (*goGit.Repository, error) {
-	r, err := goGit.PlainOpen(path)
+func Open(path string) (*g.Repository, error) {
+	r, err := g.PlainOpen(path)
 	if err != nil {
 		return nil, fmt.Errorf("unable to open repo at %s (err %s)", path, err)
 	}
@@ -53,7 +51,7 @@ func Open(path string) (*goGit.Repository, error) {
 
 // go-git has an issue with cloning submodules https://github.com/go-git/go-git/issues/488
 // Dropping down to git for now
-func CloneGBM(dir string, pr gh.PullRequest, verbose bool) (*goGit.Repository, error) {
+func CloneGBM(dir string, pr gh.PullRequest, verbose bool) (*g.Repository, error) {
 	git := exc.ExecGit(dir, verbose)
 
 	org, _ := rpo.GetOrg("gutenberg-mobile")
@@ -109,19 +107,19 @@ func remoteExists(dir, repo, ref string, verbose bool) bool {
 	return true
 }
 
-func Checkout(r *goGit.Repository, branch string) error {
+func Checkout(r *g.Repository, branch string) error {
 	w, err := r.Worktree()
 	if err != nil {
 		return err
 	}
 
-	return w.Checkout(&goGit.CheckoutOptions{
+	return w.Checkout(&g.CheckoutOptions{
 		Branch: plumbing.NewBranchReferenceName(branch),
 		Create: true,
 	})
 }
 
-func IsPorcelain(r *goGit.Repository) (bool, error) {
+func IsPorcelain(r *g.Repository) (bool, error) {
 	w, err := r.Worktree()
 	if err != nil {
 		return false, err
@@ -133,7 +131,7 @@ func IsPorcelain(r *goGit.Repository) (bool, error) {
 	return status.IsClean(), nil
 }
 
-func Add(r *goGit.Repository, files ...string) error {
+func Add(r *g.Repository, files ...string) error {
 	w, err := r.Worktree()
 	if err != nil {
 		return err
@@ -148,11 +146,11 @@ func Add(r *goGit.Repository, files ...string) error {
 	return nil
 }
 
-func Commit(r *goGit.Repository, message string, files ...string) error {
-	return CommitOptions(r, message, goGit.CommitOptions{}, files...)
+func Commit(r *g.Repository, message string, files ...string) error {
+	return CommitOptions(r, message, g.CommitOptions{}, files...)
 }
 
-func CommitOptions(r *goGit.Repository, message string, opts goGit.CommitOptions, files ...string) error {
+func CommitOptions(r *g.Repository, message string, opts g.CommitOptions, files ...string) error {
 	w, err := r.Worktree()
 
 	for _, f := range files {
@@ -174,11 +172,11 @@ func CommitOptions(r *goGit.Repository, message string, opts goGit.CommitOptions
 	return err
 }
 
-func CommitAll(r *goGit.Repository, message string) error {
-	return CommitOptions(r, message, goGit.CommitOptions{All: true})
+func CommitAll(r *g.Repository, message string) error {
+	return CommitOptions(r, message, g.CommitOptions{All: true})
 }
 
-func GetSubmodule(r *goGit.Repository, path string) (*goGit.Submodule, error) {
+func GetSubmodule(r *g.Repository, path string) (*g.Submodule, error) {
 	w, err := r.Worktree()
 	if err != nil {
 		return nil, err
@@ -213,7 +211,7 @@ func (r *NotPorcelainError) Error() string {
 	return r.Err.Error()
 }
 
-func IsSubmoduleCurrent(s *goGit.Submodule, expectedHash string) (bool, error) {
+func IsSubmoduleCurrent(s *g.Submodule, expectedHash string) (bool, error) {
 
 	// Check if the submodule is porcelain
 	sr, err := s.Repository()
@@ -235,12 +233,12 @@ func IsSubmoduleCurrent(s *goGit.Submodule, expectedHash string) (bool, error) {
 	return stat.Current == eh, nil
 }
 
-func Tag(r *goGit.Repository, tag string, push bool) (*plumbing.Reference, error) {
+func Tag(r *g.Repository, tag string, push bool) (*plumbing.Reference, error) {
 	h, err := r.Head()
 	if err != nil {
 		return nil, err
 	}
-	ref, err := r.CreateTag(tag, h.Hash(), &goGit.CreateTagOptions{
+	ref, err := r.CreateTag(tag, h.Hash(), &g.CreateTagOptions{
 		Message: tag,
 		Tagger:  rpo.Signature(),
 	})
@@ -253,8 +251,8 @@ func Tag(r *goGit.Repository, tag string, push bool) (*plumbing.Reference, error
 	return ref, err
 }
 
-func Push(r *goGit.Repository, verbose bool) error {
-	opts := &goGit.PushOptions{
+func Push(r *g.Repository, verbose bool) error {
+	opts := &g.PushOptions{
 		RemoteName: "origin",
 		Auth:       rpo.Auth(),
 	}
@@ -264,14 +262,14 @@ func Push(r *goGit.Repository, verbose bool) error {
 
 	err := r.Push(opts)
 
-	if err == goGit.NoErrAlreadyUpToDate {
+	if err == g.NoErrAlreadyUpToDate {
 		return nil
 	}
 	return err
 }
 
-func PushTag(r *goGit.Repository, verbose bool) error {
-	opts := &goGit.PushOptions{
+func PushTag(r *g.Repository, verbose bool) error {
+	opts := &g.PushOptions{
 		RemoteName: "origin",
 		RefSpecs:   []config.RefSpec{config.RefSpec("refs/tags/*:refs/tags/*")},
 		Auth:       rpo.Auth(),
@@ -281,7 +279,7 @@ func PushTag(r *goGit.Repository, verbose bool) error {
 	}
 	err := r.Push(opts)
 
-	if err == goGit.NoErrAlreadyUpToDate {
+	if err == g.NoErrAlreadyUpToDate {
 		return nil
 	}
 	return err
