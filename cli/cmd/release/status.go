@@ -7,7 +7,7 @@ import (
 	"github.com/cli/go-gh/pkg/term"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
-	"github.com/wordpress-mobile/gbm-cli/internal/repo"
+	"github.com/wordpress-mobile/gbm-cli/internal/gh"
 	"github.com/wordpress-mobile/gbm-cli/internal/utils"
 	"github.com/wordpress-mobile/gbm-cli/pkg/release"
 )
@@ -28,12 +28,12 @@ var StatusCmd = &cobra.Command{
 		}
 
 		// Get the PRs linked to the release pr
-		rfs := []repo.RepoFilter{
-			repo.BuildRepoFilter("gutenberg", "is:open", "is:pr", `label:"Mobile App - i.e. Android or iOS"`),
-			repo.BuildRepoFilter("WordPress-Android", "is:open", "is:pr"),
-			repo.BuildRepoFilter("WordPress-iOS", "is:open", "is:pr"),
+		rfs := []gh.RepoFilter{
+			gh.BuildRepoFilter("gutenberg", "is:open", "is:pr", `label:"Mobile App - i.e. Android or iOS"`),
+			gh.BuildRepoFilter("WordPress-Android", "is:open", "is:pr"),
+			gh.BuildRepoFilter("WordPress-iOS", "is:open", "is:pr"),
 		}
-		results, err := repo.FindGbmSyncedPrs(*gbmPr, rfs)
+		results, err := gh.FindGbmSyncedPrs(*gbmPr, rfs)
 
 		if err != nil {
 			utils.LogError("%v", err)
@@ -63,10 +63,6 @@ var StatusCmd = &cobra.Command{
 	},
 }
 
-func init() {
-
-}
-
 func renderRow(t tableprinter.TablePrinter, rp, url, state, draft, mergeable string) {
 	t.AddField(rp)
 	t.AddField(url)
@@ -76,7 +72,7 @@ func renderRow(t tableprinter.TablePrinter, rp, url, state, draft, mergeable str
 	t.EndRow()
 }
 
-func mergeableStr(repo repo.PullRequest) string {
+func mergeableStr(repo gh.PullRequest) string {
 	red := color.New(color.FgRed).SprintFunc()
 	green := color.New(color.FgGreen).SprintFunc()
 	if repo.Mergeable {
@@ -85,7 +81,7 @@ func mergeableStr(repo repo.PullRequest) string {
 	return red("❌")
 }
 
-func draftStr(repo repo.PullRequest) string {
+func draftStr(repo gh.PullRequest) string {
 	green := color.New(color.FgGreen).SprintFunc()
 	gray := color.New(color.FgHiBlack).SprintFunc()
 	if repo.Draft {

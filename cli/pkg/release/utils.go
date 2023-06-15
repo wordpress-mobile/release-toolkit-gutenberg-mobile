@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/wordpress-mobile/gbm-cli/internal/gh"
 	"github.com/wordpress-mobile/gbm-cli/internal/repo"
 	"github.com/wordpress-mobile/gbm-cli/internal/utils"
 )
@@ -98,7 +99,7 @@ func IsGbmPrCurrent(version string) bool {
 		utils.LogWarn("Error getting GB Mobile Pr: %s", err)
 		return false
 	}
-	submoduleStat, err := repo.GetContents("gutenberg-mobile", "gutenberg", pr.Head.Ref)
+	submoduleStat, err := gh.GetContents("gutenberg-mobile", "gutenberg", pr.Head.Ref)
 	if err != nil {
 		utils.LogWarn("Error getting submodule status: %s", err)
 		return false
@@ -327,7 +328,7 @@ func CollectReleaseChanges(version string, changelog, relnotes []byte) ([]Releas
 
 				prId, _ := strconv.Atoi(matches[0][1])
 
-				pr, err := repo.GetPr("gutenberg", prId)
+				pr, err := gh.GetPr("gutenberg", prId)
 				if err != nil {
 					utils.LogWarn("There was an issue fetching a gutenberg pr #%d", prId)
 					continue
@@ -345,7 +346,7 @@ func CollectReleaseChanges(version string, changelog, relnotes []byte) ([]Releas
 				rep := match[2]
 				num := match[3]
 				prId, _ := strconv.Atoi(num)
-				pr, err := repo.GetPrOrg(org, rep, prId)
+				pr, err := gh.GetPrOrg(org, rep, prId)
 				if err != nil {
 					utils.LogWarn("There was an issue fetching %s/%s/pull/%d", org, rep, prId)
 					continue
@@ -377,7 +378,7 @@ func CollectReleaseChanges(version string, changelog, relnotes []byte) ([]Releas
 				if prFoundAlready(prId) {
 					continue
 				}
-				pr, err := repo.GetPrOrg("WordPress", "gutenberg", prId)
+				pr, err := gh.GetPrOrg("WordPress", "gutenberg", prId)
 				if err != nil {
 					utils.LogWarn("There was an issue fetching a gutenberg pr #%d", prId)
 					continue
@@ -398,7 +399,7 @@ func CollectReleaseChanges(version string, changelog, relnotes []byte) ([]Releas
 	return prs, nil
 }
 
-func checkPRforIssues(pr repo.PullRequest, rc *ReleaseChanges) {
+func checkPRforIssues(pr gh.PullRequest, rc *ReleaseChanges) {
 	issueRe := regexp.MustCompile(`(https:\/\/github.com\/.*\/.*\/issues\/\d*)`)
 
 	matches := issueRe.FindAllStringSubmatch(pr.Body, -1)
@@ -408,33 +409,33 @@ func checkPRforIssues(pr repo.PullRequest, rc *ReleaseChanges) {
 	}
 }
 
-func GetGbmReleasePr(version string) (*repo.PullRequest, error) {
+func GetGbmReleasePr(version string) (*gh.PullRequest, error) {
 	return getReleasePr("gutenberg-mobile", version)
 }
 
-func GetGbReleasePr(version string) (*repo.PullRequest, error) {
+func GetGbReleasePr(version string) (*gh.PullRequest, error) {
 	return getReleasePr("gutenberg", version)
 }
 
-func GetAndroidReleasePr(version string) (*repo.PullRequest, error) {
+func GetAndroidReleasePr(version string) (*gh.PullRequest, error) {
 	return getReleasePr("WordPress-Android", version)
 }
 
-func GetIosReleasePr(version string) (*repo.PullRequest, error) {
+func GetIosReleasePr(version string) (*gh.PullRequest, error) {
 	return getReleasePr("WordPress-iOS", version)
 }
 
-func GetReleasePrs(version string, repos ...string) map[string]*repo.PullRequest {
-	results := map[string]*repo.PullRequest{}
+func GetReleasePrs(version string, repos ...string) map[string]*gh.PullRequest {
+	results := map[string]*gh.PullRequest{}
 
-	chn := make(chan *repo.PullRequest)
+	chn := make(chan *gh.PullRequest)
 
 	for _, r := range repos {
 		go func(r string) {
 			if pr, err := getReleasePr(r, version); err != nil {
 				utils.LogWarn("Could not find a release pr at %s", r)
 			} else if pr == nil {
-				chn <- &repo.PullRequest{Repo: r}
+				chn <- &gh.PullRequest{Repo: r}
 			} else {
 				chn <- pr
 			}
@@ -449,16 +450,16 @@ func GetReleasePrs(version string, repos ...string) map[string]*repo.PullRequest
 	return results
 }
 
-func getReleasePr(rpo, version string) (*repo.PullRequest, error) {
+func getReleasePr(rpo, version string) (*gh.PullRequest, error) {
 
 	// We add a v to the version for the GB pr title.
 	// TODO: Should we keep the title more consistent?
 	if rpo == "gutenberg" {
 		version = "v" + version
 	}
-	filter := repo.BuildRepoFilter(rpo, "is:pr", fmt.Sprintf("%s in:title", version))
+	filter := gh.BuildRepoFilter(rpo, "is:pr", fmt.Sprintf("%s in:title", version))
 
-	res, err := repo.SearchPrs(filter)
+	res, err := gh.SearchPrs(filter)
 	if err != nil {
 		return nil, err
 	}
@@ -473,5 +474,5 @@ func getReleasePr(rpo, version string) (*repo.PullRequest, error) {
 	// The api only returns partial RP info
 	result := res.Items[0]
 
-	return repo.GetPr(rpo, result.Number)
+	return gh.GetPr(rpo, result.Number)
 }

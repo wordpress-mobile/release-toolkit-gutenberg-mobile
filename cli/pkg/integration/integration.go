@@ -5,7 +5,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/go-git/go-git/v5"
+	g "github.com/go-git/go-git/v5"
+	"github.com/wordpress-mobile/gbm-cli/internal/gh"
+	"github.com/wordpress-mobile/gbm-cli/internal/git"
 	"github.com/wordpress-mobile/gbm-cli/internal/repo"
 	"github.com/wordpress-mobile/gbm-cli/internal/utils"
 )
@@ -38,7 +40,7 @@ type Target struct {
 	UpdateVersion VersionUpdaterFunc
 
 	// The labels that will be added to the PR.
-	Labels []repo.Label
+	Labels []gh.Label
 
 	// Sets the PR to draft if this is true.
 	Draft bool
@@ -47,7 +49,7 @@ type Target struct {
 	Dir string
 }
 
-type VersionUpdaterFunc func([]byte, repo.PullRequest) ([]byte, error)
+type VersionUpdaterFunc func([]byte, gh.PullRequest) ([]byte, error)
 
 var (
 	l func(string, ...interface{})
@@ -61,7 +63,7 @@ func init() {
 
 // Creates an integration PR for the given target
 // It will return an ExitingPrError if the branch already exists
-func PrepareBranch(target *Target, gbmPr repo.PullRequest, verbose bool) (*git.Repository, error) {
+func PrepareBranch(target *Target, gbmPr gh.PullRequest, verbose bool) (*g.Repository, error) {
 
 	targetRepo := target.Repo
 	targetOrg, _ := repo.GetOrg(targetRepo)
@@ -73,32 +75,32 @@ func PrepareBranch(target *Target, gbmPr repo.PullRequest, verbose bool) (*git.R
 		return nil, fmt.Errorf("%s UpdateVersion function is nil", targetRepo)
 	}
 
-	exBranch, _ := repo.SearchBranch(targetRepo, headBranch)
+	exBranch, _ := gh.SearchBranch(targetRepo, headBranch)
 
 	dir := filepath.Join(target.Dir, targetRepo)
 	repoUrl := fmt.Sprintf("git@github.com:%s/%s.git", targetOrg, targetRepo)
 
 	var (
-		r   *git.Repository
+		r   *g.Repository
 		err error
 	)
 
 	// Clone at the existing branch if it exists
-	if (exBranch != repo.Branch{}) {
+	if (exBranch != gh.Branch{}) {
 		l("Cloning %s ref:%s into %s", targetRepo, headBranch, dir)
-		r, err = repo.Clone(repoUrl, headBranch, dir, verbose)
+		r, err = git.Clone(repoUrl, headBranch, dir, verbose)
 		if err != nil {
 			return nil, err
 		}
 	} else {
 		l("Cloning %s ref:%s into %s", targetRepo, baseBranch, dir)
-		r, err = repo.Clone(repoUrl, baseBranch, dir, verbose)
+		r, err = git.Clone(repoUrl, baseBranch, dir, verbose)
 		if err != nil {
 			return nil, err
 		}
 
 		l("Checking out %s", headBranch)
-		if err := repo.Checkout(r, headBranch); err != nil {
+		if err := git.Checkout(r, headBranch); err != nil {
 			return r, err
 		}
 	}
@@ -125,20 +127,20 @@ func PrepareBranch(target *Target, gbmPr repo.PullRequest, verbose bool) (*git.R
 	}
 
 	l("Committing changes")
-	if err := repo.CommitAll(r, "Update Gutenberg version"); err != nil {
+	if err := git.CommitAll(r, "Update Gutenberg version"); err != nil {
 		return r, err
 	}
 
 	return r, err
 }
 
-func CreatePr(target string, rpo *git.Repository, pr *repo.PullRequest, verbose bool) error {
+func CreatePr(target string, rpo *g.Repository, pr *gh.PullRequest, verbose bool) error {
 
 	l("Pushing changes")
-	if err := repo.Push(rpo, verbose); err != nil {
+	if err := git.Push(rpo, verbose); err != nil {
 		return err
 	}
 
 	l("Creating the PR")
-	return repo.CreatePr(target, pr)
+	return gh.CreatePr(target, pr)
 }

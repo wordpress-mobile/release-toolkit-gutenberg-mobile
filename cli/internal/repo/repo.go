@@ -3,10 +3,12 @@ package repo
 import (
 	"fmt"
 	"os"
-	"os/exec"
+	"time"
 
-	"github.com/fatih/color"
-	"github.com/wordpress-mobile/gbm-cli/internal/utils"
+	"github.com/cli/go-gh/v2/pkg/auth"
+	"github.com/go-git/go-git/v5/config"
+	"github.com/go-git/go-git/v5/plumbing/object"
+	"github.com/go-git/go-git/v5/plumbing/transport/http"
 )
 
 var (
@@ -16,10 +18,10 @@ var (
 )
 
 func init() {
-	initOrgs()
+	InitOrgs()
 }
 
-func initOrgs() {
+func InitOrgs() {
 	if gbmWpMobileOrg, ok := os.LookupEnv("GBM_WPMOBILE_ORG"); !ok {
 		WpMobileOrg = "wordpress-mobile"
 	} else {
@@ -56,38 +58,24 @@ func GetOrg(repo string) (string, error) {
 	}
 }
 
-func PreviewPr(repo, dir string, pr *PullRequest) {
-	org, _ := GetOrg(repo)
-	boldUnder := color.New(color.Bold, color.Underline).SprintFunc()
-	bold := color.New(color.Bold).SprintFunc()
-	cyan := color.New(color.FgCyan).SprintFunc()
-	fmt.Println(boldUnder("\nPr Preview"))
-	fmt.Println(bold("Local:"), "\t", cyan(dir))
-	fmt.Println(bold("Repo:"), "\t", cyan(fmt.Sprintf("%s/%s", org, repo)))
-	fmt.Println(bold("Title:"), "\t", cyan(pr.Title))
-	fmt.Print(bold("Body:\n"), cyan(pr.Body))
-	fmt.Println(bold("Commits:"))
-
-	git := execGit(dir, true)
-
-	git("log", pr.Base.Ref+"...HEAD", "--oneline", "--no-merges", "-10")
-}
-
-// Use this to drop down to `git` when go-git is not playing well.
-func execGit(dir string, verbose bool) func(...string) error {
-	return func(cmds ...string) error {
-		cmd := exec.Command("git", cmds...)
-		cmd.Dir = dir
-
-		if verbose {
-			cmd.Stdout = os.Stdout
-			cmd.Stderr = os.Stderr
-		}
-
-		return cmd.Run()
+func Auth() *http.BasicAuth {
+	// load host and auth from 'gh'
+	host, _ := auth.DefaultHost()
+	token, _ := auth.TokenForHost(host)
+	user := Signature()
+	return &http.BasicAuth{
+		Username: user.Name, // this can be anything since we are using a token
+		Password: token,
 	}
 }
 
-func l(f string, a ...interface{}) {
-	utils.LogInfo(f, a...)
+func Signature() *object.Signature {
+	config, _ := config.LoadConfig(config.GlobalScope)
+	u := config.User
+	s := object.Signature{
+		Name:  u.Name,
+		Email: u.Email,
+		When:  time.Now(),
+	}
+	return &s
 }

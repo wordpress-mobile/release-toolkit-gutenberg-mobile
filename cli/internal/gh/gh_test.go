@@ -1,10 +1,12 @@
-package repo
+package gh
 
 import (
 	"encoding/json"
 	"fmt"
+	"reflect"
 	"testing"
 
+	rpo "github.com/wordpress-mobile/gbm-cli/internal/repo"
 	"gopkg.in/h2non/gock.v1"
 )
 
@@ -68,7 +70,7 @@ func TestGetPr(t *testing.T) {
 
 				// Set the mock orgs and reset the orgs
 				t.Setenv(r.env, r.org)
-				initOrgs()
+				rpo.InitOrgs()
 
 				path := fmt.Sprintf("/repos/%s/%s/pulls/%d", r.org, r.repo, prNumber)
 				gock.New("https://api.github.com").
@@ -376,11 +378,11 @@ func setupMockOrg(t *testing.T, org string) {
 	t.Helper()
 	t.Setenv("GBM_WPMOBILE_ORG", org)
 	t.Setenv("GBM_WORDPRESS_ORG", org)
-	initOrgs()
+	rpo.InitOrgs()
 	t.Cleanup(func() {
 		t.Setenv("GBM_WPMOBILE_ORG", "")
 		t.Setenv("GBM_WORDPRESS_ORG", "")
-		initOrgs()
+		rpo.InitOrgs()
 	})
 }
 
@@ -405,5 +407,35 @@ func createTestPr(t *testing.T) PullRequest {
 			}
 		}{Ref: "trunk"},
 		Draft: true,
+	}
+}
+
+func assertNoError(t testing.TB, got error) {
+	t.Helper()
+	if got != nil {
+		t.Fatalf("got an error but didn't expect one: %v", got)
+	}
+}
+
+func assertError(t testing.TB, got error) {
+	t.Helper()
+	if got == nil {
+		t.Fatal("expected an error but didn't get one")
+	}
+}
+
+func assertEqual(t testing.TB, got, want interface{}) {
+	t.Helper()
+	eq := reflect.DeepEqual(got, want)
+	if !eq {
+		t.Fatalf("got %v want %v", got, want)
+	}
+}
+
+func assertNotEqual(t testing.TB, got, want interface{}) {
+	t.Helper()
+	eq := reflect.DeepEqual(got, want)
+	if eq {
+		t.Fatalf("got %v want %v", got, want)
 	}
 }

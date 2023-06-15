@@ -6,6 +6,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/wordpress-mobile/gbm-cli/internal/gh"
+	"github.com/wordpress-mobile/gbm-cli/internal/git"
 	"github.com/wordpress-mobile/gbm-cli/internal/repo"
 	"github.com/wordpress-mobile/gbm-cli/internal/utils"
 	"github.com/wordpress-mobile/gbm-cli/pkg/gbm"
@@ -20,15 +22,15 @@ import (
  It can also post the testing instructions as comments to the PR
 */
 
-func CreateGbmPr(version, dir string, verbose bool) (repo.PullRequest, error) {
+func CreateGbmPr(version, dir string, verbose bool) (gh.PullRequest, error) {
 	l("\nPreparing Gutenberg Mobile Release PR")
 
 	headBranch := "release/" + version
-	pr := repo.PullRequest{
-		Head:           repo.Repo{Ref: headBranch},
-		Base:           repo.Repo{Ref: "trunk"},
+	pr := gh.PullRequest{
+		Head:           gh.Repo{Ref: headBranch},
+		Base:           gh.Repo{Ref: "trunk"},
 		Draft:          true,
-		Labels:         []repo.Label{{Name: "release-process"}},
+		Labels:         []gh.Label{{Name: "release-process"}},
 		ReleaseVersion: version,
 		Title:          "Release " + version,
 		Repo:           "gutenberg-repo",
@@ -49,13 +51,13 @@ func CreateGbmPr(version, dir string, verbose bool) (repo.PullRequest, error) {
 	if err := UpdateReleaseNotes(version, rnPath); err != nil {
 		return pr, err
 	}
-	if err := repo.CommitAll(gbmr, fmt.Sprintf("Release script: Update release notes for version %s", version)); err != nil {
+	if err := git.CommitAll(gbmr, fmt.Sprintf("Release script: Update release notes for version %s", version)); err != nil {
 		return pr, err
 	}
 
 	renderGbmBody(dir, &pr)
 
-	repo.PreviewPr("gutenberg-mobile", filepath.Join(dir, "gutenberg-mobile"), &pr)
+	gh.PreviewPr("gutenberg-mobile", filepath.Join(dir, "gutenberg-mobile"), &pr)
 	org, _ := repo.GetOrg("gutenberg-mobile")
 
 	prompt := fmt.Sprintf("\nReady to create the PR on %s/gutenberg-mobile?", org)
@@ -74,14 +76,14 @@ func CreateGbmPr(version, dir string, verbose bool) (repo.PullRequest, error) {
 		utils.LogWarn("unable to render the GB Pr body to update (err %s)", err)
 	}
 
-	if err := repo.UpdatePr(gbPr); err != nil {
+	if err := gh.UpdatePr(gbPr); err != nil {
 		utils.LogWarn("unable to update the GB release pr (err %s)", err)
 	}
 
 	return pr, nil
 }
 
-func UpdateGbmPr(version, dir string, verbose bool) (*repo.PullRequest, error) {
+func UpdateGbmPr(version, dir string, verbose bool) (*gh.PullRequest, error) {
 	prs := GetReleasePrs(version, "gutenberg-mobile", "gutenberg")
 	gbPr := prs["gutenberg"]
 	gbmPr := prs["gutenberg-mobile"]
@@ -100,12 +102,12 @@ func UpdateGbmPr(version, dir string, verbose bool) (*repo.PullRequest, error) {
 		return gbmPr, fmt.Errorf("issue preparing the branc (err %s)", err)
 	}
 
-	err = repo.Push(rpo, verbose)
+	err = git.Push(rpo, verbose)
 	return gbmPr, err
 
 }
 
-func renderGbmBody(dir string, pr *repo.PullRequest) {
+func renderGbmBody(dir string, pr *gh.PullRequest) {
 	version := pr.ReleaseVersion
 
 	// Read in the change log
@@ -140,18 +142,18 @@ func renderGbmBody(dir string, pr *repo.PullRequest) {
 	if err != nil {
 		utils.LogError("unable to collect release changes (err %s)", err)
 	}
-	rfs := []repo.RepoFilter{
-		repo.BuildRepoFilter("gutenberg", "is:open", "is:pr", `label:"Mobile App - i.e. Android or iOS"`, fmt.Sprintf("v%s in:title", version)),
-		repo.BuildRepoFilter("WordPress-Android", "is:open", "is:pr", version+" in:title"),
-		repo.BuildRepoFilter("WordPress-iOS", "is:open", "is:pr", version+" in:title"),
+	rfs := []gh.RepoFilter{
+		gh.BuildRepoFilter("gutenberg", "is:open", "is:pr", `label:"Mobile App - i.e. Android or iOS"`, fmt.Sprintf("v%s in:title", version)),
+		gh.BuildRepoFilter("WordPress-Android", "is:open", "is:pr", version+" in:title"),
+		gh.BuildRepoFilter("WordPress-iOS", "is:open", "is:pr", version+" in:title"),
 	}
 
-	synced, err := repo.FindGbmSyncedPrs(*pr, rfs)
+	synced, err := gh.FindGbmSyncedPrs(*pr, rfs)
 	if err != nil {
 		utils.LogError("unable to find synced Prs")
 	}
 
-	prs := []repo.PullRequest{}
+	prs := []gh.PullRequest{}
 	for _, s := range synced {
 		prs = append(prs, s.Items...)
 	}
@@ -159,7 +161,7 @@ func renderGbmBody(dir string, pr *repo.PullRequest) {
 	data := struct {
 		Version    string
 		Changes    []ReleaseChanges
-		RelatedPRs []repo.PullRequest
+		RelatedPRs []gh.PullRequest
 	}{
 		Version:    version,
 		Changes:    rc,
