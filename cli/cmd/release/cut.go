@@ -10,8 +10,8 @@ import (
 )
 
 // checklistCmd represents the checklist command
-var PrepareCmd = &cobra.Command{
-	Use:   "prepare <version>",
+var CutCmd = &cobra.Command{
+	Use:   "cut <version>",
 	Short: "generate the gutenberg release Prs",
 	Long: `
 `,
@@ -41,20 +41,20 @@ var PrepareCmd = &cobra.Command{
 			utils.LogInfo("📦 Running full release pipeline. Let's go! 🚀")
 		}
 
-		gbpr, err := release.CreateGbPR(version, TempDir, !Quite)
+		gbPr, err := release.CreateGbPR(version, TempDir, !Quite)
 		results = append(results, releaseResult{
-			pr:   &gbpr,
+			pr:   &gbPr,
 			err:  err,
 			repo: "gutenberg",
 		})
 
-		utils.LogInfo("🏁 Gutenberg release ready to go, check it out: %s", gbpr.Url)
+		utils.LogInfo("🏁 Gutenberg release ready to go, check it out: %s", gbPr.Url)
 
 		if Gbm || All {
 			// Try sleeping for a second to avoid rate limiting
 			// Too fast and the GB Pr might not be ready
 			time.Sleep(time.Second)
-			gbmpr, err := release.CreateGbmPr(version, TempDir, !Quite)
+			gbmPr, err := release.CreateGbmPr(version, TempDir, !Quite)
 
 			if err != nil {
 				utils.LogError("Error creating gbm PR: %s", err)
@@ -62,12 +62,12 @@ var PrepareCmd = &cobra.Command{
 			}
 
 			results = append(results, releaseResult{
-				pr:   &gbmpr,
+				pr:   &gbmPr,
 				err:  err,
 				repo: "gutenberg-mobile",
 			})
 
-			utils.LogInfo("🏁 Gutenberg Mobile release ready to go, check it out: %s", gbmpr.Url)
+			utils.LogInfo("🏁 Gutenberg Mobile release ready to go, check it out: %s", gbmPr.Url)
 
 			// Run the integrations if we are preparing all or any integration PRs
 			if All || runAnyIntegration {
@@ -89,9 +89,9 @@ var PrepareCmd = &cobra.Command{
 }
 
 func init() {
-	PrepareCmd.Flags().BoolVarP(&Gbm, "gbm", "", false, "prepare gutenberg mobile PR")
-	PrepareCmd.Flags().BoolVarP(&All, "all", "", false, "prepare all release PRs")
-	PrepareCmd.Flags().BoolVarP(&Android, "android", "", false, "prepare android PR - requires --gbm")
-	PrepareCmd.Flags().BoolVarP(&Ios, "ios", "", false, "prepare ios pr - requires --gbm")
-	PrepareCmd.Flags().BoolVarP(&Quite, "quite", "q", false, "silence output")
+	CutCmd.Flags().BoolVarP(&Gbm, "gbm", "", false, "Cut gutenberg mobile PR")
+	CutCmd.Flags().BoolVarP(&All, "all", "", false, "Cut all release PRs")
+	CutCmd.Flags().BoolVarP(&Android, "android", "", false, "Cut android PR - requires --gbm")
+	CutCmd.Flags().BoolVarP(&Ios, "ios", "", false, "Cut ios pr - requires --gbm")
+	CutCmd.Flags().BoolVarP(&Quite, "quite", "q", false, "silence output")
 }

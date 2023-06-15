@@ -101,9 +101,10 @@ var RootCmd = &cobra.Command{
 }
 
 func init() {
-	RootCmd.AddCommand(PrepareCmd)
+	RootCmd.AddCommand(CutCmd)
 	RootCmd.AddCommand(IntegrateCmd)
 	RootCmd.AddCommand(StatusCmd)
 	RootCmd.AddCommand(UpdateCmd)
 	RootCmd.AddCommand(PublishCmd)
+
 }
