@@ -72,7 +72,7 @@ var PublishCmd = &cobra.Command{
 func init() {
 	PublishCmd.Flags().BoolVarP(&Quite, "quite", "q", false, "silence output")
 	PublishCmd.Flags().BoolVarP(&SkipChecks, "skip-checks", "", false, "Skip the Check runs on the PR")
-	PublishCmd.Flags().BoolVarP(&All, "integrate", "i", false, "update integration PRs with release tag")
+	PublishCmd.Flags().BoolVarP(&Integrate, "integrate", "i", false, "update integration PRs with release tag")
 	PublishCmd.Flags().BoolVarP(&Android, "android", "", false, "update android pr with release tag")
 	PublishCmd.Flags().BoolVarP(&Ios, "ios", "", false, "update ios pr with release tag")
 }

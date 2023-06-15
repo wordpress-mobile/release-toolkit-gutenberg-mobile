@@ -134,12 +134,12 @@ type GhContents struct {
 }
 
 type Release struct {
-	Url           string `json:"url"`
-	TagName       string `json:"tag_name"`
-	PublishedDate string `json:"published_at"`
-	Draft         bool   `json:"draft"`
-	Prerelease    bool   `json:"prerelease"`
-	Target        string `json:"target_commitish"`
+	Url         string `json:"url"`
+	TagName     string `json:"tag_name"`
+	PublishedAt string `json:"published_at"`
+	Draft       bool   `json:"draft"`
+	Prerelease  bool   `json:"prerelease"`
+	Target      string `json:"target_commitish"`
 }
 
 type ReleaseProps struct {
