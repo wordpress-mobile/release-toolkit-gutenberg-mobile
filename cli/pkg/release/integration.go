@@ -79,7 +79,7 @@ func updateVersion(version string, gbmPr *gh.PullRequest) string {
 		return sha
 	}
 
-	if release.PublishedDate == "" {
+	if release.PublishedAt != "" {
 		return vVersion
 	}
 
