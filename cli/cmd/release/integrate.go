@@ -39,7 +39,7 @@ var IntegrateCmd = &cobra.Command{
 			if r.err != nil {
 				utils.LogError("Error %s %s PR: %s", message, r.repo, r.err)
 			} else {
-				utils.LogInfo("Queuing work for %s %s PR: %s", message, r.repo, r.pr.Url)
+				utils.LogInfo("Finished %s %s PR: %s", message, r.repo, r.pr.Url)
 			}
 		}
 	},
