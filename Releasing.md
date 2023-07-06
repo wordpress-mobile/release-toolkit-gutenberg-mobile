@@ -182,7 +182,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 
 <!-- wp:group -->
 <div class="wp-block-group"><!-- wp:paragraph -->
-<p>o Once everything is merged, send a heads up to our friends in the <code>#apps-infrastructure-formerly-platform9</code> Slack channel. If this is a "regular" release for the WPiOS and WPAndroid `trunk` branches (i.e. this isn't a beta/hot fix, e.g. X.XX.2), the message will look similar to the following:</p>
+<p>o Once everything is merged, send a heads up to our friends in the <code>#apps-infrastructure</code> Slack channel. If this is a "regular" release for the WPiOS and WPAndroid `trunk` branches (i.e. this isn't a beta/hot fix, e.g. X.XX.2), the message will look similar to the following:</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:quote -->
