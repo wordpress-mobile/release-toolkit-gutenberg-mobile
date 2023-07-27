@@ -105,6 +105,9 @@ gh auth status >/dev/null 2>&1 || abort "Error: You are not logged into any GitH
 # Check that jq is installed
 command -v jq >/dev/null || abort "Error: jq must be installed."
 
+# Check that yq is installed
+command -v yq >/dev/null || abort "Error: yq must be installed. On macOS, you can run: brew install yq."
+
 # Check that Aztec versions are set to release versions
 aztec_version_problems="$(check_android_and_ios_aztec_versions)"
 if [[ -n "$aztec_version_problems" ]]; then
@@ -347,16 +350,16 @@ ohai "Create release branch in WordPress-iOS"
 execute "git" "switch" "-c" "gutenberg/integrate_release_$VERSION_NUMBER"
 
 ohai "Update GitHub organization and gutenberg-mobile ref"
-version_file="Gutenberg/version.rb"
-test -f "$version_file" || abort "Error: Could not find $version_file"
-sed -i'.orig' -E "s/GITHUB_ORG = 'wordpress-mobile'/GITHUB_ORG = '$MOBILE_REPO'/" $version_file || abort "Error: Failed updating GitHub organization in $version_file"
-sed -i'.orig' -E "s/# commit: '(.*)'/commit: '$GB_MOBILE_PR_REF'/" $version_file || abort "Error: Failed updating gutenberg ref in $version_file (part 1 of 2, setting the commit)"
-sed -i'.orig' -E "s/tag: '(.*)'/# &/" $version_file || abort "Error: Failed updating gutenberg ref in $version_file (part 2 of 2, commenting the tag)"
+ios_config_file="Gutenberg/config.yml"
+test -f "$ios_config_file" || abort "Error: Could not find $ios_config_file"
+yq eval ".github_org= \"$MOBILE_REPO\"" "$ios_config_file" -i || abort "Error: Failed updating GitHub organization in $ios_config_file"
+# Make iOS point to the given commit, removing the configured tag, if any
+yq eval ".ref.commit = \"$GB_MOBILE_PR_REF\"" "$ios_config_file" -i || abort "Error: Failed updating gutenberg ref in $ios_config_file (part 1 of 2, setting the commit)"
+yq eval 'del(.ref.tag)' "$ios_config_file" -i || abort "Error: Failed updating gutenberg ref in $ios_config_file (part 2 of 2, commenting the tag)"
 execute "bundle" "install"
 execute_until_succeeds "rake" "dependencies"
 
-
-execute "git" "add" "Podfile" "Podfile.lock" "$version_file"
+execute "git" "add" "Podfile" "Podfile.lock" "$ios_config_file"
 execute "git" "commit" "-m" "Release script: Update gutenberg-mobile ref"
 
 ohai "Push integration branch"
