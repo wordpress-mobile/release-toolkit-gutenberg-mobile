@@ -95,7 +95,11 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Mark all 4 PRs ready for review and request review from your release wrangler buddy. <br><br><strong>Note:</strong> In some release cases (like betafixes), it's likely that the PRs could have conflicts with `trunk`. In this case, do not resolve merge conflicts by merging with `trunk` as this will introduce new and unexpected changes into the release. Instead, leave the conflicts until the release is integrated into the main apps, and then resolve the conflicts when merging the PRs back to `trunk`. Optionally, a second clone of the release branch can be created to verify the CI checks.</p>
+<p>o Mark all 4 PRs ready for review and request review from the team. </p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph {"style":{"color":{"background":"#fcb900ba"}}} -->
+<p class="has-background" style="background-color:#fcb900ba">⚠️ In some release cases (like beta fixes), it's likely that the PRs could have conflicts with <code>trunk</code>. In this case, do not resolve merge conflicts by merging with <code>trunk</code> as this will introduce new and unexpected changes to the release. Instead, leave the conflicts until the release is integrated into the main apps, and then resolve the conflicts when merging the PRs back to <code>trunk</code>. Optionally, a second clone of the release branch can be created to verify the CI checks.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
@@ -256,7 +260,6 @@ For the body of the post, just copy this checklist and again replace all occurre
 <p>o Merge the <strong>gutenberg-mobile</strong> PR to <code>trunk</code>. Use "Create a merge commit" option when merging to avoid losing any commit history from the release branch.</p>
 <!-- /wp:paragraph -->
 
-
 <!-- wp:heading {"level":3} -->
 <h3>Clean Up Pending Work (After main apps cut)</h3>
 <!-- /wp:heading -->
@@ -292,6 +295,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- wp:paragraph -->
 <p>o Complete the <a href="https://docs.google.com/spreadsheets/d/1uJ_o1t5fxeCRfGWTTImmieNgXf_sLflB1iOnKLyhPAw/edit#gid=0">functionality tests scheduled for Android</a>.</p>
 <!-- /wp:paragraph -->
+
 <!-- wp:paragraph -->
 <p>o Complete the <a href="https://docs.google.com/spreadsheets/d/1uJ_o1t5fxeCRfGWTTImmieNgXf_sLflB1iOnKLyhPAw/edit#gid=0">functionality tests scheduled for iOS</a>.</p>
 <!-- /wp:paragraph -->
