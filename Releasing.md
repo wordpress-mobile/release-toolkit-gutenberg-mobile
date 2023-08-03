@@ -99,6 +99,42 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
+<p>o <a href="https://github.com/wordpress-mobile/gutenberg-mobile/releases/new?tag=vX.XX.X&amp;target=release/X.XX.X&amp;title=Release%20X.XX.X">Create a new gutenberg-mobile GitHub Release</a>. Include a list of changes in the Release description. Ensure the checkmark "Set as the latest release" is checked, and <strong>save the draft</strong>. </p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph {"style":{"color":{"background":"#fcb900ba"}}} -->
+<p class="has-background" style="background-color:#fcb900ba">⚠️ Do not publish the release yet with the "Publish release" button, this will be done during the integration phase.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:group -->
+<div class="wp-block-group"><!-- wp:paragraph -->
+<p>o Attach the generated source maps to the GitHub release <em>(you can drag and drop the files in the "Attach binaries" drop area)</em>. Once they are uploaded, prepend to the artifact's name the platform name. The following list contains the files to be uploaded and the expected artifact's name:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul><!-- wp:list-item -->
+<li>File: <code>bundle/android/App.js.map</code> - Artifact name: <code>android-App.js.map</code></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>File: <code>bundle/android/App.text.js.map</code> - Artifact name: <code>android-<code>App.text.js.map</code></code></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>File: <code>bundle/ios/<code>App.js.map</code></code> - Artifact name: <code>ios-App.js.map</code></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>File: <code>bundle/ios/App.text.js.map</code> - Artifact name: <code>ios-<code>App.text.js.map</code></code></li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p></p>
+<!-- /wp:paragraph --></div>
+<!-- /wp:group -->
+
+<!-- wp:paragraph -->
 <p>o If this is a release for inclusion in the frozen WPiOS and WPAndroid release branches (i.e. this is a beta/hot fix, e.g. X.XX.2), ping the directly responsible individual handing the release of each platform of the main apps.</p>
 <!-- /wp:paragraph -->
 
@@ -159,14 +195,16 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Ensure that the bundle files are updated to include any changes to the release branch by running <code>npm run bundle</code> in gutenberg-mobile release branch and committing any changes. </p>
+<p>o Ensure that the bundle files are updated to include any changes to the release branch by running <code>npm run bundle</code> in gutenberg-mobile release branch and committing any changes.</p>
 <!-- /wp:paragraph -->
 
+<!-- wp:paragraph {"style":{"color":{"background":"#fcb900ba"}}} -->
+<p class="has-background" style="background-color:#fcb900ba">⚠️ If the bundles have changed, upload and replace the source maps in the gutenberg-mobile GitHub release. </p>
+<!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o <a href="https://github.com/wordpress-mobile/gutenberg-mobile/releases/new?tag=vX.XX.X&amp;target=release/X.XX.X&amp;title=Release%20X.XX.X">Create a new gutenberg-mobile GitHub Release</a>. Include a list of changes in the Release description. Ensure the checkmark next "Set as the latest release" is checked, and publish the release with the "Publish release" button.</p>
+<p>o Publish the gutenberg-mobile GitHub Release with the "Publish release" button.</p>
 <!-- /wp:paragraph -->
-
 
 <!-- wp:paragraph -->
 <p>o In WPiOS, update the reference to point to the <em>tag</em> of the Release created in the previous task. </p>
