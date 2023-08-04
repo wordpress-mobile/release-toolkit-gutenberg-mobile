@@ -61,7 +61,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Review the <a href="https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/blob/develop/Releasing.md">release script instructions</a>. In your clone of the release scripts, run the script via:  <code>./release_automation.sh</code>. This creates the gutenberg and gutenberg-mobile release PRs as well as WPAndroid and WPiOS integration PRs.<br><br><strong>Note:</strong> You might want to wait a bit before confirming WPAndroid PR creation so gutenberg-mobile can have enough time to finish the <code>Build Android RN Bridge &amp; Publish to S3</code> job on CI which is needed by WPAndroid CI.</p>
+<p>o Review the <a href="https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/blob/develop/Releasing.md">release script instructions</a>. In your clone of the release scripts, run the script via:  <code>./release_automation.sh</code>. This creates the gutenberg and gutenberg-mobile release PRs as well as WPAndroid and WPiOS integration PRs.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:group -->
@@ -83,7 +83,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Verify the WPAndroid and iOS PR builds succeed. For WPAndroid, if the PR CI tasks include a 403 error related to an inability to resolve the <code>react-native-bridge</code> dependency, you must wait for the <code>Build Android RN Bridge &amp; Publish to S3</code> task to succeed in gutenberg-mobile and then restart the WPAndroid CI tasks.</p>
+<p>o Verify the WPAndroid and WPiOS PR builds succeed. For WPAndroid, if the PR CI tasks include a 403 error related to an inability to resolve the <code>react-native-bridge</code> dependency, you must wait for the <code>Build Android RN Bridge &amp; Publish to S3</code> task to succeed in gutenberg-mobile and then restart the WPAndroid CI tasks. Similarly, for iOS, you must wait for the <code>Build iOS RN XCFramework &amp; Publish to S3</code> task to succeed.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
