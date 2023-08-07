@@ -61,7 +61,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Review the <a href="https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/blob/develop/Releasing.md">release script instructions</a>. In your clone of the release scripts, run the script via:  <code>./release_automation.sh</code>. This creates the gutenberg and gutenberg-mobile release PRs as well as WPAndroid and WPiOS integration PRs.<br><br><strong>Note:</strong> You might want to wait a bit before confirming WPAndroid PR creation so gutenberg-mobile can have enough time to finish the <code>Build Android RN Bridge &amp; Publish to S3</code> job on CI which is needed by WPAndroid CI.</p>
+<p>o Review the <a href="https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/blob/develop/Releasing.md">release script instructions</a>. In your clone of the release scripts, run the script via:  <code>./release_automation.sh</code>. This creates the gutenberg and gutenberg-mobile release PRs as well as WPAndroid and WPiOS integration PRs.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:group -->
@@ -83,7 +83,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Verify the WPAndroid and iOS PR builds succeed. For WPAndroid, if the PR CI tasks include a 403 error related to an inability to resolve the <code>react-native-bridge</code> dependency, you must wait for the <code>Build Android RN Bridge &amp; Publish to S3</code> task to succeed in gutenberg-mobile and then restart the WPAndroid CI tasks.</p>
+<p>o Verify the WPAndroid and WPiOS PR builds succeed. For WPAndroid, if the PR CI tasks include a 403 error related to an inability to resolve the <code>react-native-bridge</code> dependency, you must wait for the <code>Build Android RN Bridge &amp; Publish to S3</code> task to succeed in gutenberg-mobile and then restart the WPAndroid CI tasks. Similarly, for iOS, you must wait for the <code>Build iOS RN XCFramework &amp; Publish to S3</code> task to succeed.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
@@ -95,7 +95,11 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Mark all 4 PRs ready for review and request review from your release wrangler buddy. <br><br><strong>Note:</strong> In some release cases (like betafixes), it's likely that the PRs could have conflicts with `trunk`. In this case, do not resolve merge conflicts by merging with `trunk` as this will introduce new and unexpected changes into the release. Instead, leave the conflicts until the release is integrated into the main apps, and then resolve the conflicts when merging the PRs back to `trunk`. Optionally, a second clone of the release branch can be created to verify the CI checks.</p>
+<p>o Mark all 4 PRs ready for review and request review from the team. </p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph {"style":{"color":{"background":"#fcb900ba"}}} -->
+<p class="has-background" style="background-color:#fcb900ba">⚠️ In some release cases (like beta fixes), it's likely that the PRs could have conflicts with <code>trunk</code>. In this case, do not resolve merge conflicts by merging with <code>trunk</code> as this will introduce new and unexpected changes to the release. Instead, leave the conflicts until the release is integrated into the main apps, and then resolve the conflicts when merging the PRs back to <code>trunk</code>. Optionally, a second clone of the release branch can be created to verify the CI checks.</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
@@ -159,14 +163,40 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
-<p>o Ensure that the bundle files are updated to include any changes to the release branch by running <code>npm run bundle</code> in gutenberg-mobile release branch and committing any changes. </p>
+<p>o Ensure that the bundle files are updated to include any changes to the release branch by running <code>npm run bundle</code> in gutenberg-mobile release branch and committing any changes.</p>
 <!-- /wp:paragraph -->
-
 
 <!-- wp:paragraph -->
-<p>o <a href="https://github.com/wordpress-mobile/gutenberg-mobile/releases/new?tag=vX.XX.X&amp;target=release/X.XX.X&amp;title=Release%20X.XX.X">Create a new gutenberg-mobile GitHub Release</a>. Include a list of changes in the Release description. Ensure the checkmark next "Set as the latest release" is checked, and publish the release with the "Publish release" button.</p>
+<p>o <a href="https://github.com/wordpress-mobile/gutenberg-mobile/releases/new?tag=vX.XX.X&amp;target=release/X.XX.X&amp;title=Release%20X.XX.X">Create a new gutenberg-mobile GitHub Release</a>. Include a list of changes in the Release description. Ensure the checkmark "Set as the latest release" is checked, and <strong>publish the release with the "Publish release" button.</strong></p>
 <!-- /wp:paragraph -->
 
+<!-- wp:paragraph -->
+<p>o Wait until all CI jobs for the published tag finish and succeed.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p>o Navigate to the Buildkite job that built the JS bundles (<code>Build JS Bundles</code>) for the published tag. Open the job and navigate to the "Artifacts" tab. Locate the composed source maps (they have file name <code>bundle/{platform}/App.composed.js.map</code>) and download them.</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:group -->
+<div class="wp-block-group"><!-- wp:paragraph -->
+<p>o Navigate and edit the GitHub release. Attach the composed source maps to the release <em>(you can drag and drop the files in the "Attach binaries" drop area)</em>. Once they are uploaded, update the artifact's name following this format:</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:list -->
+<ul><!-- wp:list-item -->
+<li>File: <code><code>bundle/android/App.composed.js.map</code></code> - Artifact name: <code>android-App.js.map</code></li>
+<!-- /wp:list-item -->
+
+<!-- wp:list-item -->
+<li>File: <code><code>bundle/ios/App.composed.js.map</code></code> - Artifact name: <code>ios-App.js.map</code></li>
+<!-- /wp:list-item --></ul>
+<!-- /wp:list -->
+
+<!-- wp:paragraph -->
+<p></p>
+<!-- /wp:paragraph --></div>
+<!-- /wp:group -->
 
 <!-- wp:paragraph -->
 <p>o In WPiOS, update the reference to point to the <em>tag</em> of the Release created in the previous task. </p>
@@ -218,7 +248,6 @@ For the body of the post, just copy this checklist and again replace all occurre
 <p>o Merge the <strong>gutenberg-mobile</strong> PR to <code>trunk</code>. Use "Create a merge commit" option when merging to avoid losing any commit history from the release branch.</p>
 <!-- /wp:paragraph -->
 
-
 <!-- wp:heading {"level":3} -->
 <h3>Clean Up Pending Work (After main apps cut)</h3>
 <!-- /wp:heading -->
@@ -254,6 +283,7 @@ For the body of the post, just copy this checklist and again replace all occurre
 <!-- wp:paragraph -->
 <p>o Complete the <a href="https://docs.google.com/spreadsheets/d/1uJ_o1t5fxeCRfGWTTImmieNgXf_sLflB1iOnKLyhPAw/edit#gid=0">functionality tests scheduled for Android</a>.</p>
 <!-- /wp:paragraph -->
+
 <!-- wp:paragraph -->
 <p>o Complete the <a href="https://docs.google.com/spreadsheets/d/1uJ_o1t5fxeCRfGWTTImmieNgXf_sLflB1iOnKLyhPAw/edit#gid=0">functionality tests scheduled for iOS</a>.</p>
 <!-- /wp:paragraph -->
