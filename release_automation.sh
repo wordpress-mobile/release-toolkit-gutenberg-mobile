@@ -349,18 +349,7 @@ execute "git" "push" "-u" "origin" "HEAD"
 ohai "Create release branch in WordPress-iOS"
 execute "git" "switch" "-c" "gutenberg/integrate_release_$VERSION_NUMBER"
 
-ohai "Update GitHub organization and gutenberg-mobile ref"
-ios_config_file="Gutenberg/config.yml"
-test -f "$ios_config_file" || abort "Error: Could not find $ios_config_file"
-yq eval ".github_org= \"$MOBILE_REPO\"" "$ios_config_file" -i || abort "Error: Failed updating GitHub organization in $ios_config_file"
-# Make iOS point to the given commit, removing the configured tag, if any
-yq eval ".ref.commit = \"$GB_MOBILE_PR_REF\"" "$ios_config_file" -i || abort "Error: Failed updating gutenberg ref in $ios_config_file (part 1 of 2, setting the commit)"
-yq eval 'del(.ref.tag)' "$ios_config_file" -i || abort "Error: Failed updating gutenberg ref in $ios_config_file (part 2 of 2, commenting the tag)"
-execute "bundle" "install"
-execute_until_succeeds "rake" "dependencies"
-
-execute "git" "add" "Podfile" "Podfile.lock" "$ios_config_file"
-execute "git" "commit" "-m" "Release script: Update gutenberg-mobile ref"
+update_ios_gutenberg_config 'Gutenberg/config.yml' "$GB_MOBILE_PR_REF" $MOBILE_REPO
 
 ohai "Push integration branch"
 execute "git" "push" "-u" "origin" "HEAD"
