@@ -417,7 +417,7 @@ At the same time there could also be a regular release, a betafix or even anothe
 | Repo             | Cut From                | Branch Name                        | Merging To                                                       |
 | ---------------- | ----------------------- | ---------------------------------- | ---------------------------------------------------------------- |
 | gutenberg        | rnmobile/release_1.11.0 (tag) | rnmobile/release_1.11.1            | trunk & (maybe also) rnmobile/release_1.12.1                     |
-| gutenberg-mobile | v1.11.1 (tag)          | release/1.11.1                     | trunk & (maybe also) release/1.12.1                              |
+| gutenberg-mobile | v1.11.0 (tag)          | release/1.11.1                     | trunk & (maybe also) release/1.12.1                              |
 | WPAndroid        | release/22.2.0          | gutenberg/integrate_release_1.11.1 | release/22.2.1 & (maybe also) gutenberg/integrate_release_1.12.1 |
 | WPiOS            | release/22.2.0          | gutenberg/integrate_release_1.11.1 | release/22.2.1 & (maybe also) gutenberg/integrate_release_1.12.1 |
 
