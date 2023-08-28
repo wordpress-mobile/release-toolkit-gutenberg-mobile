@@ -83,3 +83,29 @@ function confirm_to_proceed() {
         abort "Aborting release..."
     fi
 }
+
+# Automation steps
+#
+# These could live in a dedicated file, because "utils" is a misleading name where to put them.
+# However, they depend on functions such as execute and ohai, so for the moment it's easier to have them in here.
+function update_ios_gutenberg_config() {
+  ios_config_file=$1
+  ref=$2
+  github_org=$3
+
+  ohai "Update GitHub organization and gutenberg-mobile ref"
+
+  test -f "$ios_config_file" || abort "Error: Could not find $ios_config_file"
+
+  yq eval ".github_org= \"$github_org\"" "$ios_config_file" -i || abort "Error: Failed updating GitHub organization in $ios_config_file"
+
+  # Make iOS point to the given commit, removing the configured tag, if any
+  yq eval ".ref.commit = \"$ref\"" "$ios_config_file" -i || abort "Error: Failed updating gutenberg ref in $ios_config_file (part 1 of 2, setting the commit)"
+  yq eval 'del(.ref.tag)' "$ios_config_file" -i || abort "Error: Failed updating gutenberg ref in $ios_config_file (part 2 of 2, commenting the tag)"
+
+  execute "bundle" "install"
+  execute_until_succeeds "rake" "dependencies"
+
+  execute "git" "add" "Podfile" "Podfile.lock" "$ios_config_file"
+  execute "git" "commit" "-m" "Release script: Update gutenberg-mobile ref"
+}
