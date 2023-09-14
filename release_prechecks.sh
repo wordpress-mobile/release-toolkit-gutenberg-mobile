@@ -46,7 +46,7 @@ function check_android_aztec_is_release_version() {
 function check_ios_aztec_is_release_version() {
     result=''
 
-    podspec_file="$GB_MOBILE_PATH/RNTAztecView.podspec"
+    podspec_file="$GB_MOBILE_PATH/gutenberg/packages/react-native-aztec/RNTAztecView.podspec"
     aztec_version=$(grep WordPress-Aztec-iOS "$podspec_file" | grep -oE "$SEMANTIC_VERSION_REGEX")
     if [[ -z "$aztec_version" ]]; then
         result="A release version for WordPress-Aztec-iOS was not found in $podspec_file"
