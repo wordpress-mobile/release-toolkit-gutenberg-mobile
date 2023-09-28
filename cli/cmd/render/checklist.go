@@ -10,6 +10,7 @@ import (
 )
 
 var Version string
+var HostVersion string
 var Message string
 var ReleaseDate string
 
@@ -57,10 +58,10 @@ var ChecklistCmd = &cobra.Command{
 				"date": "%s",
 				"message" : "%s",
 				"releaseUrl": "%s",
-				"mobileVersion": ""
+				"hostVersion": "%s"
 			}
 			`,
-			Version, scheduled, ReleaseDate, Message, releaseUrl)
+			Version, scheduled, ReleaseDate, Message, releaseUrl, HostVersion)
 
 		renderTask := func(format string, args ...interface{}) string {
 			t := struct{ Task string }{
@@ -88,4 +89,5 @@ func init() {
 	ChecklistCmd.MarkFlagRequired("version")
 	ChecklistCmd.Flags().StringVarP(&Message, "message", "m", "", "release message")
 	ChecklistCmd.Flags().StringVarP(&ReleaseDate, "date", "d", "", "release date")
+	ChecklistCmd.Flags().StringVarP(&HostVersion, "host-version", "V", "X.XX", "host app version")
 }
