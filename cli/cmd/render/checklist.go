@@ -29,6 +29,14 @@ var ChecklistCmd = &cobra.Command{
 	Long: `
 `,
 	Run: func(cmd *cobra.Command, args []string) {
+
+		vv := gbm.ValidateVersion(Version)
+
+		if !vv {
+			fmt.Printf("%v is not a valid version. Versions must have a `Major.Minor.Patch` form\n", Version)
+			os.Exit(1)
+		}
+
 		var scheduled string
 		if s := gbm.IsScheduledRelease(Version); s {
 			scheduled = "true"
