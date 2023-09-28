@@ -16,6 +16,32 @@ func TestNextReleaseDate(t *testing.T) {
 	})
 }
 
+func TestValidVersion(t *testing.T) {
+	t.Run("It returns true for a valid scheduled release", func(t *testing.T) {
+		got := ValidateVersion("1.0.0")
+
+		if !got {
+			t.Fatalf("Expected %v to be true", got)
+		}
+	})
+
+	t.Run("It returns true for a valid non-scheduled release", func(t *testing.T) {
+		got := ValidateVersion("1.0.1")
+
+		if !got {
+			t.Fatalf("Expected %v to be true", got)
+		}
+	})
+
+	t.Run("It returns false when the patch value is missing", func(t *testing.T) {
+		got := ValidateVersion("1.0")
+
+		if got {
+			t.Fatalf("Expected %v to be false", got)
+		}
+	})
+}
+
 func TestIsScheduledRelease(t *testing.T) {
 
 	t.Run("It returns true if the release is scheduled", func(t *testing.T) {

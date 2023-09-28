@@ -5,6 +5,11 @@ import (
 	"time"
 )
 
+func ValidateVersion(version string) bool {
+	re := regexp.MustCompile(`v*(\d+)\.(\d+)\.(\d+)$`)
+	return re.MatchString(version)
+}
+
 func IsScheduledRelease(version string) bool {
 	re := regexp.MustCompile(`^v*(\d+)\.(\d+)\.0$`)
 	return re.MatchString(version)
