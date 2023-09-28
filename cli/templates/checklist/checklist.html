@@ -135,21 +135,25 @@ and don't forget to run <code>npm run bundle</code> in gutenberg-mobile again if
 
 {{ renderTask `Main apps PRs should be ready to merge to their <code>trunk</code> branches now. Merge them or get them merged.`}}
 
+<!-- wp:group -->
+<div class="wp-block-group">
 {{ if not .scheduled }}
-  {{ renderTask `Once everything is merged, send a heads up to our friends in the <code>#apps-infrastructure-formerly-platform9</code> Slack channel. Since this is a beta/hot fix (e.g. X.XX.2), directly mention the relevant Excellence Wranglers for the release with the following message:` }}
+{{ renderTask `Once everything is merged, send a heads up to our friends in the <code>#apps-infrastructure-formerly-platform9</code> Slack channel. Since this is a beta/hot fix (e.g. X.XX.2), directly mention the relevant Excellence Wranglers for the release with the following message:` }}
   <!-- wp:quote -->
   <blockquote class="wp-block-quote">
-    <p>Hey team. I wanted to let you know that the mobile Gutenberg team has finished integrating the {{ .version }} Gutenberg release into the WPiOS and WPAndroid `release/{{ .mobileVersion }}` branches, ready for a new beta when you are available. Please let me know if you have any questions. Thanks!</p>
+    <p>Hey team. I wanted to let you know that the mobile Gutenberg team has finished integrating the {{ .version }} Gutenberg release into the WPiOS and WPAndroid <code>release/{{ .mobileVersion }}</code> branches, ready for a new beta when you are available. Please let me know if you have any questions. Thanks!</p>
   </blockquote>
   <!-- /wp:quote -->
 {{ else }}
-  {{ renderTask `Once everything is merged, send a heads up to our friends in the <code>#apps-infrastructure-formerly-platform9</code> Slack channel with the following message:` }}
+{{ renderTask `Once everything is merged, send a heads up to our friends in the <code>#apps-infrastructure-formerly-platform9</code> Slack channel with the following message:` }}
   <!-- wp:quote -->
   <blockquote class="wp-block-quote">
-    <p>Hey team. I wanted to let you know that the mobile Gutenberg team has finished integrating the {{ .version }} Gutenberg release into the WPiOS and WPAndroid `trunk` branches. The integration is ready for the next release cut/build creation when you are available. Please let me know if you have any questions. Thanks! </p>
+    <p>Hey team. I wanted to let you know that the mobile Gutenberg team has finished integrating the {{ .version }} Gutenberg release into the WPiOS and WPAndroid <code>trunk</code> branches. The integration is ready for the next release cut/build creation when you are available. Please let me know if you have any questions. Thanks!</p>
   </blockquote>
   <!-- /wp:quote -->
 {{ end }}
+</div>
+<!-- /wp:group -->
 
 {{ renderTask `Close the <a href="https://github.com/wordpress-mobile/gutenberg-mobile/milestones">Gutenberg Mobile milestone</a> that corresponds to this release.` }}
 
