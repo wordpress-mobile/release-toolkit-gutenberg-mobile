@@ -20,6 +20,10 @@ type Checklist struct {
 	Version   string
 	Scheduled bool
 }
+type task struct {
+	Description string
+	Checked     bool
+}
 
 func (c *Checklist) Task(format string, args ...interface{}) string {
 	return fmt.Sprintf(format, args...)
@@ -39,16 +43,20 @@ var ChecklistCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
+		aztecValid := "false"
 		if CheckAztec {
-			vav := gbm.ValidateAztecVersions()
+			if av := gbm.ValidateAztecVersions(); av {
+				aztecValid = "true"
+			} else {
+				aztecValid = "false"
+			}
 
 			if !Quite {
 				fmt.Fprintln(os.Stderr, "Checking Aztec versions...")
 
-				if vav {
+				if aztecValid == "true" {
 					fmt.Fprintln(os.Stderr, "Aztec looks good. Omitting the optional Aztec release section.")
 				} else {
-
 					fmt.Fprintln(os.Stderr, "NOTE: Adding update Aztec section")
 				}
 			}
@@ -74,20 +82,16 @@ var ChecklistCmd = &cobra.Command{
 				"date": "%s",
 				"message" : "%s",
 				"releaseUrl": "%s",
-				"hostVersion": "%s"
+				"hostVersion": "%s",
+				"aztecValid": "%s"
 			}
 			`,
-			Version, scheduled, ReleaseDate, Message, releaseUrl, HostVersion)
+			Version, scheduled, ReleaseDate, Message, releaseUrl, HostVersion, aztecValid)
 
-		renderTask := func(checked bool, format string, args ...interface{}) string {
-			t := struct {
-				Task    string
-				Checked bool
-			}{
-				Task:    fmt.Sprintf(format, args...),
-				Checked: checked,
+		Task := func(format string, args ...interface{}) string {
+			t := task{
+				Description: fmt.Sprintf(format, args...),
 			}
-
 			res, err := render.Render("templates/checklist/task.html", t, nil)
 			if err != nil {
 				fmt.Println(err)
@@ -95,14 +99,8 @@ var ChecklistCmd = &cobra.Command{
 			}
 			return res
 		}
-		CheckedTask := func(format string, args ...interface{}) string {
-			return renderTask(true, format, args)
-		}
-		Task := func(format string, args ...interface{}) string {
-			return renderTask(false, format, args)
-		}
 
-		result, err := render.RenderJSON("templates/checklist/checklist.html", jsonData, map[string]any{"Task": Task, "CheckedTask": CheckedTask})
+		result, err := render.RenderJSON("templates/checklist/checklist.html", jsonData, map[string]any{"Task": Task})
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)

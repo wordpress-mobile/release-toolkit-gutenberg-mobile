@@ -84,6 +84,8 @@ We will perform additional testing after the main apps cut their releases.` }}
 {{ Task `If this is a release for inclusion in the frozen WPiOS and WPAndroid release branches (i.e. this is a beta/hot fix, e.g. X.XX.2),
  ping the directly responsible individual handing the release of each platform of the main apps.` }}
 {{ end }}
+
+{{ if not .aztecValid }}
 <!-- wp:heading {"level":3} -->
 <h3 id="create-a-new-aztec-release">Create an Aztec Release</h3>
 <!-- /wp:heading -->
@@ -105,7 +107,7 @@ We will perform additional testing after the main apps cut their releases.` }}
 
 {{ Task `Update Aztec version references within <code>gutenberg-mobile/RNTAztecView.podspec</code> and <code>gutenberg-mobile/gutenberg/packages/react-native-aztec/RNTAztecView.podspec</code>
  to the new <code>WordPress-Aztec-iOS</code> version.` }}
-
+{{ end }}
 <!-- wp:heading {"level":3} -->
 <h3>Manage Incoming Changes (conditional)</h3>
 <!-- /wp:heading -->
