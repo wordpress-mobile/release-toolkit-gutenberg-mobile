@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/wordpress-mobile/gbm-cli/internal/gbm"
+	"github.com/wordpress-mobile/gbm-cli/pkg/gbm"
 	"github.com/wordpress-mobile/gbm-cli/pkg/render"
 )
 
@@ -13,6 +13,8 @@ var Version string
 var HostVersion string
 var Message string
 var ReleaseDate string
+var CheckAztec bool
+var Quite bool
 
 type Checklist struct {
 	Version   string
@@ -32,10 +34,24 @@ var ChecklistCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 
 		vv := gbm.ValidateVersion(Version)
-
 		if !vv {
 			fmt.Printf("%v is not a valid version. Versions must have a `Major.Minor.Patch` form\n", Version)
 			os.Exit(1)
+		}
+
+		if CheckAztec {
+			vav := gbm.ValidateAztecVersions()
+
+			if !Quite {
+				fmt.Fprintln(os.Stderr, "Checking Aztec versions...")
+
+				if vav {
+					fmt.Fprintln(os.Stderr, "Aztec looks good. Omitting the optional Aztec release section.")
+				} else {
+
+					fmt.Fprintln(os.Stderr, "NOTE: Adding update Aztec section")
+				}
+			}
 		}
 
 		var scheduled string
@@ -89,5 +105,7 @@ func init() {
 	ChecklistCmd.MarkFlagRequired("version")
 	ChecklistCmd.Flags().StringVarP(&Message, "message", "m", "", "release message")
 	ChecklistCmd.Flags().StringVarP(&ReleaseDate, "date", "d", "", "release date")
+	ChecklistCmd.Flags().BoolVar(&CheckAztec, "a", false, "Check if Aztec config is valid before adding the optional update Aztec section")
 	ChecklistCmd.Flags().StringVarP(&HostVersion, "host-version", "V", "X.XX", "host app version")
+	ChecklistCmd.Flags().BoolVar(&Quite, "q", true, "Silence command info logging")
 }
