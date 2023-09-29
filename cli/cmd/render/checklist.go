@@ -79,9 +79,13 @@ var ChecklistCmd = &cobra.Command{
 			`,
 			Version, scheduled, ReleaseDate, Message, releaseUrl, HostVersion)
 
-		renderTask := func(format string, args ...interface{}) string {
-			t := struct{ Task string }{
-				Task: fmt.Sprintf(format, args...),
+		renderTask := func(checked bool, format string, args ...interface{}) string {
+			t := struct {
+				Task    string
+				Checked bool
+			}{
+				Task:    fmt.Sprintf(format, args...),
+				Checked: checked,
 			}
 
 			res, err := render.Render("templates/checklist/task.html", t, nil)
@@ -91,7 +95,14 @@ var ChecklistCmd = &cobra.Command{
 			}
 			return res
 		}
-		result, err := render.RenderJSON("templates/checklist/checklist.html", jsonData, map[string]any{"renderTask": renderTask})
+		CheckedTask := func(format string, args ...interface{}) string {
+			return renderTask(true, format, args)
+		}
+		Task := func(format string, args ...interface{}) string {
+			return renderTask(false, format, args)
+		}
+
+		result, err := render.RenderJSON("templates/checklist/checklist.html", jsonData, map[string]any{"Task": Task, "CheckedTask": CheckedTask})
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
