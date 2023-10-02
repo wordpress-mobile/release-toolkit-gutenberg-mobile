@@ -3,6 +3,7 @@ package render
 import (
 	"fmt"
 	"os"
+	"text/template"
 
 	"github.com/spf13/cobra"
 	"github.com/wordpress-mobile/gbm-cli/pkg/gbm"
@@ -15,19 +16,6 @@ var Message string
 var ReleaseDate string
 var CheckAztec bool
 var Quite bool
-
-type Checklist struct {
-	Version   string
-	Scheduled bool
-}
-type task struct {
-	Description string
-	Checked     bool
-}
-
-func (c *Checklist) Task(format string, args ...interface{}) string {
-	return fmt.Sprintf(format, args...)
-}
 
 // checklistCmd represents the checklist command
 var ChecklistCmd = &cobra.Command{
@@ -43,31 +31,14 @@ var ChecklistCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		aztecValid := "false"
+		// For now let's assume we should include the Aztec steps unless explicitly checking if the versions are valid.
+		// We'll render the aztec steps with the optional
+		includeAztec := true
 		if CheckAztec {
-			if av := gbm.ValidateAztecVersions(); av {
-				aztecValid = "true"
-			} else {
-				aztecValid = "false"
-			}
-
-			if !Quite {
-				fmt.Fprintln(os.Stderr, "Checking Aztec versions...")
-
-				if aztecValid == "true" {
-					fmt.Fprintln(os.Stderr, "Aztec looks good. Omitting the optional Aztec release section.")
-				} else {
-					fmt.Fprintln(os.Stderr, "NOTE: Adding update Aztec section")
-				}
-			}
+			includeAztec = gbm.ValidateAztecVersions()
 		}
 
-		var scheduled string
-		if s := gbm.IsScheduledRelease(Version); s {
-			scheduled = "true"
-		} else {
-			scheduled = "false"
-		}
+		scheduled := gbm.IsScheduledRelease(Version)
 
 		if ReleaseDate == "" {
 			ReleaseDate = gbm.NextReleaseDate()
@@ -75,37 +46,30 @@ var ChecklistCmd = &cobra.Command{
 
 		releaseUrl := fmt.Sprintf("https://github.com/wordpress-mobile/gutenberg-mobile/releases/new?tag=v%s&target=release/%s&title=Release+%s", Version, Version, Version)
 
-		jsonData := fmt.Sprintf(`
-			{
-				"version": "%s",
-				"scheduled": %s,
-				"date": "%s",
-				"message" : "%s",
-				"releaseUrl": "%s",
-				"hostVersion": "%s",
-				"aztecValid": "%s"
-			}
-			`,
-			Version, scheduled, ReleaseDate, Message, releaseUrl, HostVersion, aztecValid)
-
-		Task := func(format string, args ...interface{}) string {
-			t := task{
-				Description: fmt.Sprintf(format, args...),
-			}
-			res, err := render.Render("templates/checklist/task.html", t, nil)
-			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
-			}
-			return res
+		t := render.Template{
+			Path: "templates/checklist/checklist.html",
+			Json: fmt.Sprintf(`
+				{
+					"version": "%s",
+					"scheduled": %v,
+					"date": "%s",
+					"message" : "%s",
+					"releaseUrl": "%s",
+					"hostVersion": "%s",
+					"includeAztec": %v,
+					"checkAztec": %v}
+				`,
+				Version, scheduled, ReleaseDate, Message, releaseUrl, HostVersion, !includeAztec, CheckAztec),
+			Funcs: template.FuncMap{"RenderAztecSteps": renderAztecSteps},
 		}
 
-		result, err := render.RenderJSON("templates/checklist/checklist.html", jsonData, map[string]any{"Task": Task})
+		result, err := render.RenderTasks(t)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
 		fmt.Println(result)
+
 	},
 }
 

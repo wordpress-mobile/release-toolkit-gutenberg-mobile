@@ -12,13 +12,15 @@ func init() {
 	TemplateFS = templatesFS
 }
 
-func TestRender(t *testing.T) {
+func TestRenderJSON(t *testing.T) {
 
 	t.Run("It renders a template with the given JSON", func(t *testing.T) {
-		templatePath := "testdata/test_template.txt"
-		rawJSON := `{"world": "World"}`
+		tmplt := Template{
+			Path: "testdata/test_template.txt",
+			Json: `{"world": "World"}`,
+		}
 
-		got, err := RenderJSON(templatePath, rawJSON, nil)
+		got, err := RenderJSON(tmplt)
 		assertNoError(t, err)
 
 		if got != "Hello World" {
@@ -27,43 +29,65 @@ func TestRender(t *testing.T) {
 	})
 
 	t.Run("It returns an error if the JSON is invalid", func(t *testing.T) {
-		templatePath := "testdata/test_template.txt"
-		rawJSON := `{"world": "World"`
+		tmplt := Template{
+			Path: "testdata/test_template.txt",
+			Json: `{"world": "World`,
+		}
 
-		_, err := RenderJSON(templatePath, rawJSON, nil)
+		_, err := RenderJSON(tmplt)
 		assertError(t, err)
 	})
 
 	t.Run("It returns an error if the template is invalid", func(t *testing.T) {
-		templatePath := "testdata/invalid_template.txt"
-		rawJSON := `{"world": "World"}`
+		tmplt := Template{
+			Path: "testdata/invalid_template.txt",
+			Json: `{"world": "World`,
+		}
 
-		_, err := RenderJSON(templatePath, rawJSON, nil)
+		_, err := RenderJSON(tmplt)
 		assertError(t, err)
 	})
 
 	t.Run("It returns an error if the template is missing", func(t *testing.T) {
-		templatePath := "testdata/missing_template.txt"
-		rawJSON := `{"world": "World"}`
-		_, err := RenderJSON(templatePath, rawJSON, nil)
+
+		tmplt := Template{
+			Path: "testdata/missing_template.txt",
+			Json: `{"world": "World`,
+		}
+		_, err := RenderJSON(tmplt)
 		assertError(t, err)
 	})
 
 	t.Run("It renders with custom functions", func(t *testing.T) {
-		templatePath := "testdata/func_template.txt"
-		rawJSON := "{}"
 
-		funcs := map[string]any{
-			"echo": func(str string) string {
-				return str
+		tmplt := Template{
+			Path: "testdata/func_template.txt",
+			Json: `{}`,
+			Funcs: map[string]any{
+				"echo": func(str string) string {
+					return str
+				},
 			},
 		}
 
-		got, err := RenderJSON(templatePath, rawJSON, funcs)
+		got, err := RenderJSON(tmplt)
 		assertNoError(t, err)
 
 		if got != "Hello Custom" {
 			t.Fatalf("Expected %s, got %s", "Hello Custom\n", got)
+		}
+	})
+
+	t.Run("It renders with no json data", func(t *testing.T) {
+		tmplt := Template{
+			Path: "testdata/basic_template.txt",
+		}
+
+		got, err := RenderJSON(tmplt)
+		assertNoError(t, err)
+
+		if got != "Hello World!" {
+			t.Fatalf("Expected %s, got %s", "Hello World!\n", got)
 		}
 	})
 }
