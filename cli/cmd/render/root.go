@@ -25,6 +25,6 @@ var RootCmd = &cobra.Command{
 
 func init() {
 	RootCmd.AddCommand(ChecklistCmd)
-
-	ChecklistCmd.Flags().BoolVar(&writeToClipboard, "c", false, "Send output to clipboard")
+	RootCmd.AddCommand(AztecCmd)
+	RootCmd.PersistentFlags().BoolVar(&writeToClipboard, "c", false, "Send output to clipboard")
 }
