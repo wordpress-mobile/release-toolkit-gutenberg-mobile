@@ -6,6 +6,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var writeToClipboard bool
+
 // renderCmd represents the render command
 var RootCmd = &cobra.Command{
 	Use:   "render",
@@ -23,4 +25,6 @@ var RootCmd = &cobra.Command{
 
 func init() {
 	RootCmd.AddCommand(ChecklistCmd)
+
+	ChecklistCmd.Flags().BoolVar(&writeToClipboard, "c", false, "Send output to clipboard")
 }

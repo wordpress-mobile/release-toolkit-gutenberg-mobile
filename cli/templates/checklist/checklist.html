@@ -29,6 +29,10 @@
 <!-- /wp:group -->
 {{ end }}
 
+{{ if and .checkAztec .includeAztec }}
+{{ RenderAztecSteps false}}
+{{ end }}
+
 <!-- wp:heading {"level":3} -->
 <h3>Create the Release{{ if .scheduled }} (Thursday) {{end}}</h3>
 <!-- /wp:heading -->
@@ -88,7 +92,7 @@ We will perform additional testing after the main apps cut their releases.` }}
  ping the directly responsible individual handing the release of each platform of the main apps.` }}
 {{ end }}
 
-{{ if .includeAztec }}
+{{ if and .includeAztec .checkAztec }}
 {{ RenderAztecSteps (not .checkAztec ) }}
 {{ end }}
 
