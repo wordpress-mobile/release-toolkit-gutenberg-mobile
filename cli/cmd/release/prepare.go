@@ -3,6 +3,7 @@ package release
 import (
 	"github.com/spf13/cobra"
 	"github.com/wordpress-mobile/gbm-cli/pkg/console"
+	"github.com/wordpress-mobile/gbm-cli/pkg/utils"
 )
 
 var PrepareCmd = &cobra.Command{
@@ -14,6 +15,13 @@ var PrepareCmd = &cobra.Command{
 		console.ExitIfError(err)
 
 		console.Info("Preparing release for version %s", version)
+
+		tempDir, err := utils.SetTempDir()
+		console.ExitIfError(err)
+
+		console.Info("Created temporary directory %s", tempDir)
+
+		defer utils.CleanupTempDir(tempDir)
 	},
 }
 

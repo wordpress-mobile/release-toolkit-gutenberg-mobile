@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"os"
 	"regexp"
 	"time"
 )
@@ -36,4 +37,20 @@ func NormalizeVersion(version string) (string, error) {
 		return "", fmt.Errorf("invalid version")
 	}
 	return v, nil
+}
+
+func SetTempDir() (string, error) {
+	tempDir, err := os.MkdirTemp("", "gbm-")
+	if err != nil {
+		return "", err
+	}
+	return tempDir, nil
+}
+
+func CleanupTempDir(tempDir string) error {
+	err := os.RemoveAll(tempDir)
+	if err != nil {
+		return err
+	}
+	return nil
 }
