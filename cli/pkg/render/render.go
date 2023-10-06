@@ -15,6 +15,10 @@ var TemplateFS embed.FS
 type Template struct {
 	Path, Json string
 	Funcs      template.FuncMap
+	Data       interface{}
+}
+type TaskArgs struct {
+	Description string
 }
 
 func RenderTasks(t Template) (string, error) {
@@ -23,33 +27,30 @@ func RenderTasks(t Template) (string, error) {
 	}
 	t.Funcs["Task"] = Task
 
-	return RenderJSON(t)
+	return Render(t)
 }
 
 func RenderJSON(t Template) (string, error) {
-
-	var data map[string]interface{}
-
 	if t.Json != "" {
-		if err := json.Unmarshal([]byte(t.Json), &data); err != nil {
+		if err := json.Unmarshal([]byte(t.Json), &t.Data); err != nil {
 			return "", err
 		}
 	}
 
-	return Render(t.Path, data, t.Funcs)
+	return Render(t)
 }
 
-func Render(tmplPath string, data interface{}, funcs map[string]any) (string, error) {
-	t, err := template.New(filepath.Base(tmplPath)).
-		Funcs(funcs).
-		ParseFS(TemplateFS, tmplPath) // Parse the template file
+func Render(t Template) (string, error) {
+	tmp, err := template.New(filepath.Base(t.Path)).
+		Funcs(t.Funcs).
+		ParseFS(TemplateFS, t.Path) // Parse the template file
 
 	if err != nil {
 		return "", err
 	}
 
 	var result bytes.Buffer
-	if err := t.Execute(&result, data); err != nil {
+	if err := tmp.Execute(&result, t.Data); err != nil {
 		return "", err
 	}
 
@@ -57,12 +58,12 @@ func Render(tmplPath string, data interface{}, funcs map[string]any) (string, er
 }
 
 func Task(format string, args ...interface{}) string {
-	t := struct {
-		Description string
-	}{
-		Description: fmt.Sprintf(format, args...),
+	t := Template{
+		Path: "templates/checklist/task.html",
+		Data: TaskArgs{Description: fmt.Sprintf(format, args...)},
 	}
-	res, err := Render("templates/checklist/task.html", t, nil)
+
+	res, err := Render(t)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(13)

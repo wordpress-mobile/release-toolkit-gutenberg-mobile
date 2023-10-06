@@ -86,8 +86,8 @@ func TestRenderJSON(t *testing.T) {
 		got, err := RenderJSON(tmplt)
 		assertNoError(t, err)
 
-		if got != "Hello World!" {
-			t.Fatalf("Expected %s, got %s", "Hello World!\n", got)
+		if got != "hi\n" {
+			t.Fatalf("Expected %s, got %s", "hi\n", got)
 		}
 	})
 }

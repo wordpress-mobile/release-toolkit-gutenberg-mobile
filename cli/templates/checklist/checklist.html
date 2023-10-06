@@ -1,15 +1,15 @@
 
 <!-- wp:paragraph {"className":"p2-editor-autotitle"} -->
-<p class="p2-editor-autotitle">Gutenberg Mobile {{ .version }} – Release Scenario</p>
+<p class="p2-editor-autotitle">Gutenberg Mobile {{ .Version }} – Release Scenario</p>
 <!-- /wp:paragraph -->
 
-{{ if .message }}
+{{ if .Message }}
 <!-- wp:paragraph {"backgroundColor":"pale-cyan-blue"} -->
-<p class="has-pale-cyan-blue-background-color has-background">{{ .message }}</p>
+<p class="has-pale-cyan-blue-background-color has-background">{{ .Message }}</p>
 <!-- /wp:paragraph -->
 {{ end }}
 
-{{ if .scheduled }}
+{{ if .Scheduled }}
 <!-- wp:heading {"level":3} -->
 <h3>Before the Release (Tuesday)</h3>
 <!-- /wp:heading -->
@@ -17,11 +17,11 @@
 <!-- wp:group -->
 <div class="wp-block-group">
 
-  {{ Task "Visit all open gutenberg-mobile PRs that are assigned to %s milestone and leave a comment with a message similar to the following:" .version }}
+  {{ Task "Visit all open gutenberg-mobile PRs that are assigned to %s milestone and leave a comment with a message similar to the following:" .Version }}
 
   <!-- wp:quote -->
   <blockquote class="wp-block-quote">
-    <p>Hey [author]. We will cut the {{ .version }} release on {{ .date }}. I plan to circle back and bump this PR to the next milestone then, but please let me know if you'd rather us work to include this PR in {{ .version }}. Thanks!
+    <p>Hey [author]. We will cut the {{ .Version }} release on {{ .Date }}. I plan to circle back and bump this PR to the next milestone then, but please let me know if you'd rather us work to include this PR in {{ .Version }}. Thanks!
     </p>
   </blockquote>
   <!-- /wp:quote -->
@@ -29,12 +29,12 @@
 <!-- /wp:group -->
 {{ end }}
 
-{{ if and .checkAztec .includeAztec }}
+{{ if and .CheckAztec .IncludeAztec }}
 {{ RenderAztecSteps false}}
 {{ end }}
 
 <!-- wp:heading {"level":3} -->
-<h3>Create the Release{{ if .scheduled }} (Thursday) {{end}}</h3>
+<h3>Create the Release{{ if .Scheduled }} (Thursday) {{end}}</h3>
 <!-- /wp:heading -->
 
 {{ Task `Verify that <code>gutenberg-mobile/RNTAztecView.podspec</code> and <code>gutenberg-mobile/gutenberg/packages/react-native-aztec/RNTAztecView.podspec</code>
@@ -46,15 +46,15 @@
 {{ Task `Review the <a href="https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/blob/develop/Releasing.md">release script instructions</a>.
  In your clone of the release scripts, run the script via:  <code>./release_automation.sh</code>. This creates the gutenberg and gutenberg-mobile release PRs as well as WPAndroid and WPiOS integration PRs.` }}
 
-{{ if .scheduled }}
+{{ if .Scheduled }}
 <!-- wp:group -->
 <div class="wp-block-group">
   {{ Task "Post a message similar to the following to the <code>#mobile-gutenberg</code> and <code>#mobile-gutenberg-platform</code> Slack channels:" }}
 
   <!-- wp:quote -->
   <blockquote class="wp-block-quote">
-    <p>⚠️ The gutenberg-mobile {{ .version }} release branches are now cut. Please do not merge any Gutenberg-related changes into the WPiOS or WPAndroid <code>trunk</code> branches until <em>after</em>
-      the main apps cut their own releases next week. If you'd like to merge changes now, merge them into the <code>gutenberg/after_{{ .version }}</code> branches.</p>
+    <p>⚠️ The gutenberg-mobile {{ .Version }} release branches are now cut. Please do not merge any Gutenberg-related changes into the WPiOS or WPAndroid <code>trunk</code> branches until <em>after</em>
+      the main apps cut their own releases next week. If you'd like to merge changes now, merge them into the <code>gutenberg/after_{{ .Version }}</code> branches.</p>
   </blockquote>
   <!-- /wp:quote -->
 </div>
@@ -80,20 +80,20 @@ We will perform additional testing after the main apps cut their releases.` }}
 
 {{ Task "Mark all 4 PRs ready for review and request review from your release wrangler buddy." }}
 
-{{ if not .scheduled }}
+{{ if not .Scheduled }}
 
 <!-- wp:paragraph {"backgroundColor":"luminous-vivid-amber"} -->
 <p class="has-luminous-vivid-amber-background-color has-background">⚠️ In some release cases (like beta fixes), it's likely that the PRs could have conflicts with <code>trunk</code>. In this case, do not resolve merge conflicts by merging with <code>trunk</code> as this will introduce new and unexpected changes to the release. Instead, leave the conflicts until the release is integrated into the main apps, and then resolve the conflicts when merging the PRs back to <code>trunk</code>. Optionally, a second clone of the release branch can be created to verify the CI checks</p>
 <!-- /wp:paragraph -->
 {{ end }}
 
-{{ if not .scheduled }}
+{{ if not .Scheduled }}
 {{ Task `If this is a release for inclusion in the frozen WPiOS and WPAndroid release branches (i.e. this is a beta/hot fix, e.g. X.XX.2),
  ping the directly responsible individual handing the release of each platform of the main apps.` }}
 {{ end }}
 
-{{ if and .includeAztec .checkAztec }}
-{{ RenderAztecSteps (not .checkAztec ) }}
+{{ if and .IncludeAztec .CheckAztec }}
+{{ RenderAztecSteps (not .CheckAztec ) }}
 {{ end }}
 
 <!-- wp:heading {"level":3} -->
@@ -101,11 +101,11 @@ We will perform additional testing after the main apps cut their releases.` }}
 <!-- /wp:heading -->
 
 <!-- wp:paragraph -->
-<p>ℹ️ If additional changes (e.g. bug fixes) were merged into the gutenberg-mobile <code>release/{{ .version }}></code> or in gutenberg <code>rnmobile/release-{{ .version }}</code> branches, the steps in this section need to be completed."</p>
+<p>ℹ️ If additional changes (e.g. bug fixes) were merged into the gutenberg-mobile <code>release/{{ .Version }}></code> or in gutenberg <code>rnmobile/release-{{ .Version }}</code> branches, the steps in this section need to be completed."</p>
 <!-- /wp:paragraph -->
 
 {{ Task `After a merge happened in gutenberg-mobile <code>release/%s</code> or in gutenberg <code>rnmobile/release-%s</code>,
-ensure the <code>gutenberg</code> submodule points to the correct hash and the <code>rnmobile/release-%s</code> in the gutenberg repo branch has been updated.` .version .version .version }}
+ensure the <code>gutenberg</code> submodule points to the correct hash and the <code>rnmobile/release-%s</code> in the gutenberg repo branch has been updated.` .Version .Version .Version }}
 
 {{ Task `If there were changes in gutenberg repo, make sure to cherry-pick the changes that landed in the <code>trunk</code> branch back to the release branch
 and don't forget to run <code>npm run bundle</code> in gutenberg-mobile again if necessary.` }}
@@ -113,16 +113,16 @@ and don't forget to run <code>npm run bundle</code> in gutenberg-mobile again if
 {{ Task `Add the new change to the "Extra PRs that Landed After the Release Was Cut" section of the gutenberg-mobile PR description.` }}
 
 <!-- wp:heading {"level":3} -->
-<h3>Integrate the Release{{ if .scheduled }} (Thursday) {{end}}</h3>
+<h3>Integrate the Release{{ if .Scheduled }} (Thursday) {{end}}</h3>
 <!-- /wp:heading -->
 
 {{ Task `Verify the <code>gutenberg</code> ref within the gutenberg-mobile release branch is pointed to the latest commit in the gutenberg release branch.` }}
 
-{{ Task `Create and push a <code>rnmobile/%s</code> git tag for the head of gutenberg release branch.` .version }}
+{{ Task `Create and push a <code>rnmobile/%s</code> git tag for the head of gutenberg release branch.` .Version }}
 
 {{ Task `Ensure that the bundle files are updated to include any changes to the release branch by running <code>npm run bundle</code> in gutenberg-mobile release branch and committing any changes.` }}
 
-{{ Task `<a href="%s">Create a new gutenberg-mobile GitHub Release</a>. Include a list of changes in the release description. Ensure the checkmark "Set as the latest release" is checked, and <strong>publish the release with the "Publish release" button.</strong>` .releaseUrl }}
+{{ Task `<a href="%s">Create a new gutenberg-mobile GitHub Release</a>. Include a list of changes in the release description. Ensure the checkmark "Set as the latest release" is checked, and <strong>publish the release with the "Publish release" button.</strong>` .ReleaseUrl }}
 
 {{ Task `Wait until all CI jobs for the published tag finish and succeed.` }}
 
@@ -149,18 +149,18 @@ and don't forget to run <code>npm run bundle</code> in gutenberg-mobile again if
 
 <!-- wp:group {"layout":{"type":"constrained"}} -->
 <div class="wp-block-group">
-{{ if not .scheduled }}
+{{ if not .Scheduled }}
 {{ Task `Once everything is merged, send a heads up to our friends in the <code>#apps-infrastructure</code> Slack channel. Since this is a beta/hot fix (e.g. X.XX.2), directly mention the relevant Excellence Wranglers for the release with the following message:` }}
   <!-- wp:quote -->
   <blockquote class="wp-block-quote">
-    <p>Hey team. I wanted to let you know that the mobile Gutenberg team has finished integrating the {{ .version }} Gutenberg release into the WPiOS and WPAndroid <code>release/{{ .hostVersion }}</code> branches, ready for a new beta when you are available. Please let me know if you have any questions. Thanks!</p>
+    <p>Hey team. I wanted to let you know that the mobile Gutenberg team has finished integrating the {{ .Version }} Gutenberg release into the WPiOS and WPAndroid <code>release/{{ .HostVersion }}</code> branches, ready for a new beta when you are available. Please let me know if you have any questions. Thanks!</p>
   </blockquote>
   <!-- /wp:quote -->
 {{ else }}
 {{ Task `Once everything is merged, send a heads up to our friends in the <code>#apps-infrastructure</code> Slack channel with the following message:` }}
   <!-- wp:quote -->
   <blockquote class="wp-block-quote">
-    <p>Hey team. I wanted to let you know that the mobile Gutenberg team has finished integrating the {{ .version }} Gutenberg release into the WPiOS and WPAndroid <code>trunk</code> branches. The integration is ready for the next release cut/build creation when you are available. Please let me know if you have any questions. Thanks!</p>
+    <p>Hey team. I wanted to let you know that the mobile Gutenberg team has finished integrating the {{ .Version }} Gutenberg release into the WPiOS and WPAndroid <code>trunk</code> branches. The integration is ready for the next release cut/build creation when you are available. Please let me know if you have any questions. Thanks!</p>
   </blockquote>
   <!-- /wp:quote -->
 {{ end }}
@@ -191,7 +191,7 @@ and don't forget to run <code>npm run bundle</code> in gutenberg-mobile again if
 
 {{ Task `Update the <code>gutenberg/after_%s</code> branches and open a PR against <code>trunk</code>. If the branches are empty we’ll just delete them.
 The PR can actually get created as soon as something gets merged to the <code>gutenberg/after_%s</code> branches.
-Merge the <code>gutenberg/after_%s</code> PR(s) only <em>AFTER</em> the main apps have cut their release branches.` .version .version .version}}
+Merge the <code>gutenberg/after_%s</code> PR(s) only <em>AFTER</em> the main apps have cut their release branches.` .Version .Version .Version}}
 
 <!-- wp:heading {"level":3} -->
 <h3>Test the Release</h3>
@@ -221,14 +221,14 @@ Merge the <code>gutenberg/after_%s</code> PR(s) only <em>AFTER</em> the main app
 
 {{ Task `Update the <a href="https://docs.google.com/spreadsheets/d/15U4v6zUBmPGagksHX_6ZfVA672-1qB2MO8M7HYBOOgQ/edit?usp=sharing">Release Incident Spreadsheet</a> with any fixes that occurred after the release branches were cut.` }}
 
-{{ if not .scheduled }}
+{{ if not .Scheduled }}
 {{ Task `Message the next release wrangler in the <code>#mobile-gutenberg-platform</code> Slack channel <strong>providing them with a tentative schedule</strong>
 for the next release. This will help ensure a smooth hand off and sets expectations for when they should begin their work.` }}
 {{ end }}
 {{ Task `Celebrate! 🎉` }}
 
 <!-- wp:paragraph -->
-<p>+mobilegutenberg </p>
+<p>+mobilegutenberg</p>
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->

@@ -7,9 +7,7 @@ import (
 
 var AztecCmd = &cobra.Command{
 	Use:   "aztec",
-	Short: "render the steps for upgrading Aztec",
-	Long: `
-`,
+	Short: "Render the steps for upgrading Aztec",
 	Run: func(cmd *cobra.Command, args []string) {
 		result, err := renderAztecSteps(false)
 

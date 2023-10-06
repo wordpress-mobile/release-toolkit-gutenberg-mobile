@@ -17,10 +17,21 @@ var message string
 var releaseDate string
 var checkAztec bool
 
+type templateData struct {
+	Version      string
+	Scheduled    bool
+	Date         string
+	Message      string
+	ReleaseUrl   string
+	HostVersion  string
+	IncludeAztec bool
+	CheckAztec   bool
+}
+
 // checklistCmd represents the checklist command
 var ChecklistCmd = &cobra.Command{
 	Use:   "checklist",
-	Short: "render the content for the release checklist",
+	Short: "Render the content for the release checklist",
 	Long: `
 `,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -50,20 +61,17 @@ var ChecklistCmd = &cobra.Command{
 		releaseUrl := fmt.Sprintf("https://github.com/wordpress-mobile/gutenberg-mobile/releases/new?tag=v%s&target=release/%s&title=Release+%s", version, version, version)
 
 		t := render.Template{
-			Path: "templates/checklist/checklist.html",
-			Json: fmt.Sprintf(`
-				{
-					"version": "%s",
-					"scheduled": %v,
-					"date": "%s",
-					"message" : "%s",
-					"releaseUrl": "%s",
-					"hostVersion": "%s",
-					"includeAztec": %v,
-					"checkAztec": %v}
-				`,
-				version, scheduled, releaseDate, message, releaseUrl, hostVersion, includeAztec, checkAztec),
+			Path:  "templates/checklist/checklist.html",
 			Funcs: template.FuncMap{"RenderAztecSteps": renderAztecSteps},
+			Data: templateData{
+				Version:      version,
+				Scheduled:    scheduled,
+				ReleaseUrl:   releaseUrl,
+				Date:         releaseDate,
+				HostVersion:  hostVersion,
+				IncludeAztec: includeAztec,
+				CheckAztec:   checkAztec,
+			},
 		}
 
 		result, err := render.RenderTasks(t)
