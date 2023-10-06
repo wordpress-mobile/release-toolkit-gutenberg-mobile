@@ -33,6 +33,14 @@ func NpmCi(dir string, verbose bool) error {
 	return exc(verbose, dir, "npm", "ci")
 }
 
+func NpmRun(dir string, verbose bool, args ...string) error {
+	return exc(verbose, dir, "npm", append([]string{"run"}, args...)...)
+}
+
+func BundleInstall(dir string, verbose bool) error {
+	return exc(verbose, dir, "bundle", "install")
+}
+
 func exc(verbose bool, dir, cmd string, args ...string) error {
 	exc := exec.Command(cmd, args...)
 

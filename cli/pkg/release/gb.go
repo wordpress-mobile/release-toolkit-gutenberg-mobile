@@ -46,7 +46,7 @@ func CreateGbPR(version, dir string) (gh.PullRequest, error) {
 			return pr, err
 		}
 	}
-	if err := git.CommitAll(gbDir, fmt.Sprintf("Release script: Update react-native-editor version to %s", version)); err != nil {
+	if err := git.CommitAll(gbDir, "Release script: Update react-native-editor version to %s", version); err != nil {
 		return pr, err
 	}
 
@@ -55,7 +55,7 @@ func CreateGbPR(version, dir string) (gh.PullRequest, error) {
 	if err := utils.UpdateChangeLog(version, chnPath); err != nil {
 		return pr, err
 	}
-	if err := git.CommitAll(gbDir, fmt.Sprintf("Release script: Update changelog for version %s", version)); err != nil {
+	if err := git.CommitAll(gbDir, "Release script: Update changelog for version %s", version); err != nil {
 		return pr, err
 	}
 
@@ -68,6 +68,25 @@ func CreateGbPR(version, dir string) (gh.PullRequest, error) {
 	if err := exec.NpmCi(gbDir, true); err != nil {
 		return pr, err
 	}
+
+	console.Info("Running preios script")
+
+	// Run bundle install directly since the preios script sometimes fails
+	editorIosPath := filepath.Join(gbDir, "packages", "react-native-editor", "ios")
+
+	if err := exec.BundleInstall(editorIosPath, true); err != nil {
+		return pr, err
+	}
+
+	if err := exec.NpmRun(editorIosPath, true, "preios"); err != nil {
+		return pr, err
+	}
+
+	if err := git.CommitAll(gbDir, "Release script: Update podfile"); err != nil {
+		return pr, err
+	}
+
+	console.Info("\n 🎉 Gutenberg preparations succeeded.")
 
 	return pr, fmt.Errorf("not implemented")
 }

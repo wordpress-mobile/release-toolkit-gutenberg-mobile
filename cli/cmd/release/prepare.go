@@ -22,7 +22,7 @@ var PrepareCmd = &cobra.Command{
 
 		console.Info("Created temporary directory %s", tempDir)
 
-		//defer utils.CleanupTempDir(tempDir)
+		// defer utils.CleanupTempDir(tempDir)
 
 		_, err = release.CreateGbPR(version, tempDir)
 		console.ExitIfError(err)

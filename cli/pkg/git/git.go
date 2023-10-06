@@ -1,6 +1,8 @@
 package git
 
 import (
+	"fmt"
+
 	"github.com/wordpress-mobile/gbm-cli/pkg/exec"
 )
 
@@ -20,6 +22,6 @@ func Switch(dir, branch string, create bool) error {
 	return cmd("switch", branch)
 }
 
-func CommitAll(dir, msg string) error {
-	return exec.ExecGit(dir, true)("commit", "-am", msg)
+func CommitAll(dir, format string, args ...interface{}) error {
+	return exec.ExecGit(dir, true)("commit", "-am", fmt.Sprintf(format, args...))
 }
