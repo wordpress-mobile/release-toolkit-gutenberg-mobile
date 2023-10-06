@@ -51,3 +51,8 @@ func GetOrg(repo string) (string, error) {
 		return "", fmt.Errorf("unknown repo: %s", repo)
 	}
 }
+
+func GetRepoPath(repo string) string {
+	org, _ := GetOrg(repo)
+	return fmt.Sprintf("git@github.com:%s/%s", org, repo)
+}

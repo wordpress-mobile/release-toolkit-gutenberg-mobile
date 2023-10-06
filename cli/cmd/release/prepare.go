@@ -3,6 +3,7 @@ package release
 import (
 	"github.com/spf13/cobra"
 	"github.com/wordpress-mobile/gbm-cli/pkg/console"
+	"github.com/wordpress-mobile/gbm-cli/pkg/release"
 	"github.com/wordpress-mobile/gbm-cli/pkg/utils"
 )
 
@@ -22,6 +23,10 @@ var PrepareCmd = &cobra.Command{
 		console.Info("Created temporary directory %s", tempDir)
 
 		defer utils.CleanupTempDir(tempDir)
+
+		_, err = release.CreateGbPR(version, tempDir)
+		console.ExitIfError(err)
+
 	},
 }
 
