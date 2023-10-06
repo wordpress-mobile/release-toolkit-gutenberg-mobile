@@ -1,6 +1,7 @@
 package gbm
 
 import (
+	"fmt"
 	"regexp"
 	"time"
 )
@@ -22,4 +23,17 @@ func NextReleaseDate() string {
 	nextThursday := time.Now().AddDate(0, 0, int(daysUntilThursday))
 
 	return nextThursday.Format("Monday 01, 2006")
+}
+
+func NormalizeVersion(version string) (string, error) {
+	v := version
+	if version[0] == 'v' {
+		v = version[1:]
+	}
+
+	re := regexp.MustCompile(`\d+\.\d+\.\d+`)
+	if !re.MatchString(v) {
+		return "", fmt.Errorf("invalid version")
+	}
+	return v, nil
 }
