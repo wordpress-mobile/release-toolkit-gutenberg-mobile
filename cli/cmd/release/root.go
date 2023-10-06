@@ -5,7 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/wordpress-mobile/gbm-cli/pkg/console"
-	"github.com/wordpress-mobile/gbm-cli/pkg/gbm"
+	"github.com/wordpress-mobile/gbm-cli/pkg/utils"
 )
 
 var ReleaseCmd = &cobra.Command{
@@ -27,5 +27,5 @@ func getVersionArg(args []string) (string, error) {
 		return "", fmt.Errorf("missing version")
 	}
 
-	return gbm.NormalizeVersion(args[0])
+	return utils.NormalizeVersion(args[0])
 }

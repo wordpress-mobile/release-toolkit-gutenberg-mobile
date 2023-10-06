@@ -9,6 +9,7 @@ import (
 	"github.com/wordpress-mobile/gbm-cli/pkg/console"
 	"github.com/wordpress-mobile/gbm-cli/pkg/gbm"
 	"github.com/wordpress-mobile/gbm-cli/pkg/render"
+	"github.com/wordpress-mobile/gbm-cli/pkg/utils"
 )
 
 var version string
@@ -36,7 +37,7 @@ var ChecklistCmd = &cobra.Command{
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		vv := gbm.ValidateVersion(version)
+		vv := utils.ValidateVersion(version)
 		if !vv {
 			console.ExitError(1, "%v is not a valid version. Versions must have a `Major.Minor.Patch` form", version)
 		}
@@ -52,10 +53,10 @@ var ChecklistCmd = &cobra.Command{
 			}
 		}
 
-		scheduled := gbm.IsScheduledRelease(version)
+		scheduled := utils.IsScheduledRelease(version)
 
 		if releaseDate == "" {
-			releaseDate = gbm.NextReleaseDate()
+			releaseDate = utils.NextReleaseDate()
 		}
 
 		releaseUrl := fmt.Sprintf("https://github.com/wordpress-mobile/gutenberg-mobile/releases/new?tag=v%s&target=release/%s&title=Release+%s", version, version, version)

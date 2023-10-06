@@ -1,4 +1,4 @@
-package gbm
+package utils
 
 import (
 	"strings"
