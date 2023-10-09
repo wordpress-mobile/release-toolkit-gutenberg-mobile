@@ -25,3 +25,7 @@ func Switch(dir, branch string, create bool) error {
 func CommitAll(dir, format string, args ...interface{}) error {
 	return exec.ExecGit(dir, true)("commit", "-am", fmt.Sprintf(format, args...))
 }
+
+func Push(dir, branch string) error {
+	return exec.ExecGit(dir, true)("push", "origin", branch)
+}
