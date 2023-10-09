@@ -8,15 +8,20 @@ import (
 	"github.com/wordpress-mobile/gbm-cli/pkg/exec"
 	"github.com/wordpress-mobile/gbm-cli/pkg/gh"
 	"github.com/wordpress-mobile/gbm-cli/pkg/git"
+	"github.com/wordpress-mobile/gbm-cli/pkg/render"
 	"github.com/wordpress-mobile/gbm-cli/pkg/repo"
 	"github.com/wordpress-mobile/gbm-cli/pkg/utils"
 )
 
 func CreateGbPR(version, dir string) (gh.PullRequest, error) {
 	var pr gh.PullRequest
+
+	org, err := repo.GetOrg("gutenberg")
+	console.ExitIfError(err)
+
 	gbDir := fmt.Sprintf("%s/gutenberg", dir)
 
-	branch := fmt.Sprintf("rnmobile/release_%s", version)
+	branch := "rnmobile/release_" + version
 
 	console.Info("Checking if branch %s exists", branch)
 	exists, _ := gh.SearchBranch("gutenberg", branch)
@@ -46,6 +51,7 @@ func CreateGbPR(version, dir string) (gh.PullRequest, error) {
 			return pr, err
 		}
 	}
+
 	if err := git.CommitAll(gbDir, "Release script: Update react-native-editor version to %s", version); err != nil {
 		return pr, err
 	}
@@ -88,5 +94,61 @@ func CreateGbPR(version, dir string) (gh.PullRequest, error) {
 
 	console.Info("\n 🎉 Gutenberg preparations succeeded.")
 
-	return pr, fmt.Errorf("not implemented")
+	// Prepare the GB PR
+	console.Info("Creating PR")
+	pr.Title = fmt.Sprint("Mobile Release v", version)
+	pr.Base.Ref = "trunk"
+	pr.Head.Ref = branch
+
+	if err := renderGbPrBody(version, &pr); err != nil {
+		console.Info("Unable to render the GB PR body (err %s)", err)
+	}
+
+	pr.Labels = []gh.Label{{
+		Name: "Mobile App - i.e. Android or iOS",
+	}}
+
+	gh.PreviewPr("gutenberg", gbDir, &pr)
+
+	prompt := fmt.Sprintf("\nReady to create the PR on %s/gutenberg?", org)
+	cont := console.Confirm(prompt)
+
+	if !cont {
+		console.Info("Bye 👋")
+		return pr, fmt.Errorf("exiting before creating PR")
+	}
+
+	if err := git.Push(gbDir, branch); err != nil {
+		return pr, err
+	}
+
+	if err := gh.CreatePr("gutenberg", &pr); err != nil {
+		return pr, err
+	}
+
+	if pr.Number == 0 {
+		return pr, fmt.Errorf("failed to create the PR")
+	}
+
+	return pr, nil
+}
+
+func renderGbPrBody(version string, pr *gh.PullRequest) error {
+
+	t := render.Template{
+		Path: "templates/release/gb_pr_body.md",
+		Data: struct {
+			Version  string
+			GbmPrUrl string
+		}{
+			Version: version,
+		},
+	}
+
+	body, err := render.Render(t)
+	if err != nil {
+		return err
+	}
+	pr.Body = body
+	return nil
 }
