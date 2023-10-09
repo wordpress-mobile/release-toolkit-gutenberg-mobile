@@ -40,6 +40,7 @@ func TestValidVersion(t *testing.T) {
 			t.Fatalf("Expected %v to be false", got)
 		}
 	})
+
 }
 
 func TestIsScheduledRelease(t *testing.T) {
@@ -64,6 +65,37 @@ func TestIsScheduledRelease(t *testing.T) {
 		got := IsScheduledRelease("1.0.0")
 		if !got {
 			t.Fatalf("Expected %v to be true", got)
+		}
+	})
+}
+
+func TestNormalizeVersion(t *testing.T) {
+	t.Run("It returns an error if the version is invalid", func(t *testing.T) {
+		_, err := NormalizeVersion("1.0")
+		if err == nil {
+			t.Fatalf("Expected an error, got nil")
+		}
+	})
+
+	t.Run("It returns the version without the 'v' prefix", func(t *testing.T) {
+		got, err := NormalizeVersion("v1.0.0")
+		if err != nil {
+			t.Fatalf("Unexpected error: %v", err)
+		}
+
+		if got != "1.0.0" {
+			t.Fatalf("Expected %s, got %s", "1.0.0", got)
+		}
+	})
+
+	t.Run("It returns the version if it's valid", func(t *testing.T) {
+		got, err := NormalizeVersion("1.0.0")
+		if err != nil {
+			t.Fatalf("Unexpected error: %v", err)
+		}
+
+		if got != "1.0.0" {
+			t.Fatalf("Expected %s, got %s", "1.0.0", got)
 		}
 	})
 }
