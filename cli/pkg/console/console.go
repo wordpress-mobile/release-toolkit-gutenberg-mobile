@@ -26,8 +26,8 @@ func ExitIfError(err error) {
 }
 
 func ExitError(code int, format string, args ...interface{}) {
-	l.Printf(format, args...)
-	fmt.Fprintf(os.Stderr, format+"\n", args...)
+	red := color.New(color.FgRed).SprintfFunc()
+	l.Printf(red("\n"+format, args...))
 	color.Unset()
 	os.Exit(1)
 }
@@ -59,7 +59,8 @@ func Log(format string, args ...interface{}) {
 }
 
 func Debug(format string, args ...interface{}) {
-	l.Printf(format+"\n", args...)
+	blue := color.New(color.FgBlue).SprintfFunc()
+	l.Printf(blue("\n"+format, args...))
 	color.Unset()
 }
 
