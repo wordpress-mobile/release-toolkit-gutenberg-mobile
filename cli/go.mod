@@ -1,8 +1,11 @@
 module github.com/wordpress-mobile/gbm-cli
 
-go 1.20
+go 1.21
+
+toolchain go1.21.2
 
 require (
+	github.com/fatih/color v1.15.0
 	github.com/spf13/cobra v1.7.0
 	golang.design/x/clipboard v0.7.0
 )
@@ -11,8 +14,8 @@ require (
 	github.com/aymanbagabas/go-osc52 v1.0.3 // indirect
 	github.com/cli/safeexec v1.0.0 // indirect
 	github.com/cli/shurcooL-graphql v0.0.3 // indirect
-	github.com/fatih/color v1.15.0 // indirect
 	github.com/henvic/httpretty v0.0.6 // indirect
+	github.com/kr/text v0.2.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
