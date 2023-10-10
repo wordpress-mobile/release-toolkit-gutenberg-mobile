@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/wordpress-mobile/gbm-cli/cmd/release"
 	"github.com/wordpress-mobile/gbm-cli/cmd/render"
 	"github.com/wordpress-mobile/gbm-cli/pkg/console"
 )
@@ -20,4 +21,5 @@ func Execute() {
 func init() {
 	// Add the render command
 	rootCmd.AddCommand(render.RenderCmd)
+	rootCmd.AddCommand(release.ReleaseCmd)
 }
