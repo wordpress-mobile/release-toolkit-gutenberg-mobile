@@ -3,6 +3,7 @@ package release
 import (
 	"github.com/spf13/cobra"
 	"github.com/wordpress-mobile/gbm-cli/pkg/console"
+	"github.com/wordpress-mobile/gbm-cli/pkg/gbm"
 	"github.com/wordpress-mobile/gbm-cli/pkg/release"
 	"github.com/wordpress-mobile/gbm-cli/pkg/utils"
 )
@@ -14,6 +15,11 @@ var PrepareCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		version, err := getVersionArg(args)
 		console.ExitIfError(err)
+
+		// Validate Aztec version
+		if valid := gbm.ValidateAztecVersions(); !valid {
+			console.ExitError("Aztec versions are not valid")
+		}
 
 		console.Info("Preparing release for version %s", version)
 
@@ -27,10 +33,6 @@ var PrepareCmd = &cobra.Command{
 		pr, err := release.CreateGbPR(version, tempDir)
 		console.ExitIfError(err)
 
-		console.Info("Created PR  (url ? %s)", pr)
+		console.Info("Created PR  %s", pr.Url)
 	},
-}
-
-func init() {
-
 }
