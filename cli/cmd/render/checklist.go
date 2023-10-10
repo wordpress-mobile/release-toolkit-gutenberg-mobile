@@ -39,7 +39,7 @@ var ChecklistCmd = &cobra.Command{
 
 		vv := utils.ValidateVersion(version)
 		if !vv {
-			console.ExitError(1, "%v is not a valid version. Versions must have a `Major.Minor.Patch` form", version)
+			console.ExitError("%v is not a valid version. Versions must have a `Major.Minor.Patch` form", version)
 		}
 
 		// For now let's assume we should include the Aztec steps unless explicitly checking if the versions are valid.

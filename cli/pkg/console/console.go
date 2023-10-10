@@ -3,7 +3,7 @@ package console
 import (
 	"bufio"
 	"fmt"
-	log "log"
+	"log"
 	"os"
 	"strings"
 
@@ -21,11 +21,19 @@ func init() {
 
 func ExitIfError(err error) {
 	if err != nil {
-		ExitError(1, err.Error()+"\n")
+		ExitError(err.Error() + "\n")
 	}
 }
 
-func ExitError(code int, format string, args ...interface{}) {
+func ExitError(format string, args ...interface{}) {
+	if len(args) == 0 {
+		Exit(1, format)
+	} else {
+		Exit(1, format, args...)
+	}
+}
+
+func Exit(code int, format string, args ...interface{}) {
 	red := color.New(color.FgRed).SprintfFunc()
 	l.Printf(red("\n"+format, args...))
 	color.Unset()
