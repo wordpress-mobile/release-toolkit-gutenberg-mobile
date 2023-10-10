@@ -120,8 +120,6 @@ func CreatePr(rpo string, pr *PullRequest) error {
 			return err
 		}
 	}
-
-	console.Debug("PR created: %s", pr)
 	return nil
 }
 
