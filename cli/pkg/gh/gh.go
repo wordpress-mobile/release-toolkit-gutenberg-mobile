@@ -117,7 +117,7 @@ func CreatePr(rpo string, pr *PullRequest) error {
 	pr.Labels = labels
 	if pr.Labels != nil {
 		if err := AddLabels(rpo, pr); err != nil {
-			return err
+			console.Warn("Unable to add label '%s' to PR, are you sure it exists on the %s/%s repo?", err, org, rpo)
 		}
 	}
 	return nil

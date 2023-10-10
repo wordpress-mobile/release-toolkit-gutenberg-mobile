@@ -72,6 +72,12 @@ func Debug(format string, args ...interface{}) {
 	color.Unset()
 }
 
+func Warn(format string, args ...interface{}) {
+	yellow := color.New(color.FgYellow).SprintfFunc()
+	l.Printf(yellow("\n"+format, args...))
+	color.Unset()
+}
+
 func Confirm(ask string) bool {
 	reader := bufio.NewReader(os.Stdin)
 
