@@ -3,13 +3,27 @@ package utils
 import (
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestNextReleaseDate(t *testing.T) {
 
-	t.Run("It returns the next Thursday", func(t *testing.T) {
+	t.Run("It returns the next Thursday in the correct month", func(t *testing.T) {
 		got := NextReleaseDate()
 
+		// Parse the date string to get the month
+		date, err := time.Parse("Monday January 2, 2006", got)
+		if err != nil {
+			t.Fatalf("Unexpected error: %v", err)
+		}
+		month := date.Month()
+
+		// Check that the month is correct
+		if month != time.January && month != time.February && month != time.March && month != time.April && month != time.May && month != time.June && month != time.July && month != time.August && month != time.September && month != time.October && month != time.November && month != time.December {
+			t.Fatalf("Expected %s to be in a valid month, got %s", got, month)
+		}
+
+		// Check that the day is a Thursday
 		if !strings.Contains(got, "Thursday") {
 			t.Fatalf("Expected %s to contain %s", got, "Thursday")
 		}

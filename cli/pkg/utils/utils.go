@@ -25,7 +25,7 @@ func NextReleaseDate() string {
 
 	nextThursday := time.Now().AddDate(0, 0, int(daysUntilThursday))
 
-	return nextThursday.Format("Monday 01, 2006")
+	return nextThursday.Format("Monday January 2, 2006")
 }
 
 func NormalizeVersion(version string) (string, error) {
