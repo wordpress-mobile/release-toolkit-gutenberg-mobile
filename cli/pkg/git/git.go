@@ -11,6 +11,7 @@ type Client interface {
 	Switch(...string) error
 	CommitAll(string, ...interface{}) error
 	Push() error
+	RemoteExists(string, string) bool
 }
 
 type client struct {
@@ -46,4 +47,10 @@ func (c *client) CommitAll(format string, args ...interface{}) error {
 func (c *client) Push() error {
 	cmd := exec.Git(c.dir, c.verbose)
 	return cmd("push", "origin", "HEAD")
+}
+
+func (c *client) RemoteExists(remote, branch string) bool {
+	cmd := exec.Git(c.dir, c.verbose)
+	err := cmd("ls-remote", "--exit-code", "--heads", remote, branch)
+	return err == nil
 }
