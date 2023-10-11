@@ -9,11 +9,9 @@ import (
 	"github.com/wordpress-mobile/gbm-cli/pkg/exec"
 	"github.com/wordpress-mobile/gbm-cli/pkg/gh"
 	"github.com/wordpress-mobile/gbm-cli/pkg/git"
-	"github.com/wordpress-mobile/gbm-cli/pkg/utils"
 )
 
-
-func PrepareBranch(dir string, pr *gh.PullRequest, gbPr *gh.PullRequest, verbose bool) (gh.Repository, error) {
+func PrepareBranch(dir string, pr *gh.PullRequest, gbPr *gh.PullRequest, verbose bool) (gh.Repo, error) {
 
 	gbmDir := filepath.Join(dir, "gutenberg-mobile")
 	npm := execNpm(gbmDir, verbose)
@@ -74,7 +72,7 @@ func PrepareBranch(dir string, pr *gh.PullRequest, gbPr *gh.PullRequest, verbose
 	// If there is a version we should update the package json
 	if version != "" {
 
-	console.Info("Updating the version")
+		console.Info("Updating the version")
 		if err := npm("--no-git-tag-version", "version", version); err != nil {
 			return nil, err
 		}
@@ -98,8 +96,7 @@ func PrepareBranch(dir string, pr *gh.PullRequest, gbPr *gh.PullRequest, verbose
 	return gbmr, nil
 }
 
-func setupGb(gbmDir string, gbmr *g.Repository, gbPr *gh.PullRequest, verbose bool) error {
-
+func setupGb(gbmDir string, gbmr gh.Repo, gbPr *gh.PullRequest, verbose bool) error {
 	console.Info("Checking Gutenberg")
 
 	gb, err := git.GetSubmodule(gbmr, "gutenberg")
@@ -125,7 +122,6 @@ func setupGb(gbmDir string, gbmr *g.Repository, gbPr *gh.PullRequest, verbose bo
 }
 
 func CreatePr(gbmr *g.Repository, pr *gh.PullRequest, verbose bool) error {
-
 	// TODO: make sure we are not on trunk before pushing
 	console.Info("Pushing the branch")
 	if err := git.Push(gbmr, verbose); err != nil {
