@@ -6,26 +6,51 @@ import (
 	"github.com/wordpress-mobile/gbm-cli/pkg/exec"
 )
 
-func Clone(repo, dir string, shallow bool) error {
-	cmd := exec.ExecGit(dir, true)
-	if shallow {
-		return cmd("clone", "--depth", "1", repo)
+type Client interface {
+	Clone(...string) error
+	Switch(...string) error
+	CommitAll(string, ...interface{}) error
+	Push() error
+	RemoteExists(string, string) bool
+}
+
+type client struct {
+	dir     string
+	verbose bool
+}
+
+func NewClient(dir string, verbose bool) Client {
+	return &client{
+		dir:     dir,
+		verbose: verbose,
 	}
-	return cmd("clone", repo)
 }
 
-func Switch(dir, branch string, create bool) error {
-	cmd := exec.ExecGit(dir, true)
-	if create {
-		return cmd("switch", "-c", branch)
-	}
-	return cmd("switch", branch)
+func (c *client) Clone(args ...string) error {
+	cmd := exec.Git(c.dir, c.verbose)
+	clone := append([]string{"clone"}, args...)
+	return cmd(clone...)
 }
 
-func CommitAll(dir, format string, args ...interface{}) error {
-	return exec.ExecGit(dir, true)("commit", "-am", fmt.Sprintf(format, args...))
+func (c *client) Switch(args ...string) error {
+	cmd := exec.Git(c.dir, c.verbose)
+	swtch := append([]string{"switch"}, args...)
+	return cmd(swtch...)
 }
 
-func Push(dir, branch string) error {
-	return exec.ExecGit(dir, true)("push", "origin", branch)
+func (c *client) CommitAll(format string, args ...interface{}) error {
+	cmd := exec.Git(c.dir, c.verbose)
+	message := fmt.Sprintf(format, args...)
+	return cmd("commit", "-am", message)
+}
+
+func (c *client) Push() error {
+	cmd := exec.Git(c.dir, c.verbose)
+	return cmd("push", "origin", "HEAD")
+}
+
+func (c *client) RemoteExists(remote, branch string) bool {
+	cmd := exec.Git(c.dir, c.verbose)
+	err := cmd("ls-remote", "--exit-code", "--heads", remote, branch)
+	return err == nil
 }
