@@ -5,7 +5,7 @@ import (
 	"os/exec"
 )
 
-func ExecGit(dir string, verbose bool) func(...string) error {
+func Git(dir string, verbose bool) func(...string) error {
 	return func(cmds ...string) error {
 		cmd := exec.Command("git", cmds...)
 		cmd.Dir = dir
@@ -17,6 +17,11 @@ func ExecGit(dir string, verbose bool) func(...string) error {
 
 		return cmd.Run()
 	}
+}
+
+// Deprecated: Use Git instead
+func ExecGit(dir string, verbose bool) func(...string) error {
+	return Git(dir, verbose)
 }
 
 func SetupNode(dir string, verbose bool) error {

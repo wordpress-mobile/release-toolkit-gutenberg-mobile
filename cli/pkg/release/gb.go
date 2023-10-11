@@ -7,7 +7,7 @@ import (
 	"github.com/wordpress-mobile/gbm-cli/pkg/console"
 	"github.com/wordpress-mobile/gbm-cli/pkg/exec"
 	"github.com/wordpress-mobile/gbm-cli/pkg/gh"
-	"github.com/wordpress-mobile/gbm-cli/pkg/git"
+	g "github.com/wordpress-mobile/gbm-cli/pkg/git"
 	"github.com/wordpress-mobile/gbm-cli/pkg/render"
 	"github.com/wordpress-mobile/gbm-cli/pkg/repo"
 	"github.com/wordpress-mobile/gbm-cli/pkg/utils"
@@ -15,6 +15,8 @@ import (
 
 func CreateGbPR(version, dir string) (gh.PullRequest, error) {
 	var pr gh.PullRequest
+
+	git := g.NewClient(dir, true)
 
 	org, err := repo.GetOrg("gutenberg")
 	console.ExitIfError(err)
@@ -31,13 +33,14 @@ func CreateGbPR(version, dir string) (gh.PullRequest, error) {
 		return pr, nil
 	} else {
 		console.Info("Cloning Gutenberg to %s", dir)
-		err := git.Clone(repo.GetRepoPath("gutenberg"), dir, true)
+
+		err := git.Clone(repo.GetRepoPath("gutenberg"), "--depth=1")
 		if err != nil {
 			return pr, err
 		}
 
 		console.Info("Checking out branch %s", branch)
-		err = git.Switch(gbDir, branch, true)
+		err = git.Switch(branch, "-c")
 		if err != nil {
 			return pr, err
 		}
@@ -118,7 +121,7 @@ func CreateGbPR(version, dir string) (gh.PullRequest, error) {
 		return pr, fmt.Errorf("exiting before creating PR")
 	}
 
-	if err := git.Push(gbDir, branch); err != nil {
+	if err := git.Push(); err != nil {
 		return pr, err
 	}
 
