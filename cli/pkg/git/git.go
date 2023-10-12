@@ -12,6 +12,7 @@ type Client interface {
 	CommitAll(string, ...interface{}) error
 	Push() error
 	RemoteExists(string, string) bool
+	Submodule(...string) error
 }
 
 type client struct {
@@ -55,57 +56,8 @@ func (c *client) RemoteExists(remote, branch string) bool {
 	return err == nil
 }
 
-func GetSubmodule(r gh.Repo, path string) (*g.Submodule, error) {
-	w, err := r.Worktree()
-	if err != nil {
-		return nil, err
-	}
-
-	return w.Submodule(path)
-}
-
-func CommitSubmodule(dir, message, submodule string, verbose bool) error {
-	git := exec.ExecGit(dir, verbose)
-
-	if err := git("add", submodule); err != nil {
-		return fmt.Errorf("unable to add submodule %s in %s :%s", submodule, dir, err)
-	}
-
-	if err := git("commit", "-m", message); err != nil {
-		return fmt.Errorf("unable to commit submodule update %s : %s", submodule, err)
-	}
-	return nil
-}
-
-func IsSubmoduleCurrent(s gh.Submodule, expectedHash string) (bool, error) {
-	// Check if the submodule is porcelain
-	sr, err := s.Repository()
-	if clean, err := IsPorcelain(sr); err != nil {
-		return false, err
-	} else if !clean {
-		return false, &NotPorcelainError{fmt.Errorf("submodule %s is not clean", s.Config().Name)}
-	}
-
-	if err != nil {
-		return false, err
-	}
-	stat, err := s.Status()
-	if err != nil {
-		return false, err
-	}
-	eh := plumbing.NewHash(expectedHash)
-
-	return stat.Current == eh, nil
-}
-
-func IsPorcelain(r gh.Repo) (bool, error) {
-	w, err := r.Worktree()
-	if err != nil {
-		return false, err
-	}
-	status, err := w.Status()
-	if err != nil {
-		return false, err
-	}
-	return status.IsClean(), nil
+func (c *client) Submodule(args ...string) error {
+	cmd := exec.Git(c.dir, c.verbose)
+	submodule := append([]string{"submodule"}, args...)
+	return cmd(submodule...)
 }
