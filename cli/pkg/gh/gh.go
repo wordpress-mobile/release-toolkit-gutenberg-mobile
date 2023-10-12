@@ -181,7 +181,7 @@ func labelRequest(rpo string, prNum int, labels []string) ([]Label, error) {
 	return resp, nil
 }
 
-func PreviewPr(rpo, dir string, pr *PullRequest) {
+func PreviewPr(rpo, dir string, pr PullRequest) {
 	org, _ := repo.GetOrg(rpo)
 	cyan := color.New(color.FgCyan, color.Bold).SprintfFunc()
 	console.Log(cyan("\nPr Preview"))
@@ -191,7 +191,7 @@ func PreviewPr(rpo, dir string, pr *PullRequest) {
 	console.Log(cyan("Body:\n")+"%s\n", pr.Body)
 	console.Log(cyan("Commits:"))
 
-	git := exec.ExecGit(dir, true)
+	git := exec.Git(dir, true)
 
 	git("log", pr.Base.Ref+"...HEAD", "--oneline", "--no-merges", "-10")
 
