@@ -1,11 +1,9 @@
 package release
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
+	"github.com/wordpress-mobile/gbm-cli/cmd/release/prepare"
 	"github.com/wordpress-mobile/gbm-cli/pkg/console"
-	"github.com/wordpress-mobile/gbm-cli/pkg/utils"
 )
 
 var ReleaseCmd = &cobra.Command{
@@ -19,13 +17,5 @@ func Execute() {
 }
 
 func init() {
-	ReleaseCmd.AddCommand(PrepareCmd)
-}
-
-func getVersionArg(args []string) (string, error) {
-	if len(args) == 0 {
-		return "", fmt.Errorf("missing version")
-	}
-
-	return utils.NormalizeVersion(args[0])
+	ReleaseCmd.AddCommand(prepare.PrepareCmd)
 }
