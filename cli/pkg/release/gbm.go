@@ -19,8 +19,8 @@ func CreateGbmPR(version, dir string) (gh.PullRequest, error) {
 	gbmDir := fmt.Sprintf("%s/gutenberg-mobile", dir)
 	git := g.NewClient(gbmDir, true)
 
-	// org, err := repo.GetOrg("gutenberg-mobile")
-	// console.ExitIfError(err)
+	org, err := repo.GetOrg("gutenberg-mobile")
+	console.ExitIfError(err)
 
 	branch := "release/" + version
 
@@ -112,6 +112,8 @@ func CreateGbmPR(version, dir string) (gh.PullRequest, error) {
 		return pr, err
 	}
 
+	console.Info("\n 🎉 Gutenberg Mobile preparations succeeded.")
+
 	console.Info("Creating PR for %s", branch)
 	pr.Title = fmt.Sprint("Release ", version)
 	pr.Base.Ref = "trunk"
@@ -124,6 +126,29 @@ func CreateGbmPR(version, dir string) (gh.PullRequest, error) {
 	pr.Labels = []gh.Label{{
 		Name: "release-process",
 	}}
+
+	gh.PreviewPr("gutenberg-mobile", gbmDir, &pr)
+
+
+	prompt := fmt.Sprintf("\nReady to create the PR on %s/gutenberg?", org)
+	cont := console.Confirm(prompt)
+
+	if !cont {
+		console.Info("Bye 👋")
+		return pr, fmt.Errorf("exiting before creating PR")
+	}
+	
+	if err := git.Push(); err != nil {
+		return pr, err
+	}
+
+	if err := gh.CreatePr("gutenberg-mobile", &pr); err != nil {
+		return pr, err
+	}
+
+	if pr.Number == 0 {
+		return pr, fmt.Errorf("failed to create the PR")
+	}
 
 	return pr, nil
 }
