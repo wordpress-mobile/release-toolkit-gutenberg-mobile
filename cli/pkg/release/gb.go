@@ -21,8 +21,6 @@ func CreateGbPR(version, dir string) (gh.PullRequest, error) {
 	org, err := repo.GetOrg("gutenberg")
 	console.ExitIfError(err)
 
-	gbDir := fmt.Sprintf("%s/gutenberg", dir)
-
 	branch := "rnmobile/release_" + version
 
 	console.Info("Checking if branch %s exists", branch)
@@ -34,13 +32,14 @@ func CreateGbPR(version, dir string) (gh.PullRequest, error) {
 	} else {
 		console.Info("Cloning Gutenberg to %s", dir)
 
-		err := git.Clone(repo.GetRepoPath("gutenberg"), "--depth=1")
+		// Let's clone into the current directory so that the git client can find the .git directory
+		err := git.Clone(repo.GetRepoPath("gutenberg"), "--depth=1", ".")
 		if err != nil {
 			return pr, err
 		}
 
 		console.Info("Checking out branch %s", branch)
-		err = git.Switch(branch, "-c")
+		err = git.Switch("-c", branch)
 		if err != nil {
 			return pr, err
 		}
@@ -49,39 +48,39 @@ func CreateGbPR(version, dir string) (gh.PullRequest, error) {
 	console.Info("Updating package versions")
 	pkgs := []string{"react-native-aztec", "react-native-bridge", "react-native-editor"}
 	for _, pkg := range pkgs {
-		editorPackPath := filepath.Join(gbDir, "packages", pkg, "package.json")
+		editorPackPath := filepath.Join(dir, "packages", pkg, "package.json")
 		if err := utils.UpdatePackageVersion(version, editorPackPath); err != nil {
 			return pr, err
 		}
 	}
 
-	if err := git.CommitAll(gbDir, "Release script: Update react-native-editor version to %s", version); err != nil {
+	if err := git.CommitAll("Release script: Update react-native-editor version to %s", version); err != nil {
 		return pr, err
 	}
 
 	console.Info("Update the change notes in the mobile editor package")
-	chnPath := filepath.Join(gbDir, "packages", "react-native-editor", "CHANGELOG.md")
+	chnPath := filepath.Join(dir, "packages", "react-native-editor", "CHANGELOG.md")
 	if err := utils.UpdateChangeLog(version, chnPath); err != nil {
 		return pr, err
 	}
-	if err := git.CommitAll(gbDir, "Release script: Update changelog for version %s", version); err != nil {
+	if err := git.CommitAll("Release script: Update changelog for version %s", version); err != nil {
 		return pr, err
 	}
 
 	console.Info("Setting up Gutenberg node environment")
 
-	if err := exec.SetupNode(gbDir, true); err != nil {
+	if err := exec.SetupNode(dir, true); err != nil {
 		return pr, err
 	}
 
-	if err := exec.NpmCi(gbDir, true); err != nil {
+	if err := exec.NpmCi(dir, true); err != nil {
 		return pr, err
 	}
 
 	console.Info("Running preios script")
 
 	// Run bundle install directly since the preios script sometimes fails
-	editorIosPath := filepath.Join(gbDir, "packages", "react-native-editor", "ios")
+	editorIosPath := filepath.Join(dir, "packages", "react-native-editor", "ios")
 
 	if err := exec.BundleInstall(editorIosPath, true); err != nil {
 		return pr, err
@@ -91,7 +90,7 @@ func CreateGbPR(version, dir string) (gh.PullRequest, error) {
 		return pr, err
 	}
 
-	if err := git.CommitAll(gbDir, "Release script: Update podfile"); err != nil {
+	if err := git.CommitAll("Release script: Update podfile"); err != nil {
 		return pr, err
 	}
 
@@ -111,7 +110,7 @@ func CreateGbPR(version, dir string) (gh.PullRequest, error) {
 		Name: "Mobile App - i.e. Android or iOS",
 	}}
 
-	gh.PreviewPr("gutenberg", gbDir, &pr)
+	gh.PreviewPr("gutenberg", dir, &pr)
 
 	prompt := fmt.Sprintf("\nReady to create the PR on %s/gutenberg?", org)
 	cont := console.Confirm(prompt)
