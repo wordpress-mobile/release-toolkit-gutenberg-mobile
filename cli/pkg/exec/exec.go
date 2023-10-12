@@ -42,8 +42,12 @@ func NpmRun(dir string, verbose bool, args ...string) error {
 	return exc(verbose, dir, "npm", append([]string{"run"}, args...)...)
 }
 
-func BundleInstall(dir string, verbose bool) error {
-	return exc(verbose, dir, "bundle", "install")
+func Bundle(dir string, verbose bool, args ...string) error {
+	return exc(verbose, dir, "bundle", args...)
+}
+
+func BundleInstall(dir string, verbose bool, args ...string) error {
+	return Bundle(dir, true, append([]string{"install"}, args...)...)
 }
 
 func exc(verbose bool, dir, cmd string, args ...string) error {
