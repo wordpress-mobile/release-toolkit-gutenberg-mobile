@@ -12,6 +12,7 @@ type Client interface {
 	CommitAll(string, ...interface{}) error
 	Push() error
 	RemoteExists(string, string) bool
+	Submodule(...string) error
 }
 
 type client struct {
@@ -53,4 +54,10 @@ func (c *client) RemoteExists(remote, branch string) bool {
 	cmd := exec.Git(c.dir, c.verbose)
 	err := cmd("ls-remote", "--exit-code", "--heads", remote, branch)
 	return err == nil
+}
+
+func (c *client) Submodule(args ...string) error {
+	cmd := exec.Git(c.dir, c.verbose)
+	submodule := append([]string{"submodule"}, args...)
+	return cmd(submodule...)
 }
