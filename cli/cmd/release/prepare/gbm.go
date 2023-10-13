@@ -1,17 +1,16 @@
-package release
+package prepare
 
 import (
 	"github.com/spf13/cobra"
 	"github.com/wordpress-mobile/gbm-cli/pkg/console"
 	"github.com/wordpress-mobile/gbm-cli/pkg/gbm"
-	"github.com/wordpress-mobile/gbm-cli/pkg/release"
 	"github.com/wordpress-mobile/gbm-cli/pkg/utils"
 )
 
-var PrepareCmd = &cobra.Command{
-	Use:   "prepare",
-	Short: "Prepare a release",
-	Long:  `Use this command to prepare a release`,
+var gbmCmd = &cobra.Command{
+	Use:   "gbm",
+	Short: "Prepare Gutenberg Mobile release",
+	Long:  `Use this command to prepare a Gutenberg Mobile release PR`,
 	Run: func(cmd *cobra.Command, args []string) {
 		version, err := getVersionArg(args)
 		console.ExitIfError(err)
@@ -21,7 +20,7 @@ var PrepareCmd = &cobra.Command{
 			console.ExitError("Aztec versions are not valid")
 		}
 
-		console.Info("Preparing release for version %s", version)
+		console.Info("Preparing Gutenberg Mobile for release %s", version)
 
 		tempDir, err := utils.SetTempDir()
 		console.ExitIfError(err)
@@ -30,9 +29,6 @@ var PrepareCmd = &cobra.Command{
 
 		console.Info("Created temporary directory %s", tempDir)
 
-		pr, err := release.CreateGbPR(version, tempDir)
-		console.ExitIfError(err)
-
-		console.Info("Created PR  %s", pr.Url)
+		// console.ExitError("not implemented")
 	},
 }

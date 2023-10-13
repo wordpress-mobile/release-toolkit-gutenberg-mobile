@@ -7,6 +7,8 @@ import (
 	"os"
 	"regexp"
 	"time"
+
+	"github.com/wordpress-mobile/gbm-cli/pkg/console"
 )
 
 func ValidateVersion(version string) bool {
@@ -50,6 +52,7 @@ func SetTempDir() (string, error) {
 }
 
 func CleanupTempDir(tempDir string) error {
+	console.Info("Cleaning up temporary directory %s", tempDir)
 	err := os.RemoveAll(tempDir)
 	if err != nil {
 		return err
