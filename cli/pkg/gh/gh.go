@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"os"
+	"strings"
 
 	"github.com/cli/go-gh/v2/pkg/api"
 	"github.com/fatih/color"
@@ -63,6 +65,36 @@ type PullRequest struct {
 	ReleaseVersion string
 }
 
+// RepoFilter is used to filter PRs by repo and query.
+type RepoFilter struct {
+	Repo  string
+	Query string
+}
+
+// SearchResult is used to return a list of PRs from a search.
+type SearchResult struct {
+	Filter     RepoFilter
+	TotalCount int `json:"total_count"`
+	Items      []PullRequest
+}
+
+// Build a RepoFilter from a repo name and a list of queries.
+func BuildRepoFilter(rpo string, queries ...string) RepoFilter {
+	org, _ := repo.GetOrg(rpo)
+
+	var encoded []string
+	queries = append(queries, fmt.Sprintf("repo:%s/%s", org, rpo))
+
+	for _, q := range queries {
+		encoded = append(encoded, url.QueryEscape(q))
+	}
+
+	return RepoFilter{
+		Repo:  rpo,
+		Query: strings.Join(encoded, "+"),
+	}
+}
+
 // SearchBranch returns a branch for the given repo and branch name.
 func SearchBranch(rpo, branch string) (Branch, error) {
 	org, err := repo.GetOrg(rpo)
@@ -74,6 +106,17 @@ func SearchBranch(rpo, branch string) (Branch, error) {
 	endpoint := fmt.Sprintf("repos/%s/%s/branches/%s", org, rpo, branch)
 	if err := client.Get(endpoint, &response); err != nil {
 		return Branch{}, err
+	}
+	return response, nil
+}
+
+func SearchPrs(filter RepoFilter) (SearchResult, error) {
+	client := getClient()
+	endpoint := fmt.Sprintf("search/issues?q=%s", filter.Query)
+	response := SearchResult{Filter: filter}
+
+	if err := client.Get(endpoint, &response); err != nil {
+		return SearchResult{}, err
 	}
 	return response, nil
 }

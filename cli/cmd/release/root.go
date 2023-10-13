@@ -23,4 +23,5 @@ func Execute() {
 
 func init() {
 	ReleaseCmd.AddCommand(prepare.PrepareCmd)
+	ReleaseCmd.AddCommand(IntegrateCmd)
 }

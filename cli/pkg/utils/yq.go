@@ -16,6 +16,16 @@ func YqEval(expression, yaml string) (string, error) {
 	decoder := yqlib.NewYamlDecoder(yamlPref)
 
 	stringEvaluator := yqlib.NewStringEvaluator()
-
 	return stringEvaluator.Evaluate(expression, yaml, encoder, decoder)
+}
+
+func YqEvalAll(expressions []string, yaml string) (string, error) {
+	for _, expression := range expressions {
+		var err error
+		yaml, err = YqEval(expression, yaml)
+		if err != nil {
+			return "", err
+		}
+	}
+	return yaml, nil
 }
