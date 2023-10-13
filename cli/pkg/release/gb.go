@@ -7,16 +7,17 @@ import (
 	"github.com/wordpress-mobile/gbm-cli/pkg/console"
 	"github.com/wordpress-mobile/gbm-cli/pkg/exec"
 	"github.com/wordpress-mobile/gbm-cli/pkg/gh"
-	g "github.com/wordpress-mobile/gbm-cli/pkg/git"
 	"github.com/wordpress-mobile/gbm-cli/pkg/render"
 	"github.com/wordpress-mobile/gbm-cli/pkg/repo"
+	"github.com/wordpress-mobile/gbm-cli/pkg/shell"
 	"github.com/wordpress-mobile/gbm-cli/pkg/utils"
 )
 
 func CreateGbPR(version, dir string) (gh.PullRequest, error) {
 	var pr gh.PullRequest
 
-	git := g.NewClient(dir, true)
+	shellProps := shell.CmdProps{Dir: dir, Verbose: true}
+	git := shell.GitCmd(shellProps)
 
 	org, err := repo.GetOrg("gutenberg")
 	console.ExitIfError(err)
