@@ -123,8 +123,7 @@ func CreateGbPR(version, dir string) (gh.PullRequest, error) {
 	cont := console.Confirm(prompt)
 
 	if !cont {
-		console.Info("Bye 👋")
-		return pr, fmt.Errorf("exiting before creating PR")
+		console.ExitError("Exiting without creating the PR.")
 	}
 
 	if err := git.Push(); err != nil {
