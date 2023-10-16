@@ -39,7 +39,7 @@ var ChecklistCmd = &cobra.Command{
 
 		vv := utils.ValidateVersion(version)
 		if !vv {
-			console.ExitError("%v is not a valid version. Versions must have a `Major.Minor.Patch` form", version)
+			exitIfError(fmt.Errorf("%v is not a valid version. Versions must have a `Major.Minor.Patch` form", version), 1)
 		}
 
 		// For now let's assume we should include the Aztec steps unless explicitly checking if the versions are valid.
@@ -76,7 +76,7 @@ var ChecklistCmd = &cobra.Command{
 		}
 
 		result, err := render.RenderTasks(t)
-		console.ExitIfError(err)
+		exitIfError(err, 1)
 
 		if writeToClipboard {
 			console.Clipboard(result)
