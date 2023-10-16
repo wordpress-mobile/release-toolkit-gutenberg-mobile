@@ -19,8 +19,9 @@ func CreateGbPR(version, dir string) (gh.PullRequest, error) {
 	git := g.NewClient(dir, true)
 
 	org, err := repo.GetOrg("gutenberg")
-	console.ExitIfError(err)
-
+	if err != nil {
+		return pr, err
+	}
 	branch := "rnmobile/release_" + version
 
 	console.Info("Checking if branch %s exists", branch)
