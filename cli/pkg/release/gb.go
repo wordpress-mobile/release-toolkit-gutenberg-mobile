@@ -23,12 +23,18 @@ func CreateGbPR(version, dir string) (gh.PullRequest, error) {
 
 	branch := "rnmobile/release_" + version
 
-	console.Info("Checking if branch %s exists", branch)
 	exists, _ := gh.SearchBranch("gutenberg", branch)
 
 	if (exists != gh.Branch{}) {
-		console.Info("Branch %s already exists", branch)
-		return pr, nil
+		console.Warn("Branch %s already exists", branch)
+
+		cont := console.Confirm("Do you wish to continue?")
+
+		if !cont {
+			console.Info("Bye 👋")
+			return pr, fmt.Errorf("exiting before creating PR")
+		}
+
 	} else {
 		console.Info("Cloning Gutenberg to %s", dir)
 
