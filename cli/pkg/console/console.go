@@ -78,6 +78,12 @@ func Warn(format string, args ...interface{}) {
 	color.Unset()
 }
 
+func Error(err error) {
+	red := color.New(color.FgRed).SprintfFunc()
+	l.Printf(red("\n" + err.Error()))
+	color.Unset()
+}
+
 func Confirm(ask string) bool {
 	reader := bufio.NewReader(os.Stdin)
 
