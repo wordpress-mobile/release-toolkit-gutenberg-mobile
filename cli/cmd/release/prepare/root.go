@@ -5,8 +5,6 @@ import (
 	"github.com/wordpress-mobile/gbm-cli/cmd/utils"
 )
 
-var tempDir string
-var cleanup func()
 var exitIfError func(error, int)
 
 var PrepareCmd = &cobra.Command{
@@ -20,12 +18,7 @@ func Execute() {
 }
 
 func init() {
-	cleanup = func() {
-		if tempDir != "" {
-			utils.CleanupTempDir(tempDir)
-		}
-	}
-	exitIfError = utils.ExitIfErrorHandler(cleanup)
+	exitIfError = utils.ExitIfErrorHandler(func() {})
 
 	PrepareCmd.AddCommand(gbmCmd)
 	PrepareCmd.AddCommand(gbCmd)

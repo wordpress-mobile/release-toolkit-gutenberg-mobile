@@ -26,10 +26,15 @@ var gbCmd = &cobra.Command{
 
 		console.Info("Preparing Gutenberg for release %s", version)
 
-		tempDir, err = utils.SetTempDir()
+		tempDir, err := utils.SetTempDir()
 		exitIfError(err, 1)
-
+		cleanup := func() {
+			utils.CleanupTempDir(tempDir)
+		}
 		defer cleanup()
+
+		// Reset the exitIfError to handle the cleanup
+		exitIfError = utils.ExitIfErrorHandler(cleanup)
 
 		console.Info("Created temporary directory %s", tempDir)
 
