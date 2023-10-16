@@ -7,8 +7,6 @@ import (
 	"os"
 	"regexp"
 	"time"
-
-	"github.com/wordpress-mobile/gbm-cli/pkg/console"
 )
 
 func ValidateVersion(version string) bool {
@@ -41,23 +39,6 @@ func NormalizeVersion(version string) (string, error) {
 		return "", fmt.Errorf("invalid version")
 	}
 	return v, nil
-}
-
-func SetTempDir() (string, error) {
-	tempDir, err := os.MkdirTemp("", "gbm-")
-	if err != nil {
-		return "", err
-	}
-	return tempDir, nil
-}
-
-func CleanupTempDir(tempDir string) error {
-	console.Info("Cleaning up temporary directory %s", tempDir)
-	err := os.RemoveAll(tempDir)
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 func UpdatePackageVersion(version, path string) error {
