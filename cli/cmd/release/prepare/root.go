@@ -1,12 +1,13 @@
 package prepare
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
-	"github.com/wordpress-mobile/gbm-cli/pkg/console"
-	"github.com/wordpress-mobile/gbm-cli/pkg/utils"
+	"github.com/wordpress-mobile/gbm-cli/cmd/utils"
 )
+
+var tempDir string
+var cleanup func()
+var exitIfError func(error, int)
 
 var PrepareCmd = &cobra.Command{
 	Use:   "prepare",
@@ -15,18 +16,17 @@ var PrepareCmd = &cobra.Command{
 
 func Execute() {
 	err := PrepareCmd.Execute()
-	console.ExitIfError(err)
+	exitIfError(err, 1)
 }
 
 func init() {
+	cleanup = func() {
+		if tempDir != "" {
+			utils.CleanupTempDir(tempDir)
+		}
+	}
+	exitIfError = utils.ExitIfErrorHandler(cleanup)
+
 	PrepareCmd.AddCommand(gbmCmd)
 	PrepareCmd.AddCommand(gbCmd)
-}
-
-func getVersionArg(args []string) (string, error) {
-	if len(args) == 0 {
-		return "", fmt.Errorf("missing version")
-	}
-
-	return utils.NormalizeVersion(args[0])
 }
