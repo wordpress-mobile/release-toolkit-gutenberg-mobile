@@ -37,11 +37,14 @@ func ExitIfErrorHandler(deferred func()) func(error, int) {
 		if err != nil {
 			console.Error(err)
 
-			os.Exit(func() int {
-				defer deferred()
-				return code
-			}())
-
+			Exit(deferred, code)
 		}
 	}
+}
+
+func Exit(deferred func(), code int) {
+	os.Exit(func() int {
+		defer deferred()
+		return code
+	}())
 }

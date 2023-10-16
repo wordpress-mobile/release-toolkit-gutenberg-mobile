@@ -32,7 +32,13 @@ var gbmCmd = &cobra.Command{
 		tempDir, err := utils.SetTempDir()
 		exitIfError(err, 1)
 
-		defer utils.CleanupTempDir(tempDir)
+		cleanup := func() {
+			utils.CleanupTempDir(tempDir)
+		}
+
+		// Reset the exitIfError to handle the cleanup
+		exitIfError = utils.ExitIfErrorHandler(cleanup)
+		defer cleanup()
 
 		console.Info("Created temporary directory %s", tempDir)
 
