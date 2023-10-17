@@ -19,12 +19,14 @@ func init() {
 	l = log.New(os.Stderr, "", 0)
 }
 
+// Deprecated
 func ExitIfError(err error) {
 	if err != nil {
 		ExitError(err.Error() + "\n")
 	}
 }
 
+// Deprecated
 func ExitError(format string, args ...interface{}) {
 	if len(args) == 0 {
 		Exit(1, format)
@@ -33,6 +35,7 @@ func ExitError(format string, args ...interface{}) {
 	}
 }
 
+// Deprecated
 func Exit(code int, format string, args ...interface{}) {
 	red := color.New(color.FgRed).SprintfFunc()
 	l.Printf(red("\n"+format, args...))
@@ -75,6 +78,12 @@ func Debug(format string, args ...interface{}) {
 func Warn(format string, args ...interface{}) {
 	yellow := color.New(color.FgYellow).SprintfFunc()
 	l.Printf(yellow("\n"+format, args...))
+	color.Unset()
+}
+
+func Error(err error) {
+	red := color.New(color.FgRed).SprintfFunc()
+	l.Printf(red("\n" + err.Error()))
 	color.Unset()
 }
 

@@ -10,8 +10,7 @@ var AztecCmd = &cobra.Command{
 	Short: "Render the steps for upgrading Aztec",
 	Run: func(cmd *cobra.Command, args []string) {
 		result, err := renderAztecSteps(false)
-
-		console.ExitIfError(err)
+		exitIfError(err, 1)
 
 		if writeToClipboard {
 			console.Clipboard(result)

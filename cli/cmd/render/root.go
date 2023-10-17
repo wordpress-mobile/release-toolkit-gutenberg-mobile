@@ -4,9 +4,11 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/wordpress-mobile/gbm-cli/cmd/utils"
 )
 
 var writeToClipboard bool
+var exitIfError func(error, int)
 
 // rootCmd represents the render command
 var RenderCmd = &cobra.Command{
@@ -25,6 +27,7 @@ var RenderCmd = &cobra.Command{
 }
 
 func init() {
+	exitIfError = utils.ExitIfErrorHandler(func() {})
 	RenderCmd.AddCommand(ChecklistCmd)
 	RenderCmd.AddCommand(AztecCmd)
 	RenderCmd.PersistentFlags().BoolVar(&writeToClipboard, "c", false, "Send output to clipboard")
