@@ -1,6 +1,7 @@
 package release
 
 import (
+	"errors"
 	"fmt"
 	"path/filepath"
 
@@ -42,9 +43,12 @@ func CreateGbPR(version, dir string) (gh.PullRequest, error) {
 		// Let's clone into the current directory so that the git client can find the .git directory
 		err := git.Clone(repo.GetRepoPath("gutenberg"), "--depth=1", ".")
 
+		
 		if err != nil {
 			console.ExitError("There was an error cloning the Gutenberg repository.")
 		}
+
+		exitIfError(errors.New("not implemented"), 1)
 
 		console.Info("Checking out branch %s", branch)
 		err = git.Switch("-c", branch)
@@ -140,6 +144,10 @@ func CreateGbPR(version, dir string) (gh.PullRequest, error) {
 	}
 
 	return pr, nil
+}
+
+func exitIfError(err error, i int) {
+	panic("unimplemented")
 }
 
 func renderGbPrBody(version string, pr *gh.PullRequest) error {
