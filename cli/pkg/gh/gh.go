@@ -67,8 +67,9 @@ type PullRequest struct {
 
 // RepoFilter is used to filter PRs by repo and query.
 type RepoFilter struct {
-	Repo  string
-	Query string
+	Repo        string
+	Query       string
+	QueryString string
 }
 
 // SearchResult is used to return a list of PRs from a search.
@@ -85,13 +86,16 @@ func BuildRepoFilter(rpo string, queries ...string) RepoFilter {
 	var encoded []string
 	queries = append(queries, fmt.Sprintf("repo:%s/%s", org, rpo))
 
+	queryString := strings.Join(queries, " ")
+
 	for _, q := range queries {
 		encoded = append(encoded, url.QueryEscape(q))
 	}
 
 	return RepoFilter{
-		Repo:  rpo,
-		Query: strings.Join(encoded, "+"),
+		Repo:        rpo,
+		Query:       strings.Join(encoded, "+"),
+		QueryString: queryString,
 	}
 }
 
@@ -111,6 +115,7 @@ func SearchBranch(rpo, branch string) (Branch, error) {
 }
 
 func SearchPrs(filter RepoFilter) (SearchResult, error) {
+	console.Info("Searching for PRs matching %s", filter.QueryString)
 	client := getClient()
 	endpoint := fmt.Sprintf("search/issues?q=%s", filter.Query)
 	response := SearchResult{Filter: filter}

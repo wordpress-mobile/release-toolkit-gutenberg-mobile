@@ -10,9 +10,9 @@ import (
 	"github.com/wordpress-mobile/gbm-cli/pkg/console"
 	"github.com/wordpress-mobile/gbm-cli/pkg/exec"
 	"github.com/wordpress-mobile/gbm-cli/pkg/gh"
-	g "github.com/wordpress-mobile/gbm-cli/pkg/git"
 	"github.com/wordpress-mobile/gbm-cli/pkg/render"
 	"github.com/wordpress-mobile/gbm-cli/pkg/repo"
+	"github.com/wordpress-mobile/gbm-cli/pkg/shell"
 	"github.com/wordpress-mobile/gbm-cli/pkg/utils"
 )
 
@@ -32,7 +32,8 @@ func Integrate(dir string, ri ReleaseIntegration) (gh.PullRequest, error) {
 		return pr, errors.New("no platform specified")
 	}
 
-	git := g.NewClient(dir, true)
+	sp := shell.CmdProps{Dir: dir, Verbose: true}
+	git := shell.NewGitCmd(sp)
 
 	rpo := getRepo(ri)
 
@@ -85,7 +86,7 @@ func Integrate(dir string, ri ReleaseIntegration) (gh.PullRequest, error) {
 		return pr, err
 	}
 
-	return pr, errors.New("not implemented: PR not created")
+	return pr, nil
 }
 
 func getRepo(ri ReleaseIntegration) string {
@@ -95,14 +96,14 @@ func getRepo(ri ReleaseIntegration) string {
 	return "WordPress-iOS"
 }
 
-func updateGutenbergConfig(dir string, git g.Client, ri ReleaseIntegration) error {
+func updateGutenbergConfig(dir string, git shell.GitCmds, ri ReleaseIntegration) error {
 	if ri.Android {
 		return updateAndroid(dir, git, ri)
 	}
 	return updateIos(dir, git, ri)
 }
 
-func updateIos(dir string, git g.Client, ri ReleaseIntegration) error {
+func updateIos(dir string, git shell.GitCmds, ri ReleaseIntegration) error {
 	// TODO update github org although not sure it's useful here
 	console.Info("Update gutenberg-mobile ref in Gutenberg/config.yml")
 
@@ -136,9 +137,9 @@ func updateIos(dir string, git g.Client, ri ReleaseIntegration) error {
 	return git.CommitAll("Release script: Update gutenberg-mobile ref", ri.Version)
 }
 
-func updateAndroid(dir string, git g.Client, ri ReleaseIntegration) error {
+func updateAndroid(dir string, git shell.GitCmds, ri ReleaseIntegration) error {
 	// Find the gutenberg-mobile release PR
-	filter := gh.BuildRepoFilter("gutenberg-mobile", "is:open", "is:pr", `label:"release process"`, fmt.Sprintf("%s in:title", ri.Version))
+	filter := gh.BuildRepoFilter("gutenberg-mobile", "is:open", "is:pr", `label:"release-process"`, fmt.Sprintf("%s in:title", ri.Version))
 
 	result, err := gh.SearchPrs(filter)
 	if err != nil {
@@ -189,7 +190,8 @@ func createPR(dir, version string, ri ReleaseIntegration) (gh.PullRequest, error
 
 	gh.PreviewPr("gutenberg", dir, pr)
 
-	prompt := fmt.Sprintf("\nReady to create the PR on %s?", getRepo(ri))
+	org, _ := repo.GetOrg(getRepo(ri))
+	prompt := fmt.Sprintf("\nReady to create the PR on %s/%s?", org, getRepo(ri))
 	cont := console.Confirm(prompt)
 
 	if !cont {
@@ -197,6 +199,9 @@ func createPR(dir, version string, ri ReleaseIntegration) (gh.PullRequest, error
 		return pr, errors.New("exiting before creating PR")
 	}
 
+	if err := gh.CreatePr("WordPress-Android", &pr); err != nil {
+		return pr, err
+	}
 	return pr, nil
 }
 

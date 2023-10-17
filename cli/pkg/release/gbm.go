@@ -171,7 +171,7 @@ func CreateGbmPR(version, dir string) (gh.PullRequest, error) {
 	}}
 
 	// Display PR preview
-	gh.PreviewPr("gutenberg-mobile", dir, &pr)
+	gh.PreviewPr("gutenberg-mobile", dir, pr)
 
 	// Add prompt to confirm PR creation
 	prompt := fmt.Sprintf("\nReady to create the PR on %s/gutenberg-mobile?", org)
