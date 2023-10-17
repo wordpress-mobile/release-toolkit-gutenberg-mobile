@@ -38,8 +38,19 @@ func CreateGbmPR(version, dir string) (gh.PullRequest, error) {
 		return pr, nil
 	} else {
 		console.Info("Cloning Gutenberg Mobile to %s", dir)
-
 		err := git.Clone(repo.GetRepoPath("gutenberg-mobile"), "--depth=1", "--recursive", ".")
+		if err != nil {
+			return pr, err
+		}
+
+		console.Info("Add remote for %s", org)
+		err = git.AddRemote("upstream", repo.GetRepoPath("gutenberg-mobile"))
+		if err != nil {
+			return pr, err
+		}
+
+		console.Info("Set upstream to trunk", org)	
+		err = git.SetUpstreamTo("trunk")
 		if err != nil {
 			return pr, err
 		}
@@ -50,6 +61,7 @@ func CreateGbmPR(version, dir string) (gh.PullRequest, error) {
 			return pr, err
 		}
 	}
+
 	// Set up Gutenberg Mobile node environment
 	console.Info("Setting up Node environment")
 	npm := shell.NpmCmd(sp)
@@ -64,8 +76,8 @@ func CreateGbmPR(version, dir string) (gh.PullRequest, error) {
 	if err := npm.Run("bundle"); err != nil {
 		return pr, err
 	}
-	// Update package versions for package.json and package-lock.json
 
+	// Update package versions for package.json and package-lock.json
 	console.Info("Updating package versions")
 	pkgs := []string{"./package.json", "./package-lock.json"}
 	for _, pkg := range pkgs {
