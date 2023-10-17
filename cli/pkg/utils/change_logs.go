@@ -7,6 +7,22 @@ import (
 	"regexp"
 )
 
+// Updates the release notes by replacing "Unreleased" with
+// the new version and adding a new "Unreleased" section
+func UpdateReleaseNotes(version, path string) error {
+	return readWriteNotes(version, path, releaseNotesUpdater)
+}
+
+// See UpdateReleaseNotes
+// This handles the string replacement
+func releaseNotesUpdater(version string, notes []byte) []byte {
+	re := regexp.MustCompile(`(^Unreleased\s*\n)`)
+
+	repl := fmt.Sprintf("$1---\n\n%s\n", version)
+
+	return re.ReplaceAll(notes, []byte(repl))
+}
+
 // Updates the change log by replacing "Unreleased" with
 // the new version and adding a new "Unreleased" section
 func UpdateChangeLog(version, path string) error {
