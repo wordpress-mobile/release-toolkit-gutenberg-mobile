@@ -4,9 +4,9 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	"github.com/wordpress-mobile/gbm-cli/cmd/utils"
 	"github.com/wordpress-mobile/gbm-cli/pkg/console"
 	"github.com/wordpress-mobile/gbm-cli/pkg/release"
-	"github.com/wordpress-mobile/gbm-cli/pkg/utils"
 )
 
 var android, ios, both bool
@@ -16,12 +16,20 @@ var IntegrateCmd = &cobra.Command{
 	Short: "integrate a release",
 	Long:  `Use this command to integrate a release. If the android or ios flags are set, only that platform will be integrated. Otherwise, both will be integrated.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		version, err := getVersionArg(args)
-		console.ExitIfError(err)
+		version, err := utils.GetVersionArg(args)
+		exitIfError(err, 1)
 
 		tempDir, err := utils.SetTempDir()
-		console.ExitIfError(err)
-		defer utils.CleanupTempDir(tempDir)
+		exitIfError(err, 1)
+
+		cleanup := func() {
+			utils.CleanupTempDir(tempDir)
+		}
+
+		defer cleanup()
+		// reassign exitIfError to handle the cleanup
+		exitIfError = utils.ExitIfErrorHandler(cleanup)
+
 		console.Info("Created temporary directory %s", tempDir)
 
 		androidRi := release.ReleaseIntegration{
@@ -40,7 +48,7 @@ var IntegrateCmd = &cobra.Command{
 
 		createPr := func(ri release.ReleaseIntegration) {
 			pr, err := release.Integrate(tempDir, ri)
-			console.ExitIfError(err)
+			exitIfError(err, 1)
 			console.Info("Created PR %s", pr.Url)
 		}
 
@@ -68,12 +76,4 @@ var IntegrateCmd = &cobra.Command{
 func init() {
 	IntegrateCmd.Flags().BoolVarP(&android, "android", "a", false, "Only integrate Android")
 	IntegrateCmd.Flags().BoolVarP(&ios, "ios", "i", false, "Only integrate iOS")
-}
-
-func getVersionArg(args []string) (string, error) {
-	if len(args) == 0 {
-		return "", fmt.Errorf("missing version")
-	}
-
-	return utils.NormalizeVersion(args[0])
 }
