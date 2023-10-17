@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"fmt"
 	"os"
 	"reflect"
 	"strings"
@@ -13,12 +12,11 @@ import (
 func TestYqEval(t *testing.T) {
 
 	t.Run("it adds a key", func(t *testing.T) {
-		t.Skip()
 
 		test := read(t, "./testdata/ref_tag.yaml")
 		want := read(t, "./testdata/ref_tag_commit.yaml")
 
-		got, err := YqEval(".ref.commit = 123", test)
+		got, err := YqEval(".ref.commit = \"1.2.3\"", test)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -28,7 +26,6 @@ func TestYqEval(t *testing.T) {
 		}
 		defer os.Remove(f.Name())
 
-		fmt.Println("WTF", f.Name())
 		_, err = f.WriteString(got)
 
 		if err != nil {
@@ -42,8 +39,6 @@ func TestYqEval(t *testing.T) {
 		want := read(t, "./testdata/ref_commit.yaml")
 
 		got, err := YqEval("del(.ref.tag)", test)
-
-		fmt.Println("WTF", got)
 
 		if err != nil {
 			t.Fatal(err)
