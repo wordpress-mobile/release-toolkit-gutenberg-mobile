@@ -49,7 +49,7 @@ func CreateGbmPR(version, dir string) (gh.PullRequest, error) {
 			return pr, err
 		}
 
-		console.Info("Set upstream to trunk", org)	
+		console.Info("Set upstream to trunk", org)
 		err = git.SetUpstreamTo("trunk")
 		if err != nil {
 			return pr, err
@@ -73,35 +73,18 @@ func CreateGbmPR(version, dir string) (gh.PullRequest, error) {
 		return pr, err
 	}
 
-	if err := npm.Run("bundle"); err != nil {
-		return pr, err
-	}
-
+	// Commit package.json and package-lock.json
 	// Update package versions for package.json and package-lock.json
 	console.Info("Updating package versions")
-	pkgs := []string{"./package.json", "./package-lock.json"}
-	for _, pkg := range pkgs {
-		if err := utils.UpdatePackageVersion(version, filepath.Join(dir, pkg)); err != nil {
-			return pr, err
-		}
-	}
-
-	// Commit package.json and package-lock.json
-	if err := git.CommitAll(dir, "Release script: Update package.json version to %s", version); err != nil {
-		return pr, err
-	}
-
-	// Update the release-notes in the mobile package
-	// if err := git.Submodule("update", "--init", "--recursive", "--depth=1", "--recommend-shallow"); err != nil {
-	//	return pr, err
-	// }
+	updatePackageJson(dir, version, "package.json", "package-lock.json")
 
 	// Create a git client for Gutenberg submodule so the Gutenberg ref can be updated to the correct branch
+	console.Info("Updating Gutenberg submodule")
 	gbBranch := "rnmobile/release_" + version
+	if org != repo.WpMobileOrg {
+		console.Warn("You are not using the %s org. Check the .gitmodules file to make sure the gutenberg submodule is pointing to %s/gutenberg.", repo.WpMobileOrg, org)
+	}
 	if exists, _ := gh.SearchBranch("gutenberg", gbBranch); (exists == gh.Branch{}) {
-		if org != repo.WpMobileOrg {
-			console.Warn("You are not using the %s org. Check the .gitmodules file to make sure the gutenberg submodule is pointing to %s/gutenberg.", repo.WpMobileOrg, org)
-		}
 		return pr, fmt.Errorf("the Gutenberg branch %s does not exist on %s/gutenberg-mobile", gbBranch, org)
 	}
 
@@ -117,22 +100,29 @@ func CreateGbmPR(version, dir string) (gh.PullRequest, error) {
 		return pr, err
 	}
 
+	if err := git.CommitAll("Release script: Update gutenberg submodule"); err != nil {
+		return pr, err
+	}
+
+	console.Info("Bundling Gutenberg Mobile")
+	if err := npm.Run("bundle"); err != nil {
+		return pr, err
+	}
+
 	// Commit the updated Gutenberg submodule ref
 	if git.IsPorcelain() {
 		console.Info("Nothing to commit after bundling")
 	} else {
-		if err := git.CommitAll("Release script: Update gutenberg submodule"); err != nil {
+		// Commit the updated bundle output
+		if err := git.CommitAll("Release script: Update bundle for %s", version); err != nil {
 			return pr, err
 		}
 	}
 
-	// Commit the updated bundle output
-	if err := git.CommitAll("Release script: Update bundle for %s", version); err != nil {
-		return pr, err
-	}
-
 	// Update XCFramework builders project Podfile.lock
 	console.Info("Update XCFramework builders project Podfile.lock")
+
+	// set up a shell command for the ios-xcframework directory
 	xcSp := sp
 	xcSp.Dir = fmt.Sprintf("%s/ios-xcframework", dir)
 	bundle := shell.BundlerCmd(xcSp)
@@ -159,7 +149,7 @@ func CreateGbmPR(version, dir string) (gh.PullRequest, error) {
 		return pr, err
 	}
 
-	if err := git.CommitAll(dir, "Release script: Update release notes for version %s", version); err != nil {
+	if err := git.CommitAll("Release script: Update release notes for version %s", version); err != nil {
 		return pr, err
 	}
 
@@ -184,7 +174,7 @@ func CreateGbmPR(version, dir string) (gh.PullRequest, error) {
 	gh.PreviewPr("gutenberg-mobile", dir, &pr)
 
 	// Add prompt to confirm PR creation
-	prompt := fmt.Sprintf("\nReady to create the PR on %s/gutenberg?", org)
+	prompt := fmt.Sprintf("\nReady to create the PR on %s/gutenberg-mobile?", org)
 	cont := console.Confirm(prompt)
 
 	if !cont {
