@@ -14,7 +14,7 @@ type client struct {
 	cmd func(...string) error
 }
 
-func NpmCmd(cp CmdProps) NpmCmds {
+func NewNpmCmd(cp CmdProps) NpmCmds {
 	return &client{
 		cmd: func(cmds ...string) error {
 			cmd := exec.Command("npm", cmds...)
@@ -30,7 +30,7 @@ func NpmCmd(cp CmdProps) NpmCmds {
 	}
 }
 
-func GitCmd(cp CmdProps) gitCmds {
+func NewGitCmd(cp CmdProps) GitCmds {
 	return &client{
 		cmd: func(cmds ...string) error {
 			cmd := exec.Command("git", cmds...)
@@ -46,7 +46,7 @@ func GitCmd(cp CmdProps) gitCmds {
 	}
 }
 
-func BundlerCmd(cp CmdProps) BundlerCmds {
+func NewBundlerCmd(cp CmdProps) BundlerCmds {
 	return &client{
 		cmd: func(cmds ...string) error {
 			cmd := exec.Command("bundle", cmds...)

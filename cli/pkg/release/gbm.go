@@ -18,7 +18,7 @@ func CreateGbmPR(version, dir string) (gh.PullRequest, error) {
 	var pr gh.PullRequest
 
 	sp := shell.CmdProps{Dir: dir, Verbose: true}
-	git := shell.GitCmd(sp)
+	git := shell.NewGitCmd(sp)
 
 	// Set Gutenberg Mobile repository and org
 	org, err := repo.GetOrg("gutenberg-mobile")
@@ -64,7 +64,7 @@ func CreateGbmPR(version, dir string) (gh.PullRequest, error) {
 
 	// Set up Gutenberg Mobile node environment
 	console.Info("Setting up Node environment")
-	npm := shell.NpmCmd(sp)
+	npm := shell.NewNpmCmd(sp)
 	if err := exec.SetupNode(dir, true); err != nil {
 		return pr, err
 	}
@@ -90,7 +90,7 @@ func CreateGbmPR(version, dir string) (gh.PullRequest, error) {
 
 	gbSp := sp
 	gbSp.Dir = filepath.Join(dir, "gutenberg")
-	gbGit := shell.GitCmd(gbSp)
+	gbGit := shell.NewGitCmd(gbSp)
 
 	if err := gbGit.Fetch(gbBranch); err != nil {
 		return pr, err
@@ -125,7 +125,7 @@ func CreateGbmPR(version, dir string) (gh.PullRequest, error) {
 	// set up a shell command for the ios-xcframework directory
 	xcSp := sp
 	xcSp.Dir = fmt.Sprintf("%s/ios-xcframework", dir)
-	bundle := shell.BundlerCmd(xcSp)
+	bundle := shell.NewBundlerCmd(xcSp)
 
 	// Run `bundle install`
 	if err := bundle.Install(); err != nil {
