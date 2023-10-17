@@ -14,7 +14,7 @@ type gitCmds interface {
 	Fetch(...string) error
 	SetRemoteBranches(...string) error
 	AddRemote(...string) error
-	SetUpstreamTo(string) bool
+	SetUpstreamTo(...string) error
 	IsPorcelain() bool
 }
 
