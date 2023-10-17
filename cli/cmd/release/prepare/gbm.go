@@ -31,8 +31,8 @@ var gbmCmd = &cobra.Command{
 		console.Info("Created temporary directory %s", tempDir)
 
 		pr, err := release.CreateGbmPR(version, tempDir)
-		console.Info("Created PR %s", pr.Url)
-
 		console.ExitIfError(err)
+
+		console.Info("Created PR %s", pr.Url)
 	},
 }
