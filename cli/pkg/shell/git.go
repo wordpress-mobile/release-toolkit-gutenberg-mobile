@@ -13,6 +13,8 @@ type gitCmds interface {
 	Submodule(...string) error
 	Fetch(...string) error
 	SetRemoteBranches(...string) error
+	AddRemote(...string) error
+	SetUpstreamTo(string) bool
 	IsPorcelain() bool
 }
 
@@ -55,6 +57,16 @@ func (c *client) Fetch(args ...string) error {
 func (c *client) SetRemoteBranches(args ...string) error {
 	checkout := append([]string{"remote", "set-branches", "origin"}, args...)
 	return c.cmd(checkout...)
+}
+
+func (c *client) AddRemote(args ...string) error {
+	clone := append([]string{"remote", "add"}, args...)
+	return c.cmd(clone...)
+}
+
+func (c *client) SetUpstreamTo(args ...string) error {
+	branch := append([]string{"branch", "--set-upstream-to", "origin"}, args...)
+	return c.cmd(branch...)
 }
 
 func (c *client) IsPorcelain() bool {
