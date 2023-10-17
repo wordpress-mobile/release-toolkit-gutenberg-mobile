@@ -24,17 +24,18 @@ type ReleaseIntegration struct {
 	HeadBranch string
 }
 
-func Integrate(dir string, ri *ReleaseIntegration) error {
+func Integrate(dir string, ri ReleaseIntegration) (gh.PullRequest, error) {
+
+	pr := gh.PullRequest{}
 
 	if !ri.Android && !ri.Ios {
-		return errors.New("no platform specified")
+		return pr, errors.New("no platform specified")
 	}
 
-	var pr gh.PullRequest
 	git := g.NewClient(dir, true)
 
 	rpo := getRepo(ri)
-	org, _ := repo.GetOrg(rpo)
+
 	repoPath := repo.GetRepoPath(rpo)
 
 	// clone repo
@@ -44,76 +45,64 @@ func Integrate(dir string, ri *ReleaseIntegration) error {
 	}
 
 	if err := git.Clone("-b", base, "--depth=1", repoPath, "."); err != nil {
-		return err
+		return pr, err
 	}
+
+	// @TODO: check if branch exists
 
 	// Create after branch
 	afterBranch := "gutenberg/after_" + ri.Version
 	console.Info("Creating after branch %s in %s", afterBranch, rpo)
 	if err := git.Switch("-c", afterBranch); err != nil {
-		return err
+		return pr, err
 	}
 	if err := git.Push(); err != nil {
-		return err
+		return pr, err
 	}
 
 	// Create release branch
 	console.Info("Creating release branch in %s", ri.HeadBranch, rpo)
 	branch := "gutenberg/integrate_release_" + ri.Version
 	if err := git.Switch("-c", branch); err != nil {
-		return err
+		return pr, err
 	}
 
 	// Update gutenberg config
 	console.Info("Updating gutenberg config")
 	if err := updateGutenbergConfig(dir, git, ri); err != nil {
-		return err
+		return pr, err
 	}
 
 	// Push branch
 	console.Info("Pushing branch %s to %s", branch, rpo)
 	if err := git.Push(); err != nil {
-		return err
+		return pr, err
 	}
 
-	return errors.New("not implemented: PR not created")
+	// Create PR
+	pr, err := createPR(dir, ri.Version, ri)
+	if err != nil {
+		return pr, err
+	}
+
+	return pr, errors.New("not implemented: PR not created")
 }
 
-func getRepo(ri *ReleaseIntegration) string {
+func getRepo(ri ReleaseIntegration) string {
 	if ri.Android {
 		return "WordPress-Android"
 	}
 	return "WordPress-iOS"
 }
 
-func renderPrBody(version string, pr *gh.PullRequest) error {
-	t := render.Template{
-		Path: "templates/release/integrate_pr_body.md",
-		Data: struct {
-			Version  string
-			GbmPrUrl string
-		}{
-			Version:  version,
-			GbmPrUrl: "TBD",
-		},
-	}
-
-	body, err := render.Render(t)
-	if err != nil {
-		return err
-	}
-	pr.Body = body
-	return nil
-}
-
-func updateGutenbergConfig(dir string, git g.Client, ri *ReleaseIntegration) error {
+func updateGutenbergConfig(dir string, git g.Client, ri ReleaseIntegration) error {
 	if ri.Android {
 		return updateAndroid(dir, git, ri)
 	}
 	return updateIos(dir, git, ri)
 }
 
-func updateIos(dir string, git g.Client, ri *ReleaseIntegration) error {
+func updateIos(dir string, git g.Client, ri ReleaseIntegration) error {
 	// TODO update github org although not sure it's useful here
 	console.Info("Update gutenberg-mobile ref in Gutenberg/config.yml")
 
@@ -124,7 +113,7 @@ func updateIos(dir string, git g.Client, ri *ReleaseIntegration) error {
 	}
 
 	// perform updates using the yq syntax
-	updates := []string{".ref.commit = " + ri.Version, "del(.ref.tag)"}
+	updates := []string{".ref.commit = \"v" + ri.Version + "\"", "del(.ref.tag)"}
 	config, err := utils.YqEvalAll(updates, string(buf))
 	if err != nil {
 		return err
@@ -140,14 +129,14 @@ func updateIos(dir string, git g.Client, ri *ReleaseIntegration) error {
 	}
 
 	console.Info("Running rake dependencies")
-	if err := exec.Try(10, "rake", "dependencies"); err != nil {
+	if err := exec.Try(10, "rake", dir, "dependencies"); err != nil {
 		return err
 	}
 
 	return git.CommitAll("Release script: Update gutenberg-mobile ref", ri.Version)
 }
 
-func updateAndroid(dir string, git g.Client, ri *ReleaseIntegration) error {
+func updateAndroid(dir string, git g.Client, ri ReleaseIntegration) error {
 	// Find the gutenberg-mobile release PR
 	filter := gh.BuildRepoFilter("gutenberg-mobile", "is:open", "is:pr", `label:"release process"`, fmt.Sprintf("%s in:title", ri.Version))
 
@@ -183,11 +172,7 @@ func updateAndroid(dir string, git g.Client, ri *ReleaseIntegration) error {
 	return git.CommitAll("Release script: Update build.gradle gutenbergMobileVersion to ref")
 }
 
-func setupRepo(dir string, ri *ReleaseIntegration) error {
-	return nil
-}
-
-func createPR(dir, version string, ri *ReleaseIntegration) (gh.PullRequest, error) {
+func createPR(dir, version string, ri ReleaseIntegration) (gh.PullRequest, error) {
 	pr := gh.PullRequest{}
 	console.Info("Creating PR")
 	pr.Title = fmt.Sprint("Integrate gutenberg-mobile release v", ri.Version)
@@ -204,7 +189,7 @@ func createPR(dir, version string, ri *ReleaseIntegration) (gh.PullRequest, erro
 
 	gh.PreviewPr("gutenberg", dir, pr)
 
-	prompt := fmt.Sprintf("\nReady to create the PR on %s/gutenberg?", org)
+	prompt := fmt.Sprintf("\nReady to create the PR on %s?", getRepo(ri))
 	cont := console.Confirm(prompt)
 
 	if !cont {
@@ -213,4 +198,24 @@ func createPR(dir, version string, ri *ReleaseIntegration) (gh.PullRequest, erro
 	}
 
 	return pr, nil
+}
+
+func renderPrBody(version string, pr *gh.PullRequest) error {
+	t := render.Template{
+		Path: "templates/release/integrate_pr_body.md",
+		Data: struct {
+			Version  string
+			GbmPrUrl string
+		}{
+			Version:  version,
+			GbmPrUrl: "TBD",
+		},
+	}
+
+	body, err := render.Render(t)
+	if err != nil {
+		return err
+	}
+	pr.Body = body
+	return nil
 }
