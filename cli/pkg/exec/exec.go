@@ -55,7 +55,7 @@ func BundleInstall(dir string, verbose bool, args ...string) error {
 	return Bundle(dir, true, append([]string{"install"}, args...)...)
 }
 
-func Try(times int, cmd string, args ...string) error {
+func Try(times int, cmd string, dir string, args ...string) error {
 
 	for times > 0 {
 		err := exc(true, "", cmd, args...)
