@@ -7,6 +7,7 @@ import (
 	"github.com/wordpress-mobile/gbm-cli/cmd/utils"
 	"github.com/wordpress-mobile/gbm-cli/pkg/console"
 	"github.com/wordpress-mobile/gbm-cli/pkg/gbm"
+	"github.com/wordpress-mobile/gbm-cli/pkg/release"
 )
 
 var gbmCmd = &cobra.Command{
@@ -37,6 +38,9 @@ var gbmCmd = &cobra.Command{
 
 		console.Info("Created temporary directory %s", tempDir)
 
-		exitIfError(errors.New("not implemented"), 1)
+		pr, err := release.CreateGbmPR(version, tempDir)
+		exitIfError(err, 1)
+
+		console.Info("Created PR %s", pr.Url)
 	},
 }

@@ -181,7 +181,7 @@ func labelRequest(rpo string, prNum int, labels []string) ([]Label, error) {
 	return resp, nil
 }
 
-func PreviewPr(rpo, dir string, pr *PullRequest) {
+func PreviewPr(rpo, dir string, pr PullRequest) {
 	org, _ := repo.GetOrg(rpo)
 	cyan := color.New(color.FgCyan, color.Bold).SprintfFunc()
 	console.Log(cyan("\nPr Preview"))
