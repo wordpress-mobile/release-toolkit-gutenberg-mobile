@@ -8,7 +8,6 @@ import (
 	"regexp"
 
 	"github.com/wordpress-mobile/gbm-cli/pkg/console"
-	"github.com/wordpress-mobile/gbm-cli/pkg/exec"
 	"github.com/wordpress-mobile/gbm-cli/pkg/gh"
 	"github.com/wordpress-mobile/gbm-cli/pkg/render"
 	"github.com/wordpress-mobile/gbm-cli/pkg/repo"
@@ -45,7 +44,7 @@ func Integrate(dir string, ri ReleaseIntegration) (gh.PullRequest, error) {
 		base = "trunk"
 	}
 
-	if err := git.Clone("-b", base, "--depth=1", repoPath, "."); err != nil {
+	if err := git.Clone("-b", base, "--depth=1", repoPath, dir); err != nil {
 		return pr, err
 	}
 
@@ -123,14 +122,17 @@ func updateIos(dir string, git shell.GitCmds, ri ReleaseIntegration) error {
 	if err := os.WriteFile(configPath, []byte(config), 0644); err != nil {
 		return err
 	}
+	sp := shell.CmdProps{Dir: dir, Verbose: true}
+	bundle := shell.NewBundlerCmd(sp)
 
 	console.Info("Running bundle install")
-	if err := exec.BundleInstall(dir, true); err != nil {
+	if err := bundle.Install(); err != nil {
 		return err
 	}
 
 	console.Info("Running rake dependencies")
-	if err := exec.Try(10, "rake", dir, "dependencies"); err != nil {
+	rake := shell.NewRakeCmd(sp)
+	if err := rake.Dependencies(); err != nil {
 		return err
 	}
 
@@ -190,8 +192,9 @@ func createPR(dir, version string, ri ReleaseIntegration) (gh.PullRequest, error
 
 	gh.PreviewPr("gutenberg", dir, pr)
 
-	org, _ := repo.GetOrg(getRepo(ri))
-	prompt := fmt.Sprintf("\nReady to create the PR on %s/%s?", org, getRepo(ri))
+	rpo := getRepo(ri)
+	org, _ := repo.GetOrg(rpo)
+	prompt := fmt.Sprintf("\nReady to create the PR on %s/%s?", org, rpo)
 	cont := console.Confirm(prompt)
 
 	if !cont {
@@ -199,7 +202,7 @@ func createPR(dir, version string, ri ReleaseIntegration) (gh.PullRequest, error
 		return pr, errors.New("exiting before creating PR")
 	}
 
-	if err := gh.CreatePr("WordPress-Android", &pr); err != nil {
+	if err := gh.CreatePr(rpo, &pr); err != nil {
 		return pr, err
 	}
 	return pr, nil
