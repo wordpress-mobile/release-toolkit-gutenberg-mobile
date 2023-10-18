@@ -2,6 +2,8 @@ package release
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 	"github.com/wordpress-mobile/gbm-cli/cmd/utils"
@@ -22,11 +24,9 @@ var IntegrateCmd = &cobra.Command{
 		tempDir, err := utils.SetTempDir()
 		exitIfError(err, 1)
 
-		cleanup := func() {
-			utils.CleanupTempDir(tempDir)
-		}
-
+		cleanup := tempDirCleaner(tempDir)
 		defer cleanup()
+
 		// reassign exitIfError to handle the cleanup
 		exitIfError = utils.ExitIfErrorHandler(cleanup)
 
@@ -46,8 +46,8 @@ var IntegrateCmd = &cobra.Command{
 			HeadBranch: fmt.Sprintf("gutenberg/integrate_release_%s", version),
 		}
 
-		createPr := func(ri release.ReleaseIntegration) {
-			pr, err := release.Integrate(tempDir, ri)
+		createPr := func(dir string, ri release.ReleaseIntegration) {
+			pr, err := release.Integrate(dir, ri)
 			exitIfError(err, 1)
 			console.Info("Created PR %s", pr.Url)
 		}
@@ -59,16 +59,25 @@ var IntegrateCmd = &cobra.Command{
 		case both:
 			console.Info("Integrating GBM version %s into both iOS and Android", version)
 
-			createPr(androidRi)
-			createPr(iosRi)
+			// If we are running both integrations we need separate directories to work in.
+			androidDir := filepath.Join(tempDir, "android")
+			err := os.MkdirAll(androidDir, os.ModePerm)
+			exitIfError(err, 1)
+
+			iosDir := filepath.Join(tempDir, "ios")
+			err = os.MkdirAll(iosDir, os.ModePerm)
+			exitIfError(err, 1)
+
+			createPr(androidDir, androidRi)
+			createPr(iosDir, iosRi)
 
 		case android:
 			console.Info("Integrating GBM version %s into Android", version)
-			createPr(androidRi)
+			createPr(tempDir, androidRi)
 
 		case ios:
 			console.Info("Integrating GBM version %s into iOS", version)
-			createPr(iosRi)
+			createPr(tempDir, iosRi)
 		}
 	},
 }
