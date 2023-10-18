@@ -4,6 +4,7 @@ import (
 	"fmt"
 )
 
+
 type GitCmds interface {
 	Clone(...string) error
 	Switch(...string) error

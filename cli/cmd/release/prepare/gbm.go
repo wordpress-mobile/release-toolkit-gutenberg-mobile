@@ -28,7 +28,9 @@ var gbmCmd = &cobra.Command{
 		tempDir, err := utils.SetTempDir()
 		exitIfError(err, 1)
 
-		cleanup := tempDirCleaner(tempDir)
+		cleanup := func() {
+			utils.CleanupTempDir(tempDir)
+		}
 
 		// Reset the exitIfError to handle the cleanup
 		exitIfError = utils.ExitIfErrorHandler(cleanup)

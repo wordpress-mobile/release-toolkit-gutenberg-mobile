@@ -3,12 +3,9 @@ package prepare
 import (
 	"github.com/spf13/cobra"
 	"github.com/wordpress-mobile/gbm-cli/cmd/utils"
-	"github.com/wordpress-mobile/gbm-cli/pkg/console"
 )
 
 var exitIfError func(error, int)
-var tempDirCleaner func(string) func()
-var keepTempDir bool
 
 var PrepareCmd = &cobra.Command{
 	Use:   "prepare",
@@ -22,16 +19,7 @@ func Execute() {
 
 func init() {
 	exitIfError = utils.ExitIfErrorHandler(func() {})
-	tempDirCleaner = func(tempDir string) func() {
-		return func() {
-			if keepTempDir {
-				console.Info("Keeping temporary directory %s", tempDir)
-				return
-			}
-			utils.CleanupTempDir(tempDir)
-		}
-	}
+
 	PrepareCmd.AddCommand(gbmCmd)
 	PrepareCmd.AddCommand(gbCmd)
-	PrepareCmd.PersistentFlags().BoolVar(&keepTempDir, "k", false, "Keep temporary directory after running command")
 }
