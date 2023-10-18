@@ -1,10 +1,8 @@
 package exec
 
 import (
-	"errors"
 	"os"
 	"os/exec"
-	"time"
 )
 
 // Deprecated: Use shell package instead
