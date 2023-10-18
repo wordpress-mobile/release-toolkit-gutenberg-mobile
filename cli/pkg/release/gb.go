@@ -22,7 +22,7 @@ func CreateGbPR(version, dir string) (gh.PullRequest, error) {
 
 	org, err := repo.GetOrg("gutenberg")
 	if err != nil {
-		return pr, err
+		return pr, fmt.Errorf("error getting the org: %v", err)
 	}
 	branch := "rnmobile/release_" + version
 
