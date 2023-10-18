@@ -12,39 +12,24 @@ func GetVersionArg(args []string) (string, error) {
 	if len(args) == 0 {
 		return "", fmt.Errorf("missing version")
 	}
+	if !utils.ValidateVersion(args[0]) {
+		return "", fmt.Errorf("invalid version %s.  Versions must have a `Major.Minor.Patch` form", args[0])
+	}
 	return utils.NormalizeVersion(args[0])
 }
 
-func SetTempDir() (string, error) {
-	tempDir, err := os.MkdirTemp("", "gbm-")
+func ExitIfError(err error, code int) {
 	if err != nil {
-		return "", err
-	}
-	return tempDir, nil
-}
-
-func CleanupTempDir(tempDir string) error {
-	console.Info("Cleaning up temporary directory %s", tempDir)
-	err := os.RemoveAll(tempDir)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func ExitIfErrorHandler(deferred func()) func(error, int) {
-	return func(err error, code int) {
-		if err != nil {
-			console.Error(err)
-
-			Exit(deferred, code)
-		}
+		console.Error(err)
+		Exit(code)
 	}
 }
 
-func Exit(deferred func(), code int) {
+func Exit(code int, deferred ...func()) {
 	os.Exit(func() int {
-		defer deferred()
+		for _, d := range deferred {
+			d()
+		}
 		return code
 	}())
 }
