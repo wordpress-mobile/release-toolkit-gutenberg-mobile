@@ -3,75 +3,90 @@ package workspace
 import (
 	"os"
 	"os/signal"
+	"path"
 
 	"github.com/wordpress-mobile/gbm-cli/pkg/console"
 )
 
-var tempDir string
-var Cleanup func()
+type Workspace interface {
+	Cleanup()
+	Dir() string
+	Keep()
+	create() error
+	setCleaner()
+}
 
-func SetTempDir() (string, error) {
-	tempDir, err := os.MkdirTemp("", "gbm-")
-	if err != nil {
-		return "", err
+type workspace struct {
+	dir      string
+	keep     bool
+	prefix   string
+	cleaner  func()
+	disabled bool
+}
+
+func NewWorkspace() (Workspace, error) {
+	w := &workspace{prefix: "gbm-"}
+	if _, noWorkspace := os.LookupEnv("GBM_NO_WORKSPACE"); noWorkspace {
+		console.Info("GBM_NO_WORKSPACE is set, not creating a workspace directory")
+		w.disabled = true
 	}
-	return tempDir, nil
+	if err := w.create(); err != nil {
+		return nil, err
+	}
+	w.setCleaner()
+	return w, nil
 }
 
-func GetTempDir() string {
-	return tempDir
+func (w *workspace) create() error {
+	// if we're disabled, don't create a temp directory
+	if w.disabled {
+		return nil
+	}
+	tempDir, err := os.MkdirTemp("", w.prefix)
+	if err != nil {
+		return err
+	}
+	w.dir = tempDir
+	return nil
 }
 
-func UpdateCleaner(keep bool) {
-	Cleanup = Cleaner(tempDir, keep)
-}
-
-func Cleaner(tempDir string, keep bool) func() {
-	clean := func() {
-		if keep {
-			console.Info("Keeping temporary directory %s", tempDir)
+func (w *workspace) setCleaner() {
+	w.cleaner = func() {
+		if w.disabled || w.dir == "" {
 			return
 		}
-		cleanupTempDir()
-	}
 
+		if w.keep {
+			console.Info("Keeping temporary directory %s", w.dir)
+			return
+		}
+
+		if err := os.RemoveAll(w.dir); err != nil {
+			console.Error(err)
+		}
+	}
 	// register a listener for ^C, call the cleanup function
 	go func() {
 		sigchan := make(chan os.Signal, 1)
 		signal.Notify(sigchan, os.Interrupt)
 		<-sigchan // wait for ^C
-		clean()
+		w.cleaner()
 		os.Exit(1)
 	}()
-	return clean
 }
 
-func cleanupTempDir() {
-	// do nothing if we don't have a temp dir
-	if tempDir == "" {
-		return
+func (w *workspace) Dir() string {
+	// if the workspace is disabled, return the current directory
+	if w.disabled {
+		return path.Base(".")
 	}
-
-	console.Info("Cleaning up temporary directory %s", tempDir)
-	err := os.RemoveAll(tempDir)
-	if err != nil {
-		console.Error(err)
-	}
+	return w.dir
 }
 
-func init() {
-	if _, noWorkspace := os.LookupEnv("GBM_NO_WORKSPACE"); noWorkspace {
-		console.Info("GBM_NO_WORKSPACE is set, not creating a workspace")
-		return
-	}
+func (w *workspace) Keep() {
+	w.keep = true
+}
 
-	var err error
-	tempDir, err = SetTempDir()
-	if err != nil {
-		console.Error(err)
-		os.Exit(1)
-	}
-
-	// Set up the default cleaner
-	Cleanup = Cleaner(tempDir, false)
+func (w *workspace) Cleanup() {
+	w.cleaner()
 }

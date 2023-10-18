@@ -15,7 +15,7 @@ var gbCmd = &cobra.Command{
 	Short: "Prepare Gutenberg for a mobile release",
 	Long:  `Use this command to prepare a Gutenberg release PR`,
 	Run: func(cc *cobra.Command, args []string) {
-
+		tempDir := workspace.Dir()
 		version, err := utils.GetVersionArg(args)
 		exitIfError(err, 1)
 
