@@ -10,6 +10,8 @@ import (
 )
 
 var exitIfError func(error, int)
+var tempDirCleaner func(string) func()
+var keepTempDir bool
 
 var ReleaseCmd = &cobra.Command{
 	Use:   "release",
@@ -26,6 +28,16 @@ func Execute() {
 
 func init() {
 	exitIfError = utils.ExitIfErrorHandler(func() {})
+	tempDirCleaner = func(tempDir string) func() {
+		return func() {
+			if keepTempDir {
+				console.Info("Keeping temporary directory %s", tempDir)
+				return
+			}
+			utils.CleanupTempDir(tempDir)
+		}
+	}
 	ReleaseCmd.AddCommand(prepare.PrepareCmd)
 	ReleaseCmd.AddCommand(IntegrateCmd)
+	ReleaseCmd.PersistentFlags().BoolVar(&keepTempDir, "k", false, "Keep temporary directory after running command")
 }
