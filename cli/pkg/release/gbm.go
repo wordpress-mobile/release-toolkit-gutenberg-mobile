@@ -2,6 +2,9 @@ package release
 
 import (
 	"fmt"
+	"io"
+	"net/http"
+	"os"
 	"path/filepath"
 
 	"github.com/wordpress-mobile/gbm-cli/pkg/console"
@@ -212,6 +215,8 @@ func renderGbmPrBody(version string, pr *gh.PullRequest) error {
 			Version: version,
 		},
 	}
+	cl := getChangeLog(dir, pr)
+	rn := getReleaseNotes(dir, pr)
 
 	body, err := render.Render(t)
 	if err != nil {
@@ -219,4 +224,72 @@ func renderGbmPrBody(version string, pr *gh.PullRequest) error {
 	}
 	pr.Body = body
 	return nil
+}
+
+func getChangeLog(dir string, gbmPr *gh.PullRequest) []byte {
+	var buff io.ReadCloser
+	cl := []byte{}
+
+	if dir == "" {
+		org, _ := repo.GetOrg("gutenberg")
+		endpoint := fmt.Sprintf("https://raw.githubusercontent.com/%s/gutenberg/%s/packages/react-native-editor/CHANGELOG.md", org, gbPr.Head.Sha)
+
+		if resp, err := http.Get(endpoint); err != nil {
+			fmt.Errorf("unable to get the changelog (err %s)", err)
+		} else {
+			defer resp.Body.Close()
+			buff = resp.Body
+		}
+	} else {
+		// Read in the change log
+		clPath := filepath.Join(dir, "gutenberg-mobile", "gutenberg", "packages", "react-native-editor", "CHANGELOG.md")
+		if clf, err := os.Open(clPath); err != nil {
+			fmt.Errorf("unable to open the changelog %s", err)
+		} else {
+			defer clf.Close()
+			buff = clf
+
+		}
+	}
+	if data, err := io.ReadAll(buff); err != nil {
+		fmt.Errorf("unable to read the changelog %s", err)
+	} else {
+		cl = data
+	}
+
+	return cl
+}
+
+func getReleaseNotes(dir string, gbmPr *gh.PullRequest) []byte {
+	var buff io.ReadCloser
+	rn := []byte{}
+
+	if dir == "" {
+		org, _ := repo.GetOrg("gutenberg-mobile")
+		endpoint := fmt.Sprintf("https://raw.githubusercontent.com/%s/gutenberg-mobile/%s/RELEASE-NOTES.txt", org, gbmPr.Head.Sha)
+
+		if resp, err := http.Get(endpoint); err != nil {
+			fmt.Errorf("unable to get the changelog (err %s)", err)
+		} else {
+			defer resp.Body.Close()
+			buff = resp.Body
+		}
+	} else {
+		// Read in the release notes
+		rnPath := filepath.Join(dir, "gutenberg-mobile", "RELEASE-NOTES.txt")
+
+		if rnf, err := os.Open(rnPath); err != nil {
+			fmt.Errorf("unable to open the release notes %s", err)
+		} else {
+			defer rnf.Close()
+			buff = rnf
+		}
+	}
+	if data, err := io.ReadAll(buff); err != nil {
+		fmt.Errorf("unable to read the release notes %s", err)
+	} else {
+		rn = data
+	}
+
+	return rn
 }
