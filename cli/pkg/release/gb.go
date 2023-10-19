@@ -108,13 +108,14 @@ func CreateGbPR(version, dir string) (gh.PullRequest, error) {
 		console.Info("Unable to render the GB PR body (err %s)", err)
 	}
 
-	pr.Labels = []gh.Label{{
-		Name: "Mobile App - i.e. Android or iOS",
-	}}
-
-	pr.Labels = []gh.Label{{
-		Name: "[Type] Build Tooling",
-	}}
+	pr.Labels = []gh.Label{
+		{
+			Name: "Mobile App - i.e. Android or iOS",
+		},
+		{
+			Name: "[Type] Build Tooling",
+		},
+	}
 
 	gh.PreviewPr("gutenberg", dir, pr)
 
