@@ -112,6 +112,10 @@ func CreateGbPR(version, dir string) (gh.PullRequest, error) {
 		Name: "Mobile App - i.e. Android or iOS",
 	}}
 
+	pr.Labels = []gh.Label{{
+		Name: "[Type] Build Tooling",
+	}}
+
 	gh.PreviewPr("gutenberg", dir, pr)
 
 	prompt := fmt.Sprintf("\nReady to create the PR on %s/gutenberg?", org)
