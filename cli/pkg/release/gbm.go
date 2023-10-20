@@ -215,8 +215,27 @@ func renderGbmPrBody(version string, pr *gh.PullRequest) error {
 			Version: version,
 		},
 	}
-	cl := getChangeLog(dir, pr)
-	rn := getReleaseNotes(dir, pr)
+
+	// TODO - replace "" with dir variable
+	cl := getChangeLog("", pr)
+	rn := getReleaseNotes("", pr)
+
+	rc, err := CollectReleaseChanges(version, cl, rn)
+
+	if err != nil {
+		console.Error(err)
+	}
+
+	rfs := []gh.RepoFilter{
+		gh.BuildRepoFilter("gutenberg", "is:open", "is:pr", `label:"Mobile App - i.e. Android or iOS"`, fmt.Sprintf("v%s in:title", version)),
+		gh.BuildRepoFilter("WordPress-Android", "is:open", "is:pr", version+" in:title"),
+		gh.BuildRepoFilter("WordPress-iOS", "is:open", "is:pr", version+" in:title"),
+	}	
+
+	synced, err := gh.FindGbmSyncedPrs(*pr, rfs)
+	if err != nil {
+		console.Error(err)
+	}
 
 	body, err := render.Render(t)
 	if err != nil {
