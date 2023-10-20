@@ -199,14 +199,6 @@ func createPR(dir, version string, ri ReleaseIntegration) (gh.PullRequest, error
 	gh.PreviewPr("gutenberg", dir, pr)
 
 	rpo := getRepo(ri)
-	org, _ := repo.GetOrg(rpo)
-	prompt := fmt.Sprintf("\nReady to create the PR on %s/%s?", org, rpo)
-	cont := console.Confirm(prompt)
-
-	if !cont {
-		console.Info("Bye 👋")
-		return pr, errors.New("exiting before creating PR")
-	}
 
 	if err := gh.CreatePr(rpo, &pr); err != nil {
 		return pr, err
