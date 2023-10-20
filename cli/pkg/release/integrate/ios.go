@@ -5,16 +5,18 @@ import (
 	"path/filepath"
 
 	"github.com/wordpress-mobile/gbm-cli/pkg/console"
+	"github.com/wordpress-mobile/gbm-cli/pkg/gbm"
+	"github.com/wordpress-mobile/gbm-cli/pkg/gh"
+	"github.com/wordpress-mobile/gbm-cli/pkg/repo"
 	"github.com/wordpress-mobile/gbm-cli/pkg/shell"
 	"github.com/wordpress-mobile/gbm-cli/pkg/utils"
 )
 
-func IosIntegration(ri ReleaseIntegration) ReleaseIntegration {
-	ri.Type = iosIntegration{}
-	return ri
+type IosIntegration struct {
+	Repo string
 }
 
-func updateIos(dir string, ri ReleaseIntegration) error {
+func (ii IosIntegration) UpdateGutenbergConfig(dir string, gbmPr gh.PullRequest) error {
 
 	sp := shell.CmdProps{Dir: dir, Verbose: true}
 	git := shell.NewGitCmd(sp)
@@ -27,8 +29,9 @@ func updateIos(dir string, ri ReleaseIntegration) error {
 		return err
 	}
 
+	version := gbmPr.ReleaseVersion
 	// perform updates using the yq syntax
-	updates := []string{".ref.commit = \"v" + ri.Version + "\"", "del(.ref.tag)"}
+	updates := []string{".ref.commit = \"v" + version + "\"", "del(.ref.tag)"}
 	config, err := utils.YqEvalAll(updates, string(buf))
 	if err != nil {
 		return err
@@ -51,5 +54,13 @@ func updateIos(dir string, ri ReleaseIntegration) error {
 		return err
 	}
 
-	return git.CommitAll("Release script: Update gutenberg-mobile ref", ri.Version)
+	return git.CommitAll("Release script: Update gutenberg-mobile ref", version)
+}
+
+func (ii IosIntegration) GetRepo() string {
+	return repo.WordPressIosRepo
+}
+
+func (ia IosIntegration) GetPr(version string) (gh.PullRequest, error) {
+	return gbm.FindIosReleasePr(version)
 }

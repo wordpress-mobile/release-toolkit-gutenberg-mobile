@@ -12,7 +12,12 @@ func FindGbmReleasePr(version string) (gh.PullRequest, error) {
 	title := fmt.Sprintf("%s in:title", version)
 
 	filter := gh.BuildRepoFilter(repo.GutenbergMobileRepo, "is:open", "is:pr", label, title)
-	return gh.SearchPr(filter)
+	pr, err := gh.SearchPr(filter)
+	if err != nil {
+		return gh.PullRequest{}, err
+	}
+	pr.ReleaseVersion = version
+	return pr, nil
 }
 
 func FindAndroidReleasePr(version string) (gh.PullRequest, error) {

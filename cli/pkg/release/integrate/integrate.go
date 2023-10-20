@@ -17,7 +17,6 @@ type Integration interface {
 	cloneRepo(git shell.GitCmds) error
 	createAfterBranch(git shell.GitCmds) error
 	getRepo() string
-	getPR() (gh.PullRequest, error)
 	updateGutenbergConfig(dir string, gbmPr gh.PullRequest) error
 	createPR(dir string, gbmPr gh.PullRequest) (gh.PullRequest, error)
 }
@@ -27,17 +26,19 @@ type ReleaseIntegration struct {
 	BaseBranch string
 	HeadBranch string
 	Ci         bool
-	Type       interface{}
+	Target     Target
 }
 
-type androidIntegration struct{}
-
-type iosIntegration struct{}
+type Target interface {
+	UpdateGutenbergConfig(dir string, gbmPr gh.PullRequest) error
+	GetRepo() string
+	GetPr(version string) (gh.PullRequest, error)
+}
 
 func (ri *ReleaseIntegration) Run(dir string) (gh.PullRequest, error) {
 	pr := gh.PullRequest{}
 
-	rpo := ri.getRepo()
+	rpo := "WordPress-Android"
 	if rpo == "" {
 		return pr, errors.New("no platform specified")
 	}
@@ -54,7 +55,7 @@ func (ri *ReleaseIntegration) Run(dir string) (gh.PullRequest, error) {
 	}
 
 	// Update gutenberg config
-	if err := ri.updateGutenbergConfig(dir, gbmPr); err != nil {
+	if err := ri.Target.UpdateGutenbergConfig(dir, gbmPr); err != nil {
 		return pr, fmt.Errorf("error updating the gutenberg config: %v", err)
 	}
 
@@ -74,7 +75,7 @@ func (ri *ReleaseIntegration) Run(dir string) (gh.PullRequest, error) {
 	}
 
 	// Check if the PR already exists
-	pr, err = ri.getPR()
+	pr, err = ri.Target.GetPr(ri.Version)
 	if err != nil {
 		return pr, fmt.Errorf("error getting the PR: %v", err)
 	}
@@ -110,7 +111,7 @@ func (ri *ReleaseIntegration) Run(dir string) (gh.PullRequest, error) {
 // Clone the repo at the configured base branch or at the release branch if it already exists.
 func (ri *ReleaseIntegration) cloneRepo(git shell.GitCmds) error {
 	// Check if release branch already exists
-	rpo := ri.getRepo()
+	rpo := "WordPress-Android"
 	repoPath := repo.GetRepoPath(rpo)
 
 	branch := "gutenberg/integrate_release_" + ri.Version
@@ -146,7 +147,7 @@ func (ri *ReleaseIntegration) cloneRepo(git shell.GitCmds) error {
 }
 
 func (ri *ReleaseIntegration) createAfterBranch(git shell.GitCmds) error {
-	rpo := ri.getRepo()
+	rpo := "WordPress-Android"
 	afterBranch := "gutenberg/after_" + ri.Version
 	// Check if branch exits
 	exists, err := gh.SearchBranch(rpo, afterBranch)
@@ -166,20 +167,6 @@ func (ri *ReleaseIntegration) createAfterBranch(git shell.GitCmds) error {
 	if err := git.Switch(base); err != nil {
 		return err
 	}
-	/*
-		// Try switching back to base if that's what we cloned off of
-		if err := git.Switch(base); err != nil {
-			// Ok so we didn't clone off of base, let's try creating the base branch
-			if err := git.Switch("-c", base); err != nil {
-				return err
-			}
-			// Now fetch the base branch
-			err := git.Fetch(base)
-			if err != nil {
-				return err
-			}
-		}
-	*/
 
 	// Create the branch
 	console.Info("Creating after branch %s in %s", afterBranch, rpo)
@@ -190,39 +177,6 @@ func (ri *ReleaseIntegration) createAfterBranch(git shell.GitCmds) error {
 		return err
 	}
 	return nil
-}
-
-func (ri *ReleaseIntegration) getRepo() string {
-	switch ri.Type.(type) {
-	case androidIntegration:
-		return repo.WordPressAndroidRepo
-	case iosIntegration:
-		return repo.WordPressIosRepo
-	default:
-		return ""
-	}
-}
-
-func (ri *ReleaseIntegration) getPR() (gh.PullRequest, error) {
-	version := ri.Version
-	switch ri.getRepo() {
-	case repo.WordPressAndroidRepo:
-		return gbm.FindAndroidReleasePr(version)
-	case repo.WordPressIosRepo:
-		return gbm.FindIosReleasePr(version)
-	}
-	return gh.PullRequest{}, errors.New("no platform specified")
-}
-
-func (ri *ReleaseIntegration) updateGutenbergConfig(dir string, gbmPr gh.PullRequest) error {
-	switch ri.getRepo() {
-	case repo.WordPressAndroidRepo:
-		return updateAndroid(dir, *ri, gbmPr)
-	case repo.WordPressIosRepo:
-		return updateIos(dir, *ri)
-	default:
-		return errors.New("no platform specified")
-	}
 }
 
 func (ri *ReleaseIntegration) createPR(dir string, gbmPr gh.PullRequest) (gh.PullRequest, error) {
@@ -243,7 +197,7 @@ func (ri *ReleaseIntegration) createPR(dir string, gbmPr gh.PullRequest) (gh.Pul
 
 	// gh.PreviewPr("WordPress-Android", dir, pr)
 
-	rpo := ri.getRepo()
+	rpo := "WordPress-Android"
 
 	if err := gh.CreatePr(rpo, &pr); err != nil {
 		return pr, err

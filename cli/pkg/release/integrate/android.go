@@ -7,17 +7,15 @@ import (
 	"path/filepath"
 	"regexp"
 
+	"github.com/wordpress-mobile/gbm-cli/pkg/gbm"
 	"github.com/wordpress-mobile/gbm-cli/pkg/gh"
 	"github.com/wordpress-mobile/gbm-cli/pkg/shell"
 )
 
-func AndroidIntegration(ri ReleaseIntegration) ReleaseIntegration {
-	ri.Type = androidIntegration{}
-	return ri
+type AndroidIntegration struct {
 }
 
-func updateAndroid(dir string, ri ReleaseIntegration, gbmPr gh.PullRequest) error {
-
+func (ai AndroidIntegration) UpdateGutenbergConfig(dir string, gbmPr gh.PullRequest) error {
 	sp := shell.CmdProps{Dir: dir, Verbose: true}
 	git := shell.NewGitCmd(sp)
 	prId := gbmPr.Number
@@ -41,4 +39,13 @@ func updateAndroid(dir string, ri ReleaseIntegration, gbmPr gh.PullRequest) erro
 		return err
 	}
 	return git.CommitAll("Release script: Update build.gradle gutenbergMobileVersion to ref")
+}
+
+func (ia AndroidIntegration) GetRepo() string {
+	return "foobar"
+	// return repo.WordPressAndroidRepo
+}
+
+func (ia AndroidIntegration) GetPr(version string) (gh.PullRequest, error) {
+	return gbm.FindAndroidReleasePr(version)
 }

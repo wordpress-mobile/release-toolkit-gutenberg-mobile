@@ -46,8 +46,9 @@ var IntegrateCmd = &cobra.Command{
 			androidDir := filepath.Join(tempDir, "android")
 			err := os.MkdirAll(androidDir, os.ModePerm)
 			exitIfError(err, 1)
-
-			androidRi := integrate.AndroidIntegration(ri)
+			androidRi := ri
+			target := integrate.AndroidIntegration{}
+			androidRi.Target = target
 			pr, err := androidRi.Run(filepath.Join(tempDir, "android"))
 			warnIfError(err)
 			results = append(results, pr)
@@ -58,7 +59,9 @@ var IntegrateCmd = &cobra.Command{
 			err = os.MkdirAll(iosDir, os.ModePerm)
 			exitIfError(err, 1)
 
-			iosRi := integrate.IosIntegration(ri)
+			iosRi := ri
+			target := integrate.IosIntegration{}
+			iosRi.Target = target
 			pr, err := iosRi.Run(filepath.Join(tempDir, "ios"))
 			warnIfError(err)
 			results = append(results, pr)
