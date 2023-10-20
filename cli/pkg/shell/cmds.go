@@ -79,7 +79,6 @@ func NewRakeCmd(cp CmdProps) RakeCmds {
 }
 
 // common commands
-
 // Install is used by npm and bundler
 func (c *client) Install(args ...string) error {
 	install := append([]string{"install"}, args...)
