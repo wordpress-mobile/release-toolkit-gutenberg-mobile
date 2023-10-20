@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/fatih/color"
 	"golang.design/x/clipboard"
 )
@@ -79,6 +80,10 @@ func Warn(format string, args ...interface{}) {
 	yellow := color.New(color.FgYellow).SprintfFunc()
 	l.Printf(yellow("\n"+format, args...))
 	color.Unset()
+}
+
+func Inspect(i interface{}) {
+	spew.Dump(i)
 }
 
 func Error(err error) {
