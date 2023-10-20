@@ -52,11 +52,11 @@ func CreateGbmPR(version, dir string) (gh.PullRequest, error) {
 			return pr, err
 		}
 
-		console.Info("Set upstream to trunk", org)
-		err = git.SetUpstreamTo("trunk")
-		if err != nil {
-			return pr, err
-		}
+		// console.Info("Set upstream to trunk", org)
+		// err = git.SetUpstreamTo("trunk")
+		// if err != nil {
+		// 	return pr, err
+		// }
 
 		console.Info("Checking out branch %s", branch)
 		err = git.Switch("-c", branch)
@@ -260,15 +260,20 @@ func getChangeLog(dir string, gbmPr *gh.PullRequest) []byte {
 	cl := []byte{}
 
 	if dir == "" {
-		org, _ := repo.GetOrg("gutenberg")
-		endpoint := fmt.Sprintf("https://raw.githubusercontent.com/%s/gutenberg/%s/packages/react-native-editor/CHANGELOG.md", org, gbPr.Head.Sha)
+		console.Warn("not implemented")
 
-		if resp, err := http.Get(endpoint); err != nil {
-			fmt.Errorf("unable to get the changelog (err %s)", err)
-		} else {
-			defer resp.Body.Close()
-			buff = resp.Body
-		}
+		// TODO: find the best way to get the gbPr
+
+		// org, _ := repo.GetOrg("gutenberg")
+		// endpoint := fmt.Sprintf("https://raw.githubusercontent.com/%s/gutenberg/%s/packages/react-native-editor/CHANGELOG.md", org, gbPr.Head.Sha)
+
+		// if resp, err := http.Get(endpoint); err != nil {
+		// 	fmt.Errorf("unable to get the changelog (err %s)", err)
+		// } else {
+		// 	defer resp.Body.Close()
+		// 	buff = resp.Body
+		// }
+		
 	} else {
 		// Read in the change log
 		clPath := filepath.Join(dir, "gutenberg-mobile", "gutenberg", "packages", "react-native-editor", "CHANGELOG.md")
