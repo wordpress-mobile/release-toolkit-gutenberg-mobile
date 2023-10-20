@@ -114,8 +114,8 @@ func SearchBranch(rpo, branch string) (Branch, error) {
 	return response, nil
 }
 
+// SearchPrs returns a list of PRs for the given repo and filter.
 func SearchPrs(filter RepoFilter) (SearchResult, error) {
-	console.Info("Searching for PRs matching %s", filter.QueryString)
 	client := getClient()
 	endpoint := fmt.Sprintf("search/issues?q=%s", filter.Query)
 	response := SearchResult{Filter: filter}
@@ -124,6 +124,39 @@ func SearchPrs(filter RepoFilter) (SearchResult, error) {
 		return SearchResult{}, err
 	}
 	return response, nil
+}
+
+// Returns a single PR with all the details given a filter.
+// Returns an error if no PR is found or if more than one PR is found.
+func SearchPr(filter RepoFilter) (PullRequest, error) {
+	result, err := SearchPrs(filter)
+	if err != nil {
+		return PullRequest{}, err
+	}
+	if result.TotalCount == 0 {
+		return PullRequest{}, fmt.Errorf("no PR found")
+	}
+	if result.TotalCount > 1 {
+		return PullRequest{}, fmt.Errorf("too many PRs found")
+	}
+	number := result.Items[0].Number
+	return GetPr(filter.Repo, number)
+}
+
+func GetPr(rpo string, number int) (PullRequest, error) {
+	pr := PullRequest{}
+	org, err := repo.GetOrg(rpo)
+	if err != nil {
+		return pr, err
+	}
+
+	client := getClient()
+	endpoint := fmt.Sprintf("repos/%s/%s/pulls/%d", org, rpo, number)
+	if err := client.Get(endpoint, &pr); err != nil {
+		return pr, err
+	}
+	pr.Repo = rpo
+	return pr, nil
 }
 
 func CreatePr(rpo string, pr *PullRequest) error {
