@@ -245,3 +245,38 @@ func PreviewPr(rpo, dir string, pr PullRequest) {
 
 	console.Info("\n")
 }
+
+func FindGbmSyncedPrs(gbmPr PullRequest, filters []RepoFilter) ([]SearchResult, error) {
+	var synced []SearchResult
+	prChan := make(chan SearchResult)
+
+	// Search for PRs in parallel
+	for _, rf := range filters {
+		go func(rf RepoFilter) {
+			res, err := SearchPrs(rf)
+
+			// just log the error and continue
+			if err != nil {
+				console.Warn("could not search for %s", err)
+			}
+			prChan <- res
+		}(rf)
+	}
+
+	// Wait for all the PRs to be returned
+	for i := 0; i < len(filters); i++ {
+		resp := <-prChan
+		sItems := []PullRequest{}
+
+		for _, pr := range resp.Items {
+			if strings.Contains(pr.Body, gbmPr.Url) {
+				pr.Repo = resp.Filter.Repo
+				sItems = append(sItems, pr)
+			}
+		}
+		resp.Items = sItems
+		synced = append(synced, resp)
+	}
+
+	return synced, nil
+}
