@@ -112,7 +112,7 @@ func CreateGbPR(version, dir string) (gh.PullRequest, error) {
 		Name: "Mobile App - i.e. Android or iOS",
 	}}
 
-	gh.PreviewPr("gutenberg", dir, &pr)
+	gh.PreviewPr("gutenberg", dir, pr)
 
 	prompt := fmt.Sprintf("\nReady to create the PR on %s/gutenberg?", org)
 	cont := console.Confirm(prompt)
