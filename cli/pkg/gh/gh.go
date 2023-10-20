@@ -114,6 +114,33 @@ func SearchBranch(rpo, branch string) (Branch, error) {
 	return response, nil
 }
 
+// GetPr returns a PullRequest struct for the given repo and PR number.
+func GetPr(rpo string, id int) (*PullRequest, error) {
+	org, err := repo.GetOrg(rpo)
+	if err != nil {
+		return nil, err
+	}
+	return GetPrOrg(org, rpo, id)
+}
+
+func GetPrOrg(org, repo string, id int) (*PullRequest, error) {
+	client := getClient()
+
+	endpoint := fmt.Sprintf("repos/%s/%s/pulls/%d", org, repo, id)
+	pr := &PullRequest{}
+	if err := client.Get(endpoint, pr); err != nil {
+		return nil, err
+	}
+
+	if pr.Number == 0 {
+		return nil, fmt.Errorf("pr not found %s", endpoint)
+	}
+
+	pr.Repo = repo
+
+	return pr, nil
+}
+
 func SearchPrs(filter RepoFilter) (SearchResult, error) {
 	console.Info("Searching for PRs matching %s", filter.QueryString)
 	client := getClient()
