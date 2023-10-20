@@ -206,16 +206,6 @@ func CreateGbmPR(version, dir string) (gh.PullRequest, error) {
 }
 
 func renderGbmPrBody(version string, pr *gh.PullRequest) error {
-	t := render.Template{
-		Path: "templates/release/gbm_pr_body.md",
-		Data: struct {
-			Version  string
-			GbmPrUrl string
-		}{
-			Version: version,
-		},
-	}
-
 	// TODO - replace "" with dir variable
 	cl := getChangeLog("", pr)
 	rn := getReleaseNotes("", pr)
@@ -236,11 +226,31 @@ func renderGbmPrBody(version string, pr *gh.PullRequest) error {
 	if err != nil {
 		console.Error(err)
 	}
+	
+	prs := []gh.PullRequest{}
+	for _, s := range synced {
+		prs = append(prs, s.Items...)
+	}
+
+	t := render.Template{
+		Path: "templates/release/gbm_pr_body.md",
+		Data: struct {
+			Version  string
+			GbmPrUrl string
+			Changes    []ReleaseChanges
+			RelatedPRs []gh.PullRequest
+		}{
+			Version:    version,
+			Changes:    rc,
+			RelatedPRs: prs,
+		},
+	}
 
 	body, err := render.Render(t)
 	if err != nil {
 		return err
 	}
+
 	pr.Body = body
 	return nil
 }
