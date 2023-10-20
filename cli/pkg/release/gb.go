@@ -20,7 +20,6 @@ func CreateGbPR(version, dir string) (gh.PullRequest, error) {
 	shellProps := shell.CmdProps{Dir: dir, Verbose: true}
 	git := shell.NewGitCmd(shellProps)
 
-
 	org, err := repo.GetOrg("gutenberg")
 	if err != nil {
 		return pr, fmt.Errorf("error getting the org: %v", err)
