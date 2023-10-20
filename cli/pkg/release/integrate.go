@@ -153,17 +153,13 @@ func updateAndroid(dir string, git shell.GitCmds, ri ReleaseIntegration) error {
 	// Find the gutenberg-mobile release PR
 	filter := gh.BuildRepoFilter("gutenberg-mobile", "is:open", "is:pr", `label:"release-process"`, fmt.Sprintf("%s in:title", ri.Version))
 
-	result, err := gh.SearchPrs(filter)
+	pr, err := gh.SearchPr(filter)
 	if err != nil {
 		return err
 	}
-	if result.TotalCount == 0 {
-		return errors.New("no PR found")
-	}
-	if result.TotalCount > 1 {
-		return errors.New("too many PRs found")
-	}
-	pr := result.Items[0].Number
+
+	prId := pr.Number
+	prSha := pr.Head.Sha
 
 	configPath := filepath.Join(dir, "build.gradle")
 	config, err := os.ReadFile(configPath)
@@ -176,7 +172,7 @@ func updateAndroid(dir string, git shell.GitCmds, ri ReleaseIntegration) error {
 		return errors.New("cannot find a version in the gradle file")
 	}
 
-	repl := fmt.Sprintf(`$1'%s'`, fmt.Sprint(pr))
+	repl := fmt.Sprintf(`$1'%s-%s'`, fmt.Sprint(prId), prSha)
 	config = re.ReplaceAll(config, []byte(repl))
 
 	if err := os.WriteFile(configPath, config, 0644); err != nil {
