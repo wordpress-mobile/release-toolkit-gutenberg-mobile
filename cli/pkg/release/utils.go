@@ -98,7 +98,7 @@ func CollectReleaseChanges(version string, changelog, relnotes []byte) ([]Releas
 					PrUrl:  pr.Url,
 					Number: pr.Number,
 				}
-				// checkPRforIssues(*pr, &rc)
+				checkPRforIssues(*pr, &rc)
 				prs = append(prs, rc)
 			}
 		}
@@ -130,11 +130,21 @@ func CollectReleaseChanges(version string, changelog, relnotes []byte) ([]Releas
 					PrUrl:  pr.Url,
 					Number: pr.Number,
 				}
-				// checkPRforIssues(*pr, &rc)
+				checkPRforIssues(*pr, &rc)
 				prs = append(prs, rc)
 
 			}
 		}
 	}
 	return prs, nil
+}
+
+func checkPRforIssues(pr gh.PullRequest, rc *ReleaseChanges) {
+	issueRe := regexp.MustCompile(`(https:\/\/github.com\/.*\/.*\/issues\/\d*)`)
+
+	matches := issueRe.FindAllStringSubmatch(pr.Body, -1)
+
+	for _, m := range matches {
+		rc.Issues = append(rc.Issues, m[1])
+	}
 }
