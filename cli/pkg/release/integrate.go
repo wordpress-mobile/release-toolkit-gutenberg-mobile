@@ -50,16 +50,6 @@ func Integrate(dir string, ri ReleaseIntegration) (gh.PullRequest, error) {
 
 	// @TODO: check if branch exists
 
-	// Create after branch
-	afterBranch := "gutenberg/after_" + ri.Version
-	console.Info("Creating after branch %s in %s", afterBranch, rpo)
-	if err := git.Switch("-c", afterBranch); err != nil {
-		return pr, err
-	}
-	if err := git.Push(); err != nil {
-		return pr, err
-	}
-
 	// Create release branch
 	console.Info("Creating release branch in %s", ri.HeadBranch, rpo)
 	branch := "gutenberg/integrate_release_" + ri.Version
@@ -72,6 +62,13 @@ func Integrate(dir string, ri ReleaseIntegration) (gh.PullRequest, error) {
 	if err := updateGutenbergConfig(dir, git, ri); err != nil {
 		return pr, err
 	}
+	org, _ := repo.GetOrg(rpo)
+	prompt := fmt.Sprintf("\nReady to create the PR on %s/%s?", org, rpo)
+	cont := console.Confirm(prompt)
+	if !cont {
+		console.Info("Bye 👋")
+		return pr, errors.New("exiting before creating PR")
+	}
 
 	// Push branch
 	console.Info("Pushing branch %s to %s", branch, rpo)
@@ -82,6 +79,19 @@ func Integrate(dir string, ri ReleaseIntegration) (gh.PullRequest, error) {
 	// Create PR
 	pr, err := createPR(dir, ri.Version, ri)
 	if err != nil {
+		return pr, err
+	}
+
+	// Create after branch
+	if err := git.Switch(base); err != nil {
+		return pr, err
+	}
+	afterBranch := "gutenberg/after_" + ri.Version
+	console.Info("Creating after branch %s in %s", afterBranch, rpo)
+	if err := git.Switch("-c", afterBranch); err != nil {
+		return pr, err
+	}
+	if err := git.Push(); err != nil {
 		return pr, err
 	}
 
