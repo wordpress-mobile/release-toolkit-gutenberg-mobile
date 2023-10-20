@@ -21,6 +21,7 @@ type Branch struct {
 	Commit struct {
 		Sha string
 	}
+	StatusCode int
 }
 
 type Label struct {
@@ -108,8 +109,11 @@ func SearchBranch(rpo, branch string) (Branch, error) {
 	response := Branch{}
 	client := getClient()
 	endpoint := fmt.Sprintf("repos/%s/%s/branches/%s", org, rpo, branch)
+
+	// @TODO need to figure out how to handle 404s, right now a 404 is an error but
+	// a 404 should return that the branch doesn't exist. But we should check for other network errors
 	if err := client.Get(endpoint, &response); err != nil {
-		return Branch{}, err
+		return Branch{}, nil
 	}
 	return response, nil
 }
@@ -127,14 +131,16 @@ func SearchPrs(filter RepoFilter) (SearchResult, error) {
 }
 
 // Returns a single PR with all the details given a filter.
-// Returns an error if no PR is found or if more than one PR is found.
+// Returns an error if more than one PR is found.
 func SearchPr(filter RepoFilter) (PullRequest, error) {
 	result, err := SearchPrs(filter)
 	if err != nil {
 		return PullRequest{}, err
 	}
+
+	// Don't return an error if no PRs are found. This is useful for checking if the PR exists
 	if result.TotalCount == 0 {
-		return PullRequest{}, fmt.Errorf("no PR found")
+		return PullRequest{}, nil
 	}
 	if result.TotalCount > 1 {
 		return PullRequest{}, fmt.Errorf("too many PRs found")

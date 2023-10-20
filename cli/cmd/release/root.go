@@ -41,3 +41,9 @@ func init() {
 	ReleaseCmd.AddCommand(IntegrateCmd)
 	ReleaseCmd.PersistentFlags().BoolVar(&keepTempDir, "k", false, "Keep temporary directory after running command")
 }
+
+func warnIfError(err error) {
+	if err != nil {
+		console.Warn(err.Error())
+	}
+}
