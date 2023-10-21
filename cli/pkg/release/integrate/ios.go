@@ -64,3 +64,11 @@ func (ii IosIntegration) GetRepo() string {
 func (ia IosIntegration) GetPr(version string) (gh.PullRequest, error) {
 	return gbm.FindIosReleasePr(version)
 }
+
+func (ia IosIntegration) GbPublished(version string) (bool, error) {
+	published, err := gbm.IosGbmBuildPublished(version)
+	if err != nil {
+		console.Warn("Error checking if GBM build is published: %v", err)
+	}
+	return published, nil
+}

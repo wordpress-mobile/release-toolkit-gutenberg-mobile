@@ -80,6 +80,17 @@ type SearchResult struct {
 	Items      []PullRequest
 }
 
+type Check struct {
+	Id          int
+	State       string
+	Description string
+	Context     string
+}
+type Status struct {
+	State    string
+	Statuses []Check
+}
+
 // Build a RepoFilter from a repo name and a list of queries.
 func BuildRepoFilter(rpo string, queries ...string) RepoFilter {
 	org, _ := repo.GetOrg(rpo)
@@ -143,6 +154,10 @@ func SearchPr(filter RepoFilter) (PullRequest, error) {
 		return PullRequest{}, nil
 	}
 	if result.TotalCount > 1 {
+		console.Warn("Found too many PRs for %s", filter.QueryString)
+		for _, pr := range result.Items {
+			console.Info("%s %s", pr.Title, pr.Url)
+		}
 		return PullRequest{}, fmt.Errorf("too many PRs found")
 	}
 	number := result.Items[0].Number
@@ -228,6 +243,48 @@ func AddLabels(repo string, pr *PullRequest) error {
 	}
 	pr.Labels = resp
 	return nil
+}
+
+func GetStatusChecks(rpo, sha string) (Status, error) {
+	org, err := repo.GetOrg(rpo)
+	if err != nil {
+		return Status{}, err
+	}
+
+	client := getClient()
+	endpoint := fmt.Sprintf("repos/%s/%s/commits/%s/status", org, rpo, sha)
+
+	status := Status{}
+
+	if err := client.Get(endpoint, &status); err != nil {
+		return Status{}, err
+	}
+
+	return status, nil
+}
+
+func GetStatusCheck(rpo, sha, context string) (Check, error) {
+	status, err := GetStatusChecks(rpo, sha)
+	if err != nil {
+		return Check{}, err
+	}
+
+	for _, check := range status.Statuses {
+		if strings.Contains(string(check.Context), context) {
+			return check, nil
+		}
+	}
+
+	return Check{}, fmt.Errorf("context not found")
+}
+
+func GetStatus(rpo, sha string) (string, error) {
+	status, err := GetStatusChecks(rpo, sha)
+	if err != nil {
+		return "", err
+	}
+
+	return status.State, nil
 }
 
 func getClient() *api.RESTClient {

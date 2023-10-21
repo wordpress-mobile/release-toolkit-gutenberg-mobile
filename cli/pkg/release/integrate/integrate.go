@@ -33,12 +33,27 @@ type Target interface {
 	UpdateGutenbergConfig(dir string, gbmPr gh.PullRequest) error
 	GetRepo() string
 	GetPr(version string) (gh.PullRequest, error)
+	GbPublished(version string) (bool, error)
 }
 
 func (ri *ReleaseIntegration) Run(dir string) (gh.PullRequest, error) {
-	pr := gh.PullRequest{}
+	rpo := ri.Target.GetRepo()
+	org, _ := repo.GetOrg(rpo)
 
-	rpo := "WordPress-Android"
+	// Check if the GBM build is published
+	// Only if the target is wordpress-mobile
+	if org == "wordpress-mobile" {
+		published, err := ri.Target.GbPublished(ri.Version)
+		if err != nil {
+			return gh.PullRequest{}, err
+		}
+		if !published {
+			console.Info("GBM build not published yet")
+			return gh.PullRequest{}, nil
+		}
+	}
+
+	pr := gh.PullRequest{}
 	if rpo == "" {
 		return pr, errors.New("no platform specified")
 	}
@@ -58,8 +73,6 @@ func (ri *ReleaseIntegration) Run(dir string) (gh.PullRequest, error) {
 	if err := ri.Target.UpdateGutenbergConfig(dir, gbmPr); err != nil {
 		return pr, fmt.Errorf("error updating the gutenberg config: %v", err)
 	}
-
-	org, _ := repo.GetOrg(rpo)
 
 	if !ri.Ci {
 		// Check if we want to continue before pushing
@@ -111,7 +124,7 @@ func (ri *ReleaseIntegration) Run(dir string) (gh.PullRequest, error) {
 // Clone the repo at the configured base branch or at the release branch if it already exists.
 func (ri *ReleaseIntegration) cloneRepo(git shell.GitCmds) error {
 	// Check if release branch already exists
-	rpo := "WordPress-Android"
+	rpo := ri.Target.GetRepo()
 	repoPath := repo.GetRepoPath(rpo)
 
 	branch := "gutenberg/integrate_release_" + ri.Version
@@ -147,7 +160,7 @@ func (ri *ReleaseIntegration) cloneRepo(git shell.GitCmds) error {
 }
 
 func (ri *ReleaseIntegration) createAfterBranch(git shell.GitCmds) error {
-	rpo := "WordPress-Android"
+	rpo := ri.Target.GetRepo()
 	afterBranch := "gutenberg/after_" + ri.Version
 	// Check if branch exits
 	exists, err := gh.SearchBranch(rpo, afterBranch)
@@ -195,9 +208,8 @@ func (ri *ReleaseIntegration) createPR(dir string, gbmPr gh.PullRequest) (gh.Pul
 		Name: gbm.IntegrationPrLabel,
 	}}
 
-	// gh.PreviewPr("WordPress-Android", dir, pr)
-
-	rpo := "WordPress-Android"
+	rpo := ri.Target.GetRepo()
+	gh.PreviewPr(rpo, dir, pr)
 
 	if err := gh.CreatePr(rpo, &pr); err != nil {
 		return pr, err

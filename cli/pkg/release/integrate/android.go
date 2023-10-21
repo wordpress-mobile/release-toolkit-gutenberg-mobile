@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"regexp"
 
+	"github.com/wordpress-mobile/gbm-cli/pkg/console"
 	"github.com/wordpress-mobile/gbm-cli/pkg/gbm"
 	"github.com/wordpress-mobile/gbm-cli/pkg/gh"
 	"github.com/wordpress-mobile/gbm-cli/pkg/shell"
@@ -48,4 +49,12 @@ func (ia AndroidIntegration) GetRepo() string {
 
 func (ia AndroidIntegration) GetPr(version string) (gh.PullRequest, error) {
 	return gbm.FindAndroidReleasePr(version)
+}
+
+func (ia AndroidIntegration) GbPublished(version string) (bool, error) {
+	published, err := gbm.AndroidGbmBuildPublished(version)
+	if err != nil {
+		console.Warn("Error checking if GBM build is published: %v", err)
+	}
+	return published, nil
 }

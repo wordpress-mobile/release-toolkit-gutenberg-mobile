@@ -11,7 +11,7 @@ func FindGbmReleasePr(version string) (gh.PullRequest, error) {
 	label := fmt.Sprintf("label:%s", GbmReleasePrLabel)
 	title := fmt.Sprintf("%s in:title", version)
 
-	filter := gh.BuildRepoFilter(repo.GutenbergMobileRepo, "is:open", "is:pr", label, title)
+	filter := gh.BuildRepoFilter(repo.GutenbergMobileRepo, "is:pr", label, title)
 	pr, err := gh.SearchPr(filter)
 	if err != nil {
 		return gh.PullRequest{}, err
