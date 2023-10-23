@@ -5,6 +5,12 @@ import (
 	"os"
 )
 
+const WordPressAndroidRepo = "WordPress-Android"
+const WordPressIosRepo = "WordPress-iOS"
+const GutenbergMobileRepo = "gutenberg-mobile"
+const GutenbergRepo = "gutenberg"
+const JetpackRepo = "jetpack"
+
 var (
 	WpMobileOrg   string
 	WordPressOrg  string
@@ -37,15 +43,15 @@ func InitOrgs() {
 
 func GetOrg(repo string) (string, error) {
 	switch repo {
-	case "gutenberg":
+	case GutenbergRepo:
 		return WordPressOrg, nil
-	case "jetpack":
+	case JetpackRepo:
 		return AutomatticOrg, nil
-	case "gutenberg-mobile":
+	case GutenbergMobileRepo:
 		fallthrough
-	case "WordPress-Android":
+	case WordPressAndroidRepo:
 		fallthrough
-	case "WordPress-iOS":
+	case WordPressIosRepo:
 		return WpMobileOrg, nil
 	default:
 		return "", fmt.Errorf("unknown repo: %s", repo)

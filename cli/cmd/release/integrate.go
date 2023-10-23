@@ -1,6 +1,7 @@
 package release
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -8,7 +9,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/wordpress-mobile/gbm-cli/cmd/utils"
 	"github.com/wordpress-mobile/gbm-cli/pkg/console"
-	"github.com/wordpress-mobile/gbm-cli/pkg/release"
+	"github.com/wordpress-mobile/gbm-cli/pkg/gh"
+	"github.com/wordpress-mobile/gbm-cli/pkg/release/integrate"
 )
 
 var android, ios, both bool
@@ -21,24 +23,37 @@ var IntegrateCmd = &cobra.Command{
 		version, err := utils.GetVersionArg(args)
 		exitIfError(err, 1)
 
-		androidRi := release.ReleaseIntegration{
-			Android:    true,
+		ri := integrate.ReleaseIntegration{
 			Version:    version,
 			BaseBranch: "trunk",
 			HeadBranch: fmt.Sprintf("gutenberg/integrate_release_%s", version),
 		}
 
-		iosRi := release.ReleaseIntegration{
-			Ios:        true,
-			Version:    version,
-			BaseBranch: "trunk",
-			HeadBranch: fmt.Sprintf("gutenberg/integrate_release_%s", version),
-		}
+		results := []gh.PullRequest{}
 
-		createPr := func(dir string, ri release.ReleaseIntegration) {
-			pr, err := release.Integrate(dir, ri)
+		createAndroidPr := func() {
+			androidDir := filepath.Join(tempDir, "android")
+			err := os.MkdirAll(androidDir, os.ModePerm)
 			exitIfError(err, 1)
-			console.Info("Created PR %s", pr.Url)
+			androidRi := ri
+			target := integrate.AndroidIntegration{}
+			androidRi.Target = target
+			pr, err := androidRi.Run(filepath.Join(tempDir, "android"))
+			console.Warn(err.Error())
+			results = append(results, pr)
+		}
+
+		createIosPr := func() {
+			iosDir := filepath.Join(tempDir, "ios")
+			err = os.MkdirAll(iosDir, os.ModePerm)
+			exitIfError(err, 1)
+
+			iosRi := ri
+			target := integrate.IosIntegration{}
+			iosRi.Target = target
+			pr, err := iosRi.Run(filepath.Join(tempDir, "ios"))
+			console.Warn(err.Error())
+			results = append(results, pr)
 		}
 
 		// Integrate GBM into Android and iOS if both flags are set or neither flag is set
@@ -47,26 +62,23 @@ var IntegrateCmd = &cobra.Command{
 		switch {
 		case both:
 			console.Info("Integrating GBM version %s into both iOS and Android", version)
-
-			// If we are running both integrations we need separate directories to work in.
-			androidDir := filepath.Join(tempDir, "android")
-			err := os.MkdirAll(androidDir, os.ModePerm)
-			exitIfError(err, 1)
-
-			iosDir := filepath.Join(tempDir, "ios")
-			err = os.MkdirAll(iosDir, os.ModePerm)
-			exitIfError(err, 1)
-
-			createPr(androidDir, androidRi)
-			createPr(iosDir, iosRi)
+			createAndroidPr()
+			createIosPr()
 
 		case android:
 			console.Info("Integrating GBM version %s into Android", version)
-			createPr(tempDir, androidRi)
+			createAndroidPr()
 
 		case ios:
 			console.Info("Integrating GBM version %s into iOS", version)
-			createPr(tempDir, iosRi)
+			createIosPr()
+		}
+
+		if len(results) == 0 {
+			exitIfError(errors.New("no PRs were created"), 1)
+		}
+		for _, pr := range results {
+			console.Info("Created PR %s", pr.Url)
 		}
 	},
 }

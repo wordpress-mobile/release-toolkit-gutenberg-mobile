@@ -21,6 +21,7 @@ type Branch struct {
 	Commit struct {
 		Sha string
 	}
+	StatusCode int
 }
 
 type Label struct {
@@ -79,6 +80,17 @@ type SearchResult struct {
 	Items      []PullRequest
 }
 
+type Check struct {
+	Id          int
+	State       string
+	Description string
+	Context     string
+}
+type Status struct {
+	State    string
+	Statuses []Check
+}
+
 // Build a RepoFilter from a repo name and a list of queries.
 func BuildRepoFilter(rpo string, queries ...string) RepoFilter {
 	org, _ := repo.GetOrg(rpo)
@@ -108,19 +120,48 @@ func SearchBranch(rpo, branch string) (Branch, error) {
 	response := Branch{}
 	client := getClient()
 	endpoint := fmt.Sprintf("repos/%s/%s/branches/%s", org, rpo, branch)
+
+	// @TODO need to figure out how to handle 404s, right now a 404 is an error but
+	// a 404 should return that the branch doesn't exist. But we should check for other network errors
 	if err := client.Get(endpoint, &response); err != nil {
-		return Branch{}, err
+		return Branch{}, nil
 	}
 	return response, nil
 }
 
-// GetPr returns a PullRequest struct for the given repo and PR number.
-func GetPr(rpo string, id int) (*PullRequest, error) {
-	org, err := repo.GetOrg(rpo)
-	if err != nil {
-		return nil, err
+// SearchPrs returns a list of PRs for the given repo and filter.
+func SearchPrs(filter RepoFilter) (SearchResult, error) {
+	client := getClient()
+	endpoint := fmt.Sprintf("search/issues?q=%s", filter.Query)
+	response := SearchResult{Filter: filter}
+
+	if err := client.Get(endpoint, &response); err != nil {
+		return SearchResult{}, err
 	}
-	return GetPrOrg(org, rpo, id)
+	return response, nil
+}
+
+// Returns a single PR with all the details given a filter.
+// Returns an error if more than one PR is found.
+func SearchPr(filter RepoFilter) (PullRequest, error) {
+	result, err := SearchPrs(filter)
+	if err != nil {
+		return PullRequest{}, err
+	}
+
+	// Don't return an error if no PRs are found. This is useful for checking if the PR exists
+	if result.TotalCount == 0 {
+		return PullRequest{}, nil
+	}
+	if result.TotalCount > 1 {
+		console.Warn("Found too many PRs for %s", filter.QueryString)
+		for _, pr := range result.Items {
+			console.Info("%s %s", pr.Title, pr.Url)
+		}
+		return PullRequest{}, fmt.Errorf("too many PRs found")
+	}
+	number := result.Items[0].Number
+	return GetPr(filter.Repo, number)
 }
 
 func GetPrOrg(org, repo string, id int) (*PullRequest, error) {
@@ -141,16 +182,20 @@ func GetPrOrg(org, repo string, id int) (*PullRequest, error) {
 	return pr, nil
 }
 
-func SearchPrs(filter RepoFilter) (SearchResult, error) {
-	console.Info("Searching for PRs matching %s", filter.QueryString)
-	client := getClient()
-	endpoint := fmt.Sprintf("search/issues?q=%s", filter.Query)
-	response := SearchResult{Filter: filter}
-
-	if err := client.Get(endpoint, &response); err != nil {
-		return SearchResult{}, err
+func GetPr(rpo string, number int) (PullRequest, error) {
+	pr := PullRequest{}
+	org, err := repo.GetOrg(rpo)
+	if err != nil {
+		return pr, err
 	}
-	return response, nil
+
+	client := getClient()
+	endpoint := fmt.Sprintf("repos/%s/%s/pulls/%d", org, rpo, number)
+	if err := client.Get(endpoint, &pr); err != nil {
+		return pr, err
+	}
+	pr.Repo = rpo
+	return pr, nil
 }
 
 func CreatePr(rpo string, pr *PullRequest) error {
@@ -216,6 +261,48 @@ func AddLabels(repo string, pr *PullRequest) error {
 	}
 	pr.Labels = resp
 	return nil
+}
+
+func GetStatusChecks(rpo, sha string) (Status, error) {
+	org, err := repo.GetOrg(rpo)
+	if err != nil {
+		return Status{}, err
+	}
+
+	client := getClient()
+	endpoint := fmt.Sprintf("repos/%s/%s/commits/%s/status", org, rpo, sha)
+
+	status := Status{}
+
+	if err := client.Get(endpoint, &status); err != nil {
+		return Status{}, err
+	}
+
+	return status, nil
+}
+
+func GetStatusCheck(rpo, sha, context string) (Check, error) {
+	status, err := GetStatusChecks(rpo, sha)
+	if err != nil {
+		return Check{}, err
+	}
+
+	for _, check := range status.Statuses {
+		if strings.Contains(string(check.Context), context) {
+			return check, nil
+		}
+	}
+
+	return Check{}, fmt.Errorf("context not found")
+}
+
+func GetStatus(rpo, sha string) (string, error) {
+	status, err := GetStatusChecks(rpo, sha)
+	if err != nil {
+		return "", err
+	}
+
+	return status.State, nil
 }
 
 func getClient() *api.RESTClient {

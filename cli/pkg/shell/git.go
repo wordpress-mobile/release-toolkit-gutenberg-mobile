@@ -2,6 +2,8 @@ package shell
 
 import (
 	"fmt"
+
+	"github.com/wordpress-mobile/gbm-cli/pkg/console"
 )
 
 type GitCmds interface {
@@ -29,6 +31,11 @@ func (c *client) Switch(args ...string) error {
 }
 
 func (c *client) CommitAll(format string, args ...interface{}) error {
+
+	if c.IsPorcelain() {
+		console.Warn("No changes to commit")
+		return nil
+	}
 	message := fmt.Sprintf(format, args...)
 	return c.cmd("commit", "-am", message)
 }
