@@ -58,5 +58,6 @@ func init() {
 
 	PrepareCmd.AddCommand(gbmCmd)
 	PrepareCmd.AddCommand(gbCmd)
+	PrepareCmd.AddCommand(allCmd)
 	PrepareCmd.PersistentFlags().BoolVar(&keepTempDir, "k", false, "Keep temporary directory after running command")
 }
