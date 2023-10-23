@@ -27,7 +27,7 @@ var RenderCmd = &cobra.Command{
 }
 
 func init() {
-	exitIfError = utils.ExitIfErrorHandler(func() {})
+	exitIfError = utils.ExitIfError
 	RenderCmd.AddCommand(ChecklistCmd)
 	RenderCmd.AddCommand(AztecCmd)
 	RenderCmd.PersistentFlags().BoolVar(&writeToClipboard, "c", false, "Send output to clipboard")

@@ -1,17 +1,16 @@
 package release
 
 import (
-	"os"
-
 	"github.com/spf13/cobra"
 	"github.com/wordpress-mobile/gbm-cli/cmd/release/prepare"
 	"github.com/wordpress-mobile/gbm-cli/cmd/utils"
-	"github.com/wordpress-mobile/gbm-cli/pkg/console"
+	wp "github.com/wordpress-mobile/gbm-cli/cmd/workspace"
 )
 
 var exitIfError func(error, int)
-var tempDirCleaner func(string) func()
 var keepTempDir bool
+var tempDir string
+var workspace wp.Workspace
 
 var ReleaseCmd = &cobra.Command{
 	Use:   "release",
@@ -20,23 +19,26 @@ var ReleaseCmd = &cobra.Command{
 
 func Execute() {
 	err := ReleaseCmd.Execute()
-	if err != nil {
-		console.Error(err)
-		os.Exit(1)
+	exitIfError(err, 1)
+
+	if keepTempDir {
+		workspace.Keep()
 	}
+
+	defer workspace.Cleanup()
 }
 
 func init() {
-	exitIfError = utils.ExitIfErrorHandler(func() {})
-	tempDirCleaner = func(tempDir string) func() {
-		return func() {
-			if keepTempDir {
-				console.Info("Keeping temporary directory %s", tempDir)
-				return
-			}
-			utils.CleanupTempDir(tempDir)
+	var err error
+	workspace, err = wp.NewWorkspace()
+	utils.ExitIfError(err, 1)
+
+	exitIfError = func(err error, code int) {
+		if err != nil {
+			utils.Exit(code, workspace.Cleanup)
 		}
 	}
+	tempDir = workspace.Dir()
 	ReleaseCmd.AddCommand(prepare.PrepareCmd)
 	ReleaseCmd.AddCommand(IntegrateCmd)
 	ReleaseCmd.PersistentFlags().BoolVar(&keepTempDir, "k", false, "Keep temporary directory after running command")

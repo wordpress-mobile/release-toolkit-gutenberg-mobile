@@ -21,17 +21,6 @@ var IntegrateCmd = &cobra.Command{
 		version, err := utils.GetVersionArg(args)
 		exitIfError(err, 1)
 
-		tempDir, err := utils.SetTempDir()
-		exitIfError(err, 1)
-
-		cleanup := tempDirCleaner(tempDir)
-		defer cleanup()
-
-		// reassign exitIfError to handle the cleanup
-		exitIfError = utils.ExitIfErrorHandler(cleanup)
-
-		console.Info("Created temporary directory %s", tempDir)
-
 		androidRi := release.ReleaseIntegration{
 			Android:    true,
 			Version:    version,
