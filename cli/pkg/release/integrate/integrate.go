@@ -38,7 +38,7 @@ type Target interface {
 
 func (ri *ReleaseIntegration) Run(dir string) (gh.PullRequest, error) {
 	rpo := ri.Target.GetRepo()
-	org, _ := repo.GetOrg(rpo)
+	org := repo.GetOrg(rpo)
 
 	// Check if the GBM build is published
 	// Only if the target is wordpress-mobile

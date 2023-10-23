@@ -24,8 +24,7 @@ func CreateGbmPR(version, dir string) (gh.PullRequest, error) {
 	git := shell.NewGitCmd(sp)
 
 	// Set Gutenberg Mobile repository and org
-	org, err := repo.GetOrg("gutenberg-mobile")
-	console.ExitIfError(err)
+	org := repo.GetOrg("gutenberg-mobile")
 
 	// Set Gutenberg Mobile branch name e.g., (release/x.xx.x)
 	branch := "release/" + version
@@ -284,7 +283,7 @@ func getReleaseNotes(dir string, gbmPr *gh.PullRequest) []byte {
 	rn := []byte{}
 
 	if dir == "" {
-		org, _ := repo.GetOrg("gutenberg-mobile")
+		org := repo.GetOrg("gutenberg-mobile")
 		endpoint := fmt.Sprintf("https://raw.githubusercontent.com/%s/gutenberg-mobile/%s/RELEASE-NOTES.txt", org, gbmPr.Head.Sha)
 
 		if resp, err := http.Get(endpoint); err != nil {

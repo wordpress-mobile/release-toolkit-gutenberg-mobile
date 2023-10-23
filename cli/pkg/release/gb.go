@@ -20,10 +20,7 @@ func CreateGbPR(version, dir string) (gh.PullRequest, error) {
 	shellProps := shell.CmdProps{Dir: dir, Verbose: true}
 	git := shell.NewGitCmd(shellProps)
 
-	org, err := repo.GetOrg("gutenberg")
-	if err != nil {
-		return pr, err
-	}
+	org := repo.GetOrg("gutenberg")
 	branch := "rnmobile/release_" + version
 
 	exists, _ := gh.SearchBranch("gutenberg", branch)
