@@ -41,24 +41,24 @@ func InitOrgs() {
 	}
 }
 
-func GetOrg(repo string) (string, error) {
+func GetOrg(repo string) string {
 	switch repo {
 	case GutenbergRepo:
-		return WordPressOrg, nil
+		return WordPressOrg
 	case JetpackRepo:
-		return AutomatticOrg, nil
+		return AutomatticOrg
 	case GutenbergMobileRepo:
 		fallthrough
 	case WordPressAndroidRepo:
 		fallthrough
 	case WordPressIosRepo:
-		return WpMobileOrg, nil
+		return WpMobileOrg
 	default:
-		return "", fmt.Errorf("unknown repo: %s", repo)
+		return ""
 	}
 }
 
 func GetRepoPath(repo string) string {
-	org, _ := GetOrg(repo)
+	org := GetOrg(repo)
 	return fmt.Sprintf("git@github.com:%s/%s", org, repo)
 }

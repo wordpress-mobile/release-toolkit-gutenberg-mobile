@@ -13,11 +13,17 @@ import (
 )
 
 var (
-	l *log.Logger
+	l          *log.Logger
+	Heading    *color.Color
+	HeadingRow *color.Color
+	Row        *color.Color
 )
 
 func init() {
 	l = log.New(os.Stderr, "", 0)
+	Heading = color.New(color.FgWhite, color.Bold)
+	HeadingRow = color.New(color.FgGreen, color.Bold)
+	Row = color.New(color.FgGreen)
 }
 
 // Deprecated
@@ -73,6 +79,12 @@ func Log(format string, args ...interface{}) {
 func Debug(format string, args ...interface{}) {
 	blue := color.New(color.FgBlue).SprintfFunc()
 	l.Printf(blue("\n"+format, args...))
+	color.Unset()
+}
+
+func Print(c *color.Color, format string, args ...interface{}) {
+	styled := c.SprintfFunc()
+	l.Printf(styled(format, args...))
 	color.Unset()
 }
 
