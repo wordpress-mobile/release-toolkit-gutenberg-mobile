@@ -22,7 +22,7 @@ func CreateGbPR(version, dir string) (gh.PullRequest, error) {
 
 	org, err := repo.GetOrg("gutenberg")
 	if err != nil {
-		return pr, fmt.Errorf("error getting the org: %v", err)
+		return pr, err
 	}
 	branch := "rnmobile/release_" + version
 
@@ -44,7 +44,6 @@ func CreateGbPR(version, dir string) (gh.PullRequest, error) {
 		// Let's clone into the current directory so that the git client can find the .git directory
 		err := git.Clone(repo.GetRepoPath("gutenberg"), "--depth=1", ".")
 
-		
 		if err != nil {
 			return pr, fmt.Errorf("error cloning the Gutenberg repository: %v", err)
 		}

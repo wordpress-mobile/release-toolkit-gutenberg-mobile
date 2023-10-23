@@ -23,17 +23,6 @@ var IntegrateCmd = &cobra.Command{
 		version, err := utils.GetVersionArg(args)
 		exitIfError(err, 1)
 
-		tempDir, err := utils.SetTempDir()
-		exitIfError(err, 1)
-
-		cleanup := tempDirCleaner(tempDir)
-		defer cleanup()
-
-		// reassign exitIfError to handle the cleanup
-		exitIfError = utils.ExitIfErrorHandler(cleanup)
-
-		console.Info("Created temporary directory %s", tempDir)
-
 		ri := integrate.ReleaseIntegration{
 			Version:    version,
 			BaseBranch: "trunk",
@@ -50,7 +39,7 @@ var IntegrateCmd = &cobra.Command{
 			target := integrate.AndroidIntegration{}
 			androidRi.Target = target
 			pr, err := androidRi.Run(filepath.Join(tempDir, "android"))
-			warnIfError(err)
+			console.Warn(err.Error())
 			results = append(results, pr)
 		}
 
@@ -63,7 +52,7 @@ var IntegrateCmd = &cobra.Command{
 			target := integrate.IosIntegration{}
 			iosRi.Target = target
 			pr, err := iosRi.Run(filepath.Join(tempDir, "ios"))
-			warnIfError(err)
+			console.Warn(err.Error())
 			results = append(results, pr)
 		}
 

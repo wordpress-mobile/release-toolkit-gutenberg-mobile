@@ -15,6 +15,7 @@ var gbmCmd = &cobra.Command{
 	Short: "Prepare Gutenberg Mobile release",
 	Long:  `Use this command to prepare a Gutenberg Mobile release PR`,
 	Run: func(cmd *cobra.Command, args []string) {
+		tempDir := workspace.Dir()
 		version, err := utils.GetVersionArg(args)
 		exitIfError(err, 1)
 
@@ -24,19 +25,6 @@ var gbmCmd = &cobra.Command{
 		}
 
 		console.Info("Preparing Gutenberg Mobile for release %s", version)
-
-		tempDir, err := utils.SetTempDir()
-		exitIfError(err, 1)
-
-		cleanup := func() {
-			utils.CleanupTempDir(tempDir)
-		}
-
-		// Reset the exitIfError to handle the cleanup
-		exitIfError = utils.ExitIfErrorHandler(cleanup)
-		defer cleanup()
-
-		console.Info("Created temporary directory %s", tempDir)
 
 		pr, err := release.CreateGbmPR(version, tempDir)
 		exitIfError(err, 1)

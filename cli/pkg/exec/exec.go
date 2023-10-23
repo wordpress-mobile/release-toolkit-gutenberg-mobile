@@ -1,8 +1,10 @@
 package exec
 
 import (
+	"errors"
 	"os"
 	"os/exec"
+	"time"
 )
 
 // Deprecated: Use shell package instead
@@ -51,6 +53,19 @@ func Bundle(dir string, verbose bool, args ...string) error {
 // Deprecated: Use shell package instead
 func BundleInstall(dir string, verbose bool, args ...string) error {
 	return Bundle(dir, true, append([]string{"install"}, args...)...)
+}
+
+func Try(times int, cmd string, dir string, args ...string) error {
+
+	for times > 0 {
+		err := exc(true, "", cmd, args...)
+		if err == nil {
+			return nil
+		}
+		times--
+		time.Sleep(time.Second)
+	}
+	return errors.New("failed to execute command")
 }
 
 func exc(verbose bool, dir, cmd string, args ...string) error {
