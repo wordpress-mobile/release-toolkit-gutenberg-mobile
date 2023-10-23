@@ -2,6 +2,9 @@ package release
 
 import (
 	"fmt"
+	"io"
+	"net/http"
+	"os"
 	"path/filepath"
 
 	"github.com/wordpress-mobile/gbm-cli/pkg/console"
@@ -41,18 +44,6 @@ func CreateGbmPR(version, dir string) (gh.PullRequest, error) {
 		err := git.Clone(repo.GetRepoPath("gutenberg-mobile"), "--depth=1", "--recursive", ".")
 		if err != nil {
 			return pr, fmt.Errorf("error cloning the Gutenberg Mobile repository: %v", err)
-		}
-
-		console.Info("Add remote for %s", org)
-		err = git.AddRemote("upstream", repo.GetRepoPath("gutenberg-mobile"))
-		if err != nil {
-			return pr, fmt.Errorf("error adding remote for %s: %v", org, err)
-		}
-
-		console.Info("Set upstream to trunk", org)
-		err = git.SetUpstreamTo("trunk")
-		if err != nil {
-			return pr, fmt.Errorf("error setting upstream to trunk: %v", err)
 		}
 
 		console.Info("Checking out branch %s", branch)
@@ -200,13 +191,43 @@ func CreateGbmPR(version, dir string) (gh.PullRequest, error) {
 }
 
 func renderGbmPrBody(version string, pr *gh.PullRequest) error {
+	// TODO - replace "" with dir variable
+	cl := getChangeLog("", pr)
+	rn := getReleaseNotes("", pr)
+
+	rc, err := CollectReleaseChanges(version, cl, rn)
+
+	if err != nil {
+		console.Error(err)
+	}
+
+	rfs := []gh.RepoFilter{
+		gh.BuildRepoFilter("gutenberg", "is:open", "is:pr", `label:"Mobile App - i.e. Android or iOS"`, fmt.Sprintf("v%s in:title", version)),
+		gh.BuildRepoFilter("WordPress-Android", "is:open", "is:pr", version+" in:title"),
+		gh.BuildRepoFilter("WordPress-iOS", "is:open", "is:pr", version+" in:title"),
+	}	
+
+	synced, err := gh.FindGbmSyncedPrs(*pr, rfs)
+	if err != nil {
+		console.Error(err)
+	}
+	
+	prs := []gh.PullRequest{}
+	for _, s := range synced {
+		prs = append(prs, s.Items...)
+	}
+
 	t := render.Template{
 		Path: "templates/release/gbm_pr_body.md",
 		Data: struct {
 			Version  string
 			GbmPrUrl string
+			Changes    []ReleaseChanges
+			RelatedPRs []gh.PullRequest
 		}{
-			Version: version,
+			Version:    version,
+			Changes:    rc,
+			RelatedPRs: prs,
 		},
 	}
 
@@ -214,6 +235,80 @@ func renderGbmPrBody(version string, pr *gh.PullRequest) error {
 	if err != nil {
 		return err
 	}
+
 	pr.Body = body
 	return nil
+}
+
+func getChangeLog(dir string, gbmPr *gh.PullRequest) []byte {
+	var buff io.ReadCloser
+	cl := []byte{}
+
+	if dir == "" {
+		console.Warn("not implemented")
+
+		// TODO: find the best way to get the gbPr
+
+		// org, _ := repo.GetOrg("gutenberg")
+		// endpoint := fmt.Sprintf("https://raw.githubusercontent.com/%s/gutenberg/%s/packages/react-native-editor/CHANGELOG.md", org, gbPr.Head.Sha)
+
+		// if resp, err := http.Get(endpoint); err != nil {
+		// 	fmt.Errorf("unable to get the changelog (err %s)", err)
+		// } else {
+		// 	defer resp.Body.Close()
+		// 	buff = resp.Body
+		// }
+		
+	} else {
+		// Read in the change log
+		clPath := filepath.Join(dir, "gutenberg-mobile", "gutenberg", "packages", "react-native-editor", "CHANGELOG.md")
+		if clf, err := os.Open(clPath); err != nil {
+			fmt.Errorf("unable to open the changelog %s", err)
+		} else {
+			defer clf.Close()
+			buff = clf
+
+		}
+	}
+	if data, err := io.ReadAll(buff); err != nil {
+		fmt.Errorf("unable to read the changelog %s", err)
+	} else {
+		cl = data
+	}
+
+	return cl
+}
+
+func getReleaseNotes(dir string, gbmPr *gh.PullRequest) []byte {
+	var buff io.ReadCloser
+	rn := []byte{}
+
+	if dir == "" {
+		org, _ := repo.GetOrg("gutenberg-mobile")
+		endpoint := fmt.Sprintf("https://raw.githubusercontent.com/%s/gutenberg-mobile/%s/RELEASE-NOTES.txt", org, gbmPr.Head.Sha)
+
+		if resp, err := http.Get(endpoint); err != nil {
+			fmt.Errorf("unable to get the changelog (err %s)", err)
+		} else {
+			defer resp.Body.Close()
+			buff = resp.Body
+		}
+	} else {
+		// Read in the release notes
+		rnPath := filepath.Join(dir, "gutenberg-mobile", "RELEASE-NOTES.txt")
+
+		if rnf, err := os.Open(rnPath); err != nil {
+			fmt.Errorf("unable to open the release notes %s", err)
+		} else {
+			defer rnf.Close()
+			buff = rnf
+		}
+	}
+	if data, err := io.ReadAll(buff); err != nil {
+		fmt.Errorf("unable to read the release notes %s", err)
+	} else {
+		rn = data
+	}
+
+	return rn
 }

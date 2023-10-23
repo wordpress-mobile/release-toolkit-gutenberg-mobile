@@ -114,6 +114,33 @@ func SearchBranch(rpo, branch string) (Branch, error) {
 	return response, nil
 }
 
+// GetPr returns a PullRequest struct for the given repo and PR number.
+func GetPr(rpo string, id int) (*PullRequest, error) {
+	org, err := repo.GetOrg(rpo)
+	if err != nil {
+		return nil, err
+	}
+	return GetPrOrg(org, rpo, id)
+}
+
+func GetPrOrg(org, repo string, id int) (*PullRequest, error) {
+	client := getClient()
+
+	endpoint := fmt.Sprintf("repos/%s/%s/pulls/%d", org, repo, id)
+	pr := &PullRequest{}
+	if err := client.Get(endpoint, pr); err != nil {
+		return nil, err
+	}
+
+	if pr.Number == 0 {
+		return nil, fmt.Errorf("pr not found %s", endpoint)
+	}
+
+	pr.Repo = repo
+
+	return pr, nil
+}
+
 func SearchPrs(filter RepoFilter) (SearchResult, error) {
 	console.Info("Searching for PRs matching %s", filter.QueryString)
 	client := getClient()
@@ -244,4 +271,39 @@ func PreviewPr(rpo, dir string, pr PullRequest) {
 	git("log", pr.Base.Ref+"...HEAD", "--oneline", "--no-merges", "-10")
 
 	console.Info("\n")
+}
+
+func FindGbmSyncedPrs(gbmPr PullRequest, filters []RepoFilter) ([]SearchResult, error) {
+	var synced []SearchResult
+	prChan := make(chan SearchResult)
+
+	// Search for PRs in parallel
+	for _, rf := range filters {
+		go func(rf RepoFilter) {
+			res, err := SearchPrs(rf)
+
+			// just log the error and continue
+			if err != nil {
+				console.Warn("could not search for %s", err)
+			}
+			prChan <- res
+		}(rf)
+	}
+
+	// Wait for all the PRs to be returned
+	for i := 0; i < len(filters); i++ {
+		resp := <-prChan
+		sItems := []PullRequest{}
+
+		for _, pr := range resp.Items {
+			if strings.Contains(pr.Body, gbmPr.Url) {
+				pr.Repo = resp.Filter.Repo
+				sItems = append(sItems, pr)
+			}
+		}
+		resp.Items = sItems
+		synced = append(synced, resp)
+	}
+
+	return synced, nil
 }
