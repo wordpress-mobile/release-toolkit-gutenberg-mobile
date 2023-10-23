@@ -46,18 +46,6 @@ func CreateGbmPR(version, dir string) (gh.PullRequest, error) {
 			return pr, err
 		}
 
-		console.Info("Add remote for %s", org)
-		err = git.AddRemote("upstream", repo.GetRepoPath("gutenberg-mobile"))
-		if err != nil {
-			return pr, err
-		}
-
-		// console.Info("Set upstream to trunk", org)
-		// err = git.SetUpstreamTo("trunk")
-		// if err != nil {
-		// 	return pr, err
-		// }
-
 		console.Info("Checking out branch %s", branch)
 		err = git.Switch("-c", branch)
 		if err != nil {
