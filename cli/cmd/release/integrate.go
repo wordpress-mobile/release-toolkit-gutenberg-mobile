@@ -8,6 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/wordpress-mobile/gbm-cli/cmd/utils"
+	wp "github.com/wordpress-mobile/gbm-cli/cmd/workspace"
 	"github.com/wordpress-mobile/gbm-cli/pkg/console"
 	"github.com/wordpress-mobile/gbm-cli/pkg/gh"
 	"github.com/wordpress-mobile/gbm-cli/pkg/release/integrate"
@@ -84,6 +85,17 @@ var IntegrateCmd = &cobra.Command{
 }
 
 func init() {
+	var err error
+	workspace, err = wp.NewWorkspace()
+	utils.ExitIfError(err, 1)
+
+	exitIfError = func(err error, code int) {
+		if err != nil {
+			console.Error(err)
+			utils.Exit(code, workspace.Cleanup)
+		}
+	}
+	tempDir = workspace.Dir()
 	IntegrateCmd.Flags().BoolVarP(&android, "android", "a", false, "Only integrate Android")
 	IntegrateCmd.Flags().BoolVarP(&ios, "ios", "i", false, "Only integrate iOS")
 }

@@ -3,7 +3,6 @@ package release
 import (
 	"github.com/spf13/cobra"
 	"github.com/wordpress-mobile/gbm-cli/cmd/release/prepare"
-	"github.com/wordpress-mobile/gbm-cli/cmd/utils"
 	wp "github.com/wordpress-mobile/gbm-cli/cmd/workspace"
 )
 
@@ -29,16 +28,7 @@ func Execute() {
 }
 
 func init() {
-	var err error
-	workspace, err = wp.NewWorkspace()
-	utils.ExitIfError(err, 1)
 
-	exitIfError = func(err error, code int) {
-		if err != nil {
-			utils.Exit(code, workspace.Cleanup)
-		}
-	}
-	tempDir = workspace.Dir()
 	ReleaseCmd.AddCommand(prepare.PrepareCmd)
 	ReleaseCmd.AddCommand(IntegrateCmd)
 	ReleaseCmd.AddCommand(StatusCmd)
