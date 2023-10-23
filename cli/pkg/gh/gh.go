@@ -164,6 +164,24 @@ func SearchPr(filter RepoFilter) (PullRequest, error) {
 	return GetPr(filter.Repo, number)
 }
 
+func GetPrOrg(org, repo string, id int) (*PullRequest, error) {
+	client := getClient()
+
+	endpoint := fmt.Sprintf("repos/%s/%s/pulls/%d", org, repo, id)
+	pr := &PullRequest{}
+	if err := client.Get(endpoint, pr); err != nil {
+		return nil, err
+	}
+
+	if pr.Number == 0 {
+		return nil, fmt.Errorf("pr not found %s", endpoint)
+	}
+
+	pr.Repo = repo
+
+	return pr, nil
+}
+
 func GetPr(rpo string, number int) (PullRequest, error) {
 	pr := PullRequest{}
 	org, err := repo.GetOrg(rpo)
