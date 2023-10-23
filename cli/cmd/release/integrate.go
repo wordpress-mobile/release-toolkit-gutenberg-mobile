@@ -39,20 +39,24 @@ var IntegrateCmd = &cobra.Command{
 			target := integrate.AndroidIntegration{}
 			androidRi.Target = target
 			pr, err := androidRi.Run(filepath.Join(tempDir, "android"))
-			console.Warn(err.Error())
+			if err != nil {
+				console.Warn(err.Error())
+			}
 			results = append(results, pr)
 		}
 
 		createIosPr := func() {
 			iosDir := filepath.Join(tempDir, "ios")
-			err = os.MkdirAll(iosDir, os.ModePerm)
+			err := os.MkdirAll(iosDir, os.ModePerm)
 			exitIfError(err, 1)
 
 			iosRi := ri
 			target := integrate.IosIntegration{}
 			iosRi.Target = target
 			pr, err := iosRi.Run(filepath.Join(tempDir, "ios"))
-			console.Warn(err.Error())
+			if err != nil {
+				console.Warn(err.Error())
+			}
 			results = append(results, pr)
 		}
 
