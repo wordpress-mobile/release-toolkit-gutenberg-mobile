@@ -14,7 +14,6 @@ type client struct {
 	cmd func(...string) error
 }
 
-
 func NewNpmCmd(cp CmdProps) NpmCmds {
 	return &client{
 		cmd: func(cmds ...string) error {
@@ -30,7 +29,6 @@ func NewNpmCmd(cp CmdProps) NpmCmds {
 		},
 	}
 }
-
 
 func NewGitCmd(cp CmdProps) GitCmds {
 	return &client{
@@ -63,7 +61,6 @@ func NewBundlerCmd(cp CmdProps) BundlerCmds {
 		},
 	}
 }
-
 
 func NewRakeCmd(cp CmdProps) RakeCmds {
 	return &client{

@@ -1,6 +1,7 @@
 package release
 
 import (
+	"errors"
 	"fmt"
 	"path/filepath"
 
@@ -19,32 +20,41 @@ func CreateGbPR(version, dir string) (gh.PullRequest, error) {
 	shellProps := shell.CmdProps{Dir: dir, Verbose: true}
 	git := shell.NewGitCmd(shellProps)
 
-
 	org, err := repo.GetOrg("gutenberg")
 	if err != nil {
-		return pr, err
+		return pr, fmt.Errorf("error getting the org: %v", err)
 	}
 	branch := "rnmobile/release_" + version
 
-	console.Info("Checking if branch %s exists", branch)
 	exists, _ := gh.SearchBranch("gutenberg", branch)
 
 	if (exists != gh.Branch{}) {
-		console.Info("Branch %s already exists", branch)
-		return pr, nil
+		console.Warn("Branch %s already exists", branch)
+
+		cont := console.Confirm("Do you wish to continue?")
+
+		if !cont {
+			console.Info("Bye 👋")
+			return pr, fmt.Errorf("exiting before creating PR: %v", err)
+		}
+
 	} else {
 		console.Info("Cloning Gutenberg to %s", dir)
 
 		// Let's clone into the current directory so that the git client can find the .git directory
 		err := git.Clone(repo.GetRepoPath("gutenberg"), "--depth=1", ".")
+
+		
 		if err != nil {
-			return pr, err
+			return pr, fmt.Errorf("error cloning the Gutenberg repository: %v", err)
 		}
+
+		exitIfError(errors.New("not implemented"), 1)
 
 		console.Info("Checking out branch %s", branch)
 		err = git.Switch("-c", branch)
 		if err != nil {
-			return pr, err
+			return pr, fmt.Errorf("error checking out the branch: %v", err)
 		}
 	}
 
@@ -53,7 +63,7 @@ func CreateGbPR(version, dir string) (gh.PullRequest, error) {
 	for _, pkg := range pkgs {
 		editorPackPath := filepath.Join(dir, "packages", pkg, "package.json")
 		if err := utils.UpdatePackageVersion(version, editorPackPath); err != nil {
-			return pr, err
+			return pr, fmt.Errorf("error updating the package version: %v", err)
 		}
 	}
 
@@ -61,23 +71,23 @@ func CreateGbPR(version, dir string) (gh.PullRequest, error) {
 		return pr, err
 	}
 
-	console.Info("Update the change notes in the mobile editor package")
+	console.Info("Update the CHANGELOG in the react-native-editor package")
 	chnPath := filepath.Join(dir, "packages", "react-native-editor", "CHANGELOG.md")
 	if err := utils.UpdateChangeLog(version, chnPath); err != nil {
-		return pr, err
+		return pr, fmt.Errorf("error updating the CHANGELOG: %v", err)
 	}
-	if err := git.CommitAll("Release script: Update changelog for version %s", version); err != nil {
-		return pr, err
+	if err := git.CommitAll("Release script: Update CHANGELOG for version %s", version); err != nil {
+		return pr, fmt.Errorf("error committing the CHANGELOG updates: %v", err)
 	}
 
 	console.Info("Setting up Gutenberg node environment")
 
 	if err := exec.SetupNode(dir, true); err != nil {
-		return pr, err
+		return pr, fmt.Errorf("error setting up the node environment: %v", err)
 	}
 
 	if err := exec.NpmCi(dir, true); err != nil {
-		return pr, err
+		return pr, fmt.Errorf("error running npm ci: %v", err)
 	}
 
 	console.Info("Running preios script")
@@ -86,15 +96,15 @@ func CreateGbPR(version, dir string) (gh.PullRequest, error) {
 	editorIosPath := filepath.Join(dir, "packages", "react-native-editor", "ios")
 
 	if err := exec.BundleInstall(editorIosPath, true); err != nil {
-		return pr, err
+		return pr, fmt.Errorf("error running bundle install: %v", err)
 	}
 
 	if err := exec.NpmRun(editorIosPath, true, "preios"); err != nil {
-		return pr, err
+		return pr, fmt.Errorf("error running npm run core preios: %v", err)
 	}
 
 	if err := git.CommitAll("Release script: Update podfile"); err != nil {
-		return pr, err
+		return pr, fmt.Errorf("error committing the Podfile changes: %v", err)
 	}
 
 	console.Info("\n 🎉 Gutenberg preparations succeeded.")
@@ -106,12 +116,17 @@ func CreateGbPR(version, dir string) (gh.PullRequest, error) {
 	pr.Head.Ref = branch
 
 	if err := renderGbPrBody(version, &pr); err != nil {
-		console.Info("Unable to render the GB PR body (err %s)", err)
+		return pr, fmt.Errorf("error rendering the GB pull body: %v", err)
 	}
 
-	pr.Labels = []gh.Label{{
-		Name: "Mobile App - i.e. Android or iOS",
-	}}
+	pr.Labels = []gh.Label{
+		{
+			Name: "Mobile App - i.e. Android or iOS",
+		},
+		{
+			Name: "[Type] Build Tooling",
+		},
+	}
 
 	gh.PreviewPr("gutenberg", dir, pr)
 
@@ -119,23 +134,26 @@ func CreateGbPR(version, dir string) (gh.PullRequest, error) {
 	cont := console.Confirm(prompt)
 
 	if !cont {
-		console.Info("Bye 👋")
 		return pr, fmt.Errorf("exiting before creating PR")
 	}
 
 	if err := git.Push(); err != nil {
-		return pr, err
+		return pr, fmt.Errorf("error pushing the PR: %v", err)
 	}
 
 	if err := gh.CreatePr("gutenberg", &pr); err != nil {
-		return pr, err
+		return pr, fmt.Errorf("error creating the PR: %v", err)
 	}
 
 	if pr.Number == 0 {
-		return pr, fmt.Errorf("failed to create the PR")
+		return pr, fmt.Errorf("error creating the PR: %v", err)
 	}
 
 	return pr, nil
+}
+
+func exitIfError(err error, i int) {
+	panic("unimplemented")
 }
 
 func renderGbPrBody(version string, pr *gh.PullRequest) error {
