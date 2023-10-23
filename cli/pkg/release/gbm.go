@@ -191,8 +191,14 @@ func CreateGbmPR(version, dir string) (gh.PullRequest, error) {
 
 func renderGbmPrBody(version string, pr *gh.PullRequest) error {
 	// TODO - replace "" with dir variable
-	cl := getChangeLog("", pr)
-	rn := getReleaseNotes("", pr)
+	cl, err := getChangeLog("", pr)
+	if err != nil {
+		console.Warn(err.Error())
+	}
+	rn, err := getReleaseNotes("", pr)
+	if err != nil {
+		console.Warn(err.Error())
+	}
 
 	rc, err := CollectReleaseChanges(version, cl, rn)
 
@@ -204,13 +210,13 @@ func renderGbmPrBody(version string, pr *gh.PullRequest) error {
 		gh.BuildRepoFilter("gutenberg", "is:open", "is:pr", `label:"Mobile App - i.e. Android or iOS"`, fmt.Sprintf("v%s in:title", version)),
 		gh.BuildRepoFilter("WordPress-Android", "is:open", "is:pr", version+" in:title"),
 		gh.BuildRepoFilter("WordPress-iOS", "is:open", "is:pr", version+" in:title"),
-	}	
+	}
 
 	synced, err := gh.FindGbmSyncedPrs(*pr, rfs)
 	if err != nil {
 		console.Error(err)
 	}
-	
+
 	prs := []gh.PullRequest{}
 	for _, s := range synced {
 		prs = append(prs, s.Items...)
@@ -219,8 +225,8 @@ func renderGbmPrBody(version string, pr *gh.PullRequest) error {
 	t := render.Template{
 		Path: "templates/release/gbm_pr_body.md",
 		Data: struct {
-			Version  string
-			GbmPrUrl string
+			Version    string
+			GbmPrUrl   string
 			Changes    []ReleaseChanges
 			RelatedPRs []gh.PullRequest
 		}{
@@ -239,14 +245,13 @@ func renderGbmPrBody(version string, pr *gh.PullRequest) error {
 	return nil
 }
 
-func getChangeLog(dir string, gbmPr *gh.PullRequest) []byte {
+func getChangeLog(dir string, gbmPr *gh.PullRequest) ([]byte, error) {
 	var buff io.ReadCloser
-	defer buff.Close()
 	cl := []byte{}
 
 	if dir == "" {
 		console.Warn("not implemented")
-		return cl
+		return cl, nil
 
 		// TODO: find the best way to get the gbPr
 
@@ -259,28 +264,28 @@ func getChangeLog(dir string, gbmPr *gh.PullRequest) []byte {
 		// 	defer resp.Body.Close()
 		// 	buff = resp.Body
 		// }
-		
+
 	} else {
 		// Read in the change log
 		clPath := filepath.Join(dir, "gutenberg-mobile", "gutenberg", "packages", "react-native-editor", "CHANGELOG.md")
 		if clf, err := os.Open(clPath); err != nil {
-			fmt.Errorf("unable to open the changelog %s", err)
+			return cl, fmt.Errorf("unable to open the changelog %s", err)
 		} else {
 			defer clf.Close()
 			buff = clf
-
 		}
 	}
+
 	if data, err := io.ReadAll(buff); err != nil {
-		fmt.Errorf("unable to read the changelog %s", err)
+		return cl, fmt.Errorf("unable to read the changelog %s", err)
 	} else {
 		cl = data
 	}
 
-	return cl
+	return cl, nil
 }
 
-func getReleaseNotes(dir string, gbmPr *gh.PullRequest) []byte {
+func getReleaseNotes(dir string, gbmPr *gh.PullRequest) ([]byte, error) {
 	var buff io.ReadCloser
 	rn := []byte{}
 
@@ -289,7 +294,7 @@ func getReleaseNotes(dir string, gbmPr *gh.PullRequest) []byte {
 		endpoint := fmt.Sprintf("https://raw.githubusercontent.com/%s/gutenberg-mobile/%s/RELEASE-NOTES.txt", org, gbmPr.Head.Sha)
 
 		if resp, err := http.Get(endpoint); err != nil {
-			fmt.Errorf("unable to get the changelog (err %s)", err)
+			return rn, fmt.Errorf("unable to get the changelog (err %s)", err)
 		} else {
 			defer resp.Body.Close()
 			buff = resp.Body
@@ -299,17 +304,17 @@ func getReleaseNotes(dir string, gbmPr *gh.PullRequest) []byte {
 		rnPath := filepath.Join(dir, "gutenberg-mobile", "RELEASE-NOTES.txt")
 
 		if rnf, err := os.Open(rnPath); err != nil {
-			fmt.Errorf("unable to open the release notes %s", err)
+			return rn, fmt.Errorf("unable to open the release notes %s", err)
 		} else {
 			defer rnf.Close()
 			buff = rnf
 		}
 	}
 	if data, err := io.ReadAll(buff); err != nil {
-		fmt.Errorf("unable to read the release notes %s", err)
+		return rn, fmt.Errorf("unable to read the release notes %s", err)
 	} else {
 		rn = data
 	}
 
-	return rn
+	return rn, nil
 }
