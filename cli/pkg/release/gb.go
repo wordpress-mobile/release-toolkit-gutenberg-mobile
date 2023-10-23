@@ -1,7 +1,6 @@
 package release
 
 import (
-	"errors"
 	"fmt"
 	"path/filepath"
 
@@ -32,9 +31,9 @@ func CreateGbPR(version, dir string) (gh.PullRequest, error) {
 
 		if !cont {
 			console.Info("Bye 👋")
-			return pr, fmt.Errorf("exiting before creating PR: %v", err)
+			return pr, fmt.Errorf("exiting before creating PR")
 		}
-
+		return pr, fmt.Errorf("existing branch not implemented yet")
 	} else {
 		console.Info("Cloning Gutenberg to %s", dir)
 
@@ -44,8 +43,6 @@ func CreateGbPR(version, dir string) (gh.PullRequest, error) {
 		if err != nil {
 			return pr, fmt.Errorf("error cloning the Gutenberg repository: %v", err)
 		}
-
-		exitIfError(errors.New("not implemented"), 1)
 
 		console.Info("Checking out branch %s", branch)
 		err = git.Switch("-c", branch)
@@ -142,7 +139,7 @@ func CreateGbPR(version, dir string) (gh.PullRequest, error) {
 	}
 
 	if pr.Number == 0 {
-		return pr, fmt.Errorf("error creating the PR: %v", err)
+		return pr, fmt.Errorf("pr was not created successfully")
 	}
 
 	return pr, nil
