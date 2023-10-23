@@ -18,6 +18,7 @@ type GitCmds interface {
 	AddRemote(...string) error
 	SetUpstreamTo(...string) error
 	IsPorcelain() bool
+	PushTag(string, ...string) error
 }
 
 func (c *client) Clone(args ...string) error {
@@ -79,4 +80,18 @@ func (c *client) SetUpstreamTo(args ...string) error {
 func (c *client) IsPorcelain() bool {
 	err := c.cmd("diff", "--exit-code")
 	return err == nil
+}
+
+func (c *client) PushTag(tag string, annotate ...string) error {
+	args := []string{"tag"}
+	if len(annotate) > 0 {
+		args = append([]string{"-a", tag, "-m"}, annotate...)
+	} else {
+		args = append(args, tag)
+	}
+
+	if err := c.cmd(args...); err != nil {
+		return err
+	}
+	return c.cmd("push", "origin", tag)
 }
