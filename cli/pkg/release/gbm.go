@@ -241,10 +241,12 @@ func renderGbmPrBody(version string, pr *gh.PullRequest) error {
 
 func getChangeLog(dir string, gbmPr *gh.PullRequest) []byte {
 	var buff io.ReadCloser
+	defer buff.Close()
 	cl := []byte{}
 
 	if dir == "" {
 		console.Warn("not implemented")
+		return cl
 
 		// TODO: find the best way to get the gbPr
 
