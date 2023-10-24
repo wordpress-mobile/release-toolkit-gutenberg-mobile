@@ -72,3 +72,7 @@ func FindGbmSyncedPrs(gbmPr gh.PullRequest, filters []gh.RepoFilter) ([]gh.Searc
 
 	return synced, nil
 }
+
+func GetGbmRelease(version string) (gh.Release, error) {
+	return gh.GetReleaseByTag(repo.GutenbergMobileRepo, "v"+version)
+}
