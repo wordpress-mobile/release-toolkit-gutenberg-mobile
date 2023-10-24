@@ -62,6 +62,9 @@ func (ri *ReleaseIntegration) Run(dir string) (gh.PullRequest, error) {
 	if err != nil {
 		return pr, fmt.Errorf("error finding the gbm release PR: %v", err)
 	}
+	if gbmPr.Number == 0 {
+		return pr, errors.New("no GBM PR found")
+	}
 	git := shell.NewGitCmd(shell.CmdProps{Dir: dir, Verbose: true})
 
 	// Clone repo
