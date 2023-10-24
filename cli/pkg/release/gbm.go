@@ -9,6 +9,7 @@ import (
 
 	"github.com/wordpress-mobile/gbm-cli/pkg/console"
 	"github.com/wordpress-mobile/gbm-cli/pkg/exec"
+	"github.com/wordpress-mobile/gbm-cli/pkg/gbm"
 	"github.com/wordpress-mobile/gbm-cli/pkg/gh"
 	"github.com/wordpress-mobile/gbm-cli/pkg/shell"
 
@@ -212,7 +213,7 @@ func renderGbmPrBody(version string, pr *gh.PullRequest) error {
 		gh.BuildRepoFilter("WordPress-iOS", "is:open", "is:pr", version+" in:title"),
 	}
 
-	synced, err := gh.FindGbmSyncedPrs(*pr, rfs)
+	synced, err := gbm.FindGbmSyncedPrs(*pr, rfs)
 	if err != nil {
 		console.Error(err)
 	}
