@@ -74,15 +74,6 @@ func (ri *ReleaseIntegration) Run(dir string) (gh.PullRequest, error) {
 		return pr, fmt.Errorf("error updating the gutenberg config: %v", err)
 	}
 
-	if !ri.Ci {
-		// Check if we want to continue before pushing
-		prompt := fmt.Sprintf("\nReady to push changes to %s/%s?", org, rpo)
-		if cont := console.Confirm(prompt); !cont {
-			console.Info("Bye 👋")
-			return pr, errors.New("exiting before pushing changes")
-		}
-	}
-
 	if err := git.Push(); err != nil {
 		return pr, fmt.Errorf("error pushing changes: %v", err)
 	}

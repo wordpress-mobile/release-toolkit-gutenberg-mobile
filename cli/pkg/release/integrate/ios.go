@@ -54,7 +54,7 @@ func (ii IosIntegration) UpdateGutenbergConfig(dir string, gbmPr gh.PullRequest)
 		return err
 	}
 
-	return git.CommitAll("Release script: Update gutenberg-mobile ref", version)
+	return git.CommitAll("Release script: Update gutenberg-mobile ref %s", version)
 }
 
 func (ii IosIntegration) GetRepo() string {

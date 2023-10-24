@@ -10,6 +10,7 @@ import (
 	"github.com/wordpress-mobile/gbm-cli/pkg/console"
 	"github.com/wordpress-mobile/gbm-cli/pkg/gbm"
 	"github.com/wordpress-mobile/gbm-cli/pkg/gh"
+	"github.com/wordpress-mobile/gbm-cli/pkg/repo"
 	"github.com/wordpress-mobile/gbm-cli/pkg/shell"
 )
 
@@ -42,16 +43,15 @@ func (ai AndroidIntegration) UpdateGutenbergConfig(dir string, gbmPr gh.PullRequ
 	return git.CommitAll("Release script: Update build.gradle gutenbergMobileVersion to ref")
 }
 
-func (ia AndroidIntegration) GetRepo() string {
-	return "foobar"
-	// return repo.WordPressAndroidRepo
+func (ai AndroidIntegration) GetRepo() string {
+	return repo.WordPressAndroidRepo
 }
 
-func (ia AndroidIntegration) GetPr(version string) (gh.PullRequest, error) {
+func (ai AndroidIntegration) GetPr(version string) (gh.PullRequest, error) {
 	return gbm.FindAndroidReleasePr(version)
 }
 
-func (ia AndroidIntegration) GbPublished(version string) (bool, error) {
+func (ai AndroidIntegration) GbPublished(version string) (bool, error) {
 	published, err := gbm.AndroidGbmBuildPublished(version)
 	if err != nil {
 		console.Warn("Error checking if GBM build is published: %v", err)
