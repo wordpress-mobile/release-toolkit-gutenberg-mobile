@@ -29,9 +29,9 @@ func (ii IosIntegration) UpdateGutenbergConfig(dir string, gbmPr gh.PullRequest)
 		return err
 	}
 
-	version := gbmPr.ReleaseVersion
+	commit := gbmPr.Head.Sha
 	// perform updates using the yq syntax
-	updates := []string{".ref.commit = \"v" + version + "\"", "del(.ref.tag)"}
+	updates := []string{".ref.commit = \"v" + commit + "\"", "del(.ref.tag)"}
 	config, err := utils.YqEvalAll(updates, string(buf))
 	if err != nil {
 		return err
@@ -54,7 +54,7 @@ func (ii IosIntegration) UpdateGutenbergConfig(dir string, gbmPr gh.PullRequest)
 		return err
 	}
 
-	return git.CommitAll("Release script: Update gutenberg-mobile ref %s", version)
+	return git.CommitAll("Release script: Update gutenberg-mobile ref %s", gbmPr.ReleaseVersion)
 }
 
 func (ii IosIntegration) GetRepo() string {
