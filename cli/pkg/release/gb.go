@@ -142,6 +142,10 @@ func CreateGbPR(version, dir string) (gh.PullRequest, error) {
 		return pr, fmt.Errorf("pr was not created successfully")
 	}
 
+	console.Info("Adding release tag")
+	if err := git.PushTag("rnmobile/" + version); err != nil {
+		console.Warn("Error tagging the release: %v", err)
+	}
 	return pr, nil
 }
 
