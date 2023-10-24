@@ -227,3 +227,18 @@ func renderPrBody(version string, pr *gh.PullRequest, gbmPr gh.PullRequest) erro
 	pr.Body = body
 	return nil
 }
+
+func useRelease(version string) (bool, error) {
+	release, err := gbm.GetGbmRelease(version)
+	if err != nil {
+		console.Warn("Unable to check for a release: %s", err)
+		return false, nil
+	}
+
+	if release.PublishedAt == "" {
+		return false, nil
+	}
+
+	console.Info("Found release v%s – %s", version, release.Url)
+	return true, nil
+}
