@@ -93,7 +93,7 @@ type Status struct {
 
 // Build a RepoFilter from a repo name and a list of queries.
 func BuildRepoFilter(rpo string, queries ...string) RepoFilter {
-	org, _ := repo.GetOrg(rpo)
+	org := repo.GetOrg(rpo)
 
 	var encoded []string
 	queries = append(queries, fmt.Sprintf("repo:%s/%s", org, rpo))
@@ -113,9 +113,9 @@ func BuildRepoFilter(rpo string, queries ...string) RepoFilter {
 
 // SearchBranch returns a branch for the given repo and branch name.
 func SearchBranch(rpo, branch string) (Branch, error) {
-	org, err := repo.GetOrg(rpo)
-	if err != nil {
-		return Branch{}, err
+	org := repo.GetOrg(rpo)
+	if org == "" {
+		return Branch{}, fmt.Errorf("unable to get org for %s", rpo)
 	}
 	response := Branch{}
 	client := getClient()
@@ -184,9 +184,9 @@ func GetPrOrg(org, repo string, id int) (*PullRequest, error) {
 
 func GetPr(rpo string, number int) (PullRequest, error) {
 	pr := PullRequest{}
-	org, err := repo.GetOrg(rpo)
-	if err != nil {
-		return pr, err
+	org := repo.GetOrg(rpo)
+	if org == "" {
+		return pr, fmt.Errorf("unable to get org for %s", rpo)
 	}
 
 	client := getClient()
@@ -200,10 +200,7 @@ func GetPr(rpo string, number int) (PullRequest, error) {
 
 func CreatePr(rpo string, pr *PullRequest) error {
 	client := getClient()
-	org, err := repo.GetOrg(rpo)
-	if err != nil {
-		return err
-	}
+	org := repo.GetOrg(rpo)
 
 	labels := pr.Labels
 	endpoint := fmt.Sprintf("repos/%s/%s/pulls", org, rpo)
@@ -264,10 +261,7 @@ func AddLabels(repo string, pr *PullRequest) error {
 }
 
 func GetStatusChecks(rpo, sha string) (Status, error) {
-	org, err := repo.GetOrg(rpo)
-	if err != nil {
-		return Status{}, err
-	}
+	org := repo.GetOrg(rpo)
 
 	client := getClient()
 	endpoint := fmt.Sprintf("repos/%s/%s/commits/%s/status", org, rpo, sha)
@@ -315,10 +309,7 @@ func getClient() *api.RESTClient {
 }
 
 func labelRequest(rpo string, prNum int, labels []string) ([]Label, error) {
-	org, err := repo.GetOrg(rpo)
-	if err != nil {
-		return nil, err
-	}
+	org := repo.GetOrg(rpo)
 
 	client := getClient()
 
@@ -344,7 +335,7 @@ func labelRequest(rpo string, prNum int, labels []string) ([]Label, error) {
 }
 
 func PreviewPr(rpo, dir string, pr PullRequest) {
-	org, _ := repo.GetOrg(rpo)
+	org := repo.GetOrg(rpo)
 	cyan := color.New(color.FgCyan, color.Bold).SprintfFunc()
 	console.Log(cyan("\nPr Preview"))
 	console.Log(cyan("Local:")+" %s\n", dir)
