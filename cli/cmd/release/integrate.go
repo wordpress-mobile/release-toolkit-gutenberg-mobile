@@ -83,7 +83,9 @@ var IntegrateCmd = &cobra.Command{
 			exitIfError(errors.New("no PRs were created"), 1)
 		}
 		for _, pr := range results {
-			console.Info("Created PR %s", pr.Url)
+			if pr.Number != 0 {
+				console.Info("Created PR %s", pr.Url)
+			}
 		}
 	},
 }
