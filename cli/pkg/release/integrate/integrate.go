@@ -25,14 +25,14 @@ type ReleaseIntegration struct {
 	Version    string
 	BaseBranch string
 	HeadBranch string
-	Ci         bool
 	Target     Target
+	GbmPr      gh.PullRequest
 }
 
 type Target interface {
 	UpdateGutenbergConfig(dir string, gbmPr gh.PullRequest) error
 	GetRepo() string
-	GetPr(version string) (gh.PullRequest, error)
+	GetPr(ri ReleaseIntegration) (gh.PullRequest, error)
 	GbPublished(version string) (bool, error)
 }
 
@@ -58,13 +58,8 @@ func (ri *ReleaseIntegration) Run(dir string) (gh.PullRequest, error) {
 		return pr, errors.New("no platform specified")
 	}
 
-	gbmPr, err := gbm.FindGbmReleasePr(ri.Version)
-	if err != nil {
-		return pr, fmt.Errorf("error finding the gbm release PR: %v", err)
-	}
-	if gbmPr.Number == 0 {
-		return pr, errors.New("no GBM PR found")
-	}
+	gbmPr := ri.GbmPr
+
 	git := shell.NewGitCmd(shell.CmdProps{Dir: dir, Verbose: true})
 
 	// Clone repo
@@ -82,7 +77,7 @@ func (ri *ReleaseIntegration) Run(dir string) (gh.PullRequest, error) {
 	}
 
 	// Check if the PR already exists
-	pr, err = ri.Target.GetPr(ri.Version)
+	pr, err := ri.Target.GetPr(*ri)
 	if err != nil {
 		return pr, fmt.Errorf("error getting the PR: %v", err)
 	}
@@ -93,12 +88,10 @@ func (ri *ReleaseIntegration) Run(dir string) (gh.PullRequest, error) {
 	}
 
 	// Confirm PR creation
-	if !ri.Ci {
-		prompt := fmt.Sprintf("\nReady to create the PR on %s/%s?", org, rpo)
-		if cont := console.Confirm(prompt); !cont {
-			console.Info("Bye 👋")
-			return pr, errors.New("exiting before creating PR")
-		}
+	prompt := fmt.Sprintf("\nReady to create the PR on %s/%s?", org, rpo)
+	if cont := console.Confirm(prompt); !cont {
+		console.Info("Bye 👋")
+		return pr, errors.New("exiting before creating PR")
 	}
 
 	pr, err = ri.createPR(dir, gbmPr)
@@ -107,7 +100,6 @@ func (ri *ReleaseIntegration) Run(dir string) (gh.PullRequest, error) {
 	}
 
 	// Create after branch
-
 	if err := ri.createAfterBranch(git); err != nil {
 		return pr, err
 	}

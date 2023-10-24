@@ -56,8 +56,12 @@ func (ai AndroidIntegration) GetRepo() string {
 	return repo.WordPressAndroidRepo
 }
 
-func (ai AndroidIntegration) GetPr(version string) (gh.PullRequest, error) {
-	return gbm.FindAndroidReleasePr(version)
+func (ai AndroidIntegration) GetPr(ri ReleaseIntegration) (gh.PullRequest, error) {
+	// @TODO: add support for finding non release PRs
+	if ri.Version != "" {
+		return gbm.FindAndroidReleasePr(ri.Version)
+	}
+	return gh.PullRequest{}, nil
 }
 
 func (ai AndroidIntegration) GbPublished(version string) (bool, error) {

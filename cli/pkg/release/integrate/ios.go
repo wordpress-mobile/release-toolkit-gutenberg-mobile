@@ -72,8 +72,12 @@ func (ii IosIntegration) GetRepo() string {
 	return repo.WordPressIosRepo
 }
 
-func (ia IosIntegration) GetPr(version string) (gh.PullRequest, error) {
-	return gbm.FindIosReleasePr(version)
+func (ia IosIntegration) GetPr(ri ReleaseIntegration) (gh.PullRequest, error) {
+	// @TODO: add support for finding non release PRs
+	if ri.Version != "" {
+		return gbm.FindIosReleasePr(ri.Version)
+	}
+	return gh.PullRequest{}, nil
 }
 
 func (ia IosIntegration) GbPublished(version string) (bool, error) {
