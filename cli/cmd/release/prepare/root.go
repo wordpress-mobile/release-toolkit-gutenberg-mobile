@@ -11,7 +11,7 @@ import (
 )
 
 var exitIfError func(error, int)
-var keepTempDir bool
+var keepTempDir, noTag bool
 var workspace wp.Workspace
 var tempDir, version string
 
@@ -48,7 +48,6 @@ func init() {
 	utils.ExitIfError(err, 1)
 
 	exitIfError = func(err error, code int) {
-
 		if err != nil {
 			console.Error(err)
 			utils.Exit(code, workspace.Cleanup)
@@ -59,4 +58,6 @@ func init() {
 	PrepareCmd.AddCommand(gbCmd)
 	PrepareCmd.AddCommand(allCmd)
 	PrepareCmd.PersistentFlags().BoolVar(&keepTempDir, "k", false, "Keep temporary directory after running command")
+	PrepareCmd.PersistentFlags().BoolVar(&noTag, "no-tag", false, "Prevent tagging the release")
+
 }

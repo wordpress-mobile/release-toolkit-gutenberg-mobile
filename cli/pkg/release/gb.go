@@ -142,15 +142,16 @@ func CreateGbPR(version, dir string) (gh.PullRequest, error) {
 		return pr, fmt.Errorf("pr was not created successfully")
 	}
 
-	console.Info("Adding release tag")
-	if err := git.PushTag("rnmobile/" + version); err != nil {
-		console.Warn("Error tagging the release: %v", err)
+	if !noTag {
+		console.Info("Adding release tag")
+		if err := git.PushTag("rnmobile/" + version); err != nil {
+			console.Warn("Error tagging the release: %v", err)
+		}
+	} else {
+		console.Warn("Skipping tag creation")
 	}
-	return pr, nil
-}
 
-func exitIfError(err error, i int) {
-	panic("unimplemented")
+	return pr, nil
 }
 
 func renderGbPrBody(version string, pr *gh.PullRequest) error {
