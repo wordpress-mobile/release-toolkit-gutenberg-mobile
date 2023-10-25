@@ -34,8 +34,17 @@ func (ai AndroidIntegration) UpdateGutenbergConfig(dir string, gbmPr gh.PullRequ
 		return errors.New("cannot find a version in the gradle file")
 	}
 
-	repl := fmt.Sprintf(`$1'%s-%s'`, fmt.Sprint(prId), prSha)
-	config = re.ReplaceAll(config, []byte(repl))
+	var replace string
+	if releaseAvailable, err := useRelease(gbmPr.ReleaseVersion); err != nil {
+		return fmt.Errorf("unable to check for a release: %s", err)
+	} else if releaseAvailable {
+		console.Info("Updating gutenberg-mobile ref to the tag v%s", gbmPr.ReleaseVersion)
+		replace = fmt.Sprintf(`$1'v%s'`, fmt.Sprint(gbmPr.ReleaseVersion))
+	} else {
+		console.Info("Updating gutenberg-mobile ref to the commit %s", prSha)
+		replace = fmt.Sprintf(`$1'%v-%s'`, prId, prSha)
+	}
+	config = re.ReplaceAll(config, []byte(replace))
 
 	if err := os.WriteFile(configPath, config, 0644); err != nil {
 		return err
@@ -47,8 +56,12 @@ func (ai AndroidIntegration) GetRepo() string {
 	return repo.WordPressAndroidRepo
 }
 
-func (ai AndroidIntegration) GetPr(version string) (gh.PullRequest, error) {
-	return gbm.FindAndroidReleasePr(version)
+func (ai AndroidIntegration) GetPr(ri ReleaseIntegration) (gh.PullRequest, error) {
+	// @TODO: add support for finding non release PRs
+	if ri.Version != "" {
+		return gbm.FindAndroidReleasePr(ri.Version)
+	}
+	return gh.PullRequest{}, nil
 }
 
 func (ai AndroidIntegration) GbPublished(version string) (bool, error) {

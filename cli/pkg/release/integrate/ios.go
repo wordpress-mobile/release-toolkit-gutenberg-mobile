@@ -1,6 +1,7 @@
 package integrate
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -17,11 +18,23 @@ type IosIntegration struct {
 }
 
 func (ii IosIntegration) UpdateGutenbergConfig(dir string, gbmPr gh.PullRequest) error {
-
 	sp := shell.CmdProps{Dir: dir, Verbose: true}
 	git := shell.NewGitCmd(sp)
-	// TODO update github org although not sure it's useful here
-	console.Info("Update gutenberg-mobile ref in Gutenberg/config.yml")
+
+	// @TODO update github org although not sure it's useful here
+
+	var updates []string
+
+	// Check to see if there is a published release for the version
+	if releaseAvailable, err := useRelease(gbmPr.ReleaseVersion); err != nil {
+		return fmt.Errorf("unable to check for a release: %s", err)
+	} else if releaseAvailable {
+		console.Info("Updating gutenberg-mobile ref to the tag v%s", gbmPr.ReleaseVersion)
+		updates = []string{".ref.tag = \"v" + gbmPr.ReleaseVersion + "\"", "del(.ref.commit)"}
+	} else {
+		console.Info("Updating gutenberg-mobile ref to the commit %s", gbmPr.Head.Sha)
+		updates = []string{".ref.commit = \"v" + gbmPr.Head.Sha + "\"", "del(.ref.tag)"}
+	}
 
 	configPath := filepath.Join(dir, "Gutenberg/config.yml")
 	buf, err := os.ReadFile(configPath)
@@ -29,9 +42,7 @@ func (ii IosIntegration) UpdateGutenbergConfig(dir string, gbmPr gh.PullRequest)
 		return err
 	}
 
-	version := gbmPr.ReleaseVersion
 	// perform updates using the yq syntax
-	updates := []string{".ref.commit = \"v" + version + "\"", "del(.ref.tag)"}
 	config, err := utils.YqEvalAll(updates, string(buf))
 	if err != nil {
 		return err
@@ -54,15 +65,19 @@ func (ii IosIntegration) UpdateGutenbergConfig(dir string, gbmPr gh.PullRequest)
 		return err
 	}
 
-	return git.CommitAll("Release script: Update gutenberg-mobile ref %s", version)
+	return git.CommitAll("Release script: Update gutenberg-mobile ref %s", gbmPr.ReleaseVersion)
 }
 
 func (ii IosIntegration) GetRepo() string {
 	return repo.WordPressIosRepo
 }
 
-func (ia IosIntegration) GetPr(version string) (gh.PullRequest, error) {
-	return gbm.FindIosReleasePr(version)
+func (ia IosIntegration) GetPr(ri ReleaseIntegration) (gh.PullRequest, error) {
+	// @TODO: add support for finding non release PRs
+	if ri.Version != "" {
+		return gbm.FindIosReleasePr(ri.Version)
+	}
+	return gh.PullRequest{}, nil
 }
 
 func (ia IosIntegration) GbPublished(version string) (bool, error) {

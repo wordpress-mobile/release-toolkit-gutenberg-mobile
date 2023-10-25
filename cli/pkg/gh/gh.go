@@ -86,9 +86,20 @@ type Check struct {
 	Description string
 	Context     string
 }
+
 type Status struct {
 	State    string
 	Statuses []Check
+}
+
+type Release struct {
+	TagName     string `json:"tag_name"`
+	Url         string `json:"html_url"`
+	Name        string
+	Draft       bool
+	Prerelease  bool
+	Target      string `json:"target_commitish"`
+	PublishedAt string `json:"published_at"`
 }
 
 // Build a RepoFilter from a repo name and a list of queries.
@@ -162,6 +173,17 @@ func SearchPr(filter RepoFilter) (PullRequest, error) {
 	}
 	number := result.Items[0].Number
 	return GetPr(filter.Repo, number)
+}
+
+func GetReleaseByTag(rpo, tag string) (Release, error) {
+	org := repo.GetOrg(rpo)
+	client := getClient()
+	endpoint := fmt.Sprintf("repos/%s/%s/releases/tags/%s", org, rpo, tag)
+	release := Release{}
+	if err := client.Get(endpoint, &release); err != nil {
+		return Release{}, err
+	}
+	return release, nil
 }
 
 func GetPrOrg(org, repo string, id int) (*PullRequest, error) {
@@ -349,39 +371,4 @@ func PreviewPr(rpo, dir string, pr PullRequest) {
 	git("log", pr.Base.Ref+"...HEAD", "--oneline", "--no-merges", "-10")
 
 	console.Info("\n")
-}
-
-func FindGbmSyncedPrs(gbmPr PullRequest, filters []RepoFilter) ([]SearchResult, error) {
-	var synced []SearchResult
-	prChan := make(chan SearchResult)
-
-	// Search for PRs in parallel
-	for _, rf := range filters {
-		go func(rf RepoFilter) {
-			res, err := SearchPrs(rf)
-
-			// just log the error and continue
-			if err != nil {
-				console.Warn("could not search for %s", err)
-			}
-			prChan <- res
-		}(rf)
-	}
-
-	// Wait for all the PRs to be returned
-	for i := 0; i < len(filters); i++ {
-		resp := <-prChan
-		sItems := []PullRequest{}
-
-		for _, pr := range resp.Items {
-			if strings.Contains(pr.Body, gbmPr.Url) {
-				pr.Repo = resp.Filter.Repo
-				sItems = append(sItems, pr)
-			}
-		}
-		resp.Items = sItems
-		synced = append(synced, resp)
-	}
-
-	return synced, nil
 }

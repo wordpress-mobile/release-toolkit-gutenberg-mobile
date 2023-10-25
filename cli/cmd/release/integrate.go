@@ -10,6 +10,7 @@ import (
 	"github.com/wordpress-mobile/gbm-cli/cmd/utils"
 	wp "github.com/wordpress-mobile/gbm-cli/cmd/workspace"
 	"github.com/wordpress-mobile/gbm-cli/pkg/console"
+	"github.com/wordpress-mobile/gbm-cli/pkg/gbm"
 	"github.com/wordpress-mobile/gbm-cli/pkg/gh"
 	"github.com/wordpress-mobile/gbm-cli/pkg/release/integrate"
 )
@@ -24,10 +25,17 @@ var IntegrateCmd = &cobra.Command{
 		version, err := utils.GetVersionArg(args)
 		exitIfError(err, 1)
 
+		gbmPr, err := gbm.FindGbmReleasePr(version)
+		exitIfError(err, 1)
+		if gbmPr.Number == 0 {
+			exitIfError(errors.New("no GBM PR found"), 1)
+		}
+
 		ri := integrate.ReleaseIntegration{
 			Version:    version,
 			BaseBranch: "trunk",
 			HeadBranch: fmt.Sprintf("gutenberg/integrate_release_%s", version),
+			GbmPr:      gbmPr,
 		}
 
 		results := []gh.PullRequest{}
@@ -83,7 +91,9 @@ var IntegrateCmd = &cobra.Command{
 			exitIfError(errors.New("no PRs were created"), 1)
 		}
 		for _, pr := range results {
-			console.Info("Created PR %s", pr.Url)
+			if pr.Number != 0 {
+				console.Info("Created PR %s", pr.Url)
+			}
 		}
 	},
 }
