@@ -12,10 +12,11 @@ var gbCmd = &cobra.Command{
 	Long:  `Use this command to prepare a Gutenberg release PR`,
 	Run: func(cc *cobra.Command, args []string) {
 		preflight(args)
+		defer workspace.Cleanup()
 
 		console.Info("Preparing Gutenberg for release %s", version)
 
-		pr, err := release.CreateGbPR(version, tempDir)
+		pr, err := release.CreateGbPR(version, tempDir, noTag)
 		exitIfError(err, 1)
 
 		console.Info("Created PR %s", pr.Url)

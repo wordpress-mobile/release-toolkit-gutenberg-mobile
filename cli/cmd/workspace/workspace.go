@@ -88,5 +88,10 @@ func (w *workspace) Keep() {
 }
 
 func (w *workspace) Cleanup() {
+	if w.keep {
+		console.Info("Keeping temporary directory %s", w.dir)
+	} else {
+		console.Info("Cleaning up workspace directory %s", w.dir)
+	}
 	w.cleaner()
 }

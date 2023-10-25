@@ -15,8 +15,10 @@ var allCmd = &cobra.Command{
 	Short: "Prepare Gutenberg and Gutenberg Mobile for a mobile release",
 	Long:  `Use this command to prepare a Gutenberg and Gutenberg Mobile release PRs`,
 	Run: func(cc *cobra.Command, args []string) {
-		preflight(args)
 		var err error
+
+		preflight(args)
+		defer workspace.Cleanup()
 
 		// Set up separate directories for each repo
 		gbDir := filepath.Join(tempDir, "gb")
@@ -31,7 +33,7 @@ var allCmd = &cobra.Command{
 
 		console.Info("Preparing Gutenberg for release %s", version)
 
-		gbPr, err = release.CreateGbPR(version, gbDir)
+		gbPr, err = release.CreateGbPR(version, gbDir, noTag)
 		exitIfError(err, 1)
 		console.Info("Finished preparing Gutenberg PR")
 

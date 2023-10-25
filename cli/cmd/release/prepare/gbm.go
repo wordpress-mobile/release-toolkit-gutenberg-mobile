@@ -12,6 +12,7 @@ var gbmCmd = &cobra.Command{
 	Long:  `Use this command to prepare a Gutenberg Mobile release PR`,
 	Run: func(cmd *cobra.Command, args []string) {
 		preflight(args)
+		defer workspace.Cleanup()
 
 		console.Info("Preparing Gutenberg Mobile for release %s", version)
 

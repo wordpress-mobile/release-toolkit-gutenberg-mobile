@@ -11,7 +11,7 @@ import (
 )
 
 var exitIfError func(error, int)
-var keepTempDir bool
+var keepTempDir, noTag bool
 var workspace wp.Workspace
 var tempDir, version string
 
@@ -23,10 +23,6 @@ var PrepareCmd = &cobra.Command{
 func Execute() {
 	err := PrepareCmd.Execute()
 	exitIfError(err, 1)
-	if keepTempDir {
-		workspace.Keep()
-	}
-	defer workspace.Cleanup()
 }
 
 // Set up the temp directory and version
@@ -41,6 +37,9 @@ func preflight(args []string) {
 	if valid := gbm.ValidateAztecVersions(); !valid {
 		exitIfError(errors.New("invalid Aztec versions found"), 1)
 	}
+	if keepTempDir {
+		workspace.Keep()
+	}
 }
 
 func init() {
@@ -49,7 +48,6 @@ func init() {
 	utils.ExitIfError(err, 1)
 
 	exitIfError = func(err error, code int) {
-
 		if err != nil {
 			console.Error(err)
 			utils.Exit(code, workspace.Cleanup)
@@ -60,4 +58,6 @@ func init() {
 	PrepareCmd.AddCommand(gbCmd)
 	PrepareCmd.AddCommand(allCmd)
 	PrepareCmd.PersistentFlags().BoolVar(&keepTempDir, "k", false, "Keep temporary directory after running command")
+	PrepareCmd.PersistentFlags().BoolVar(&noTag, "no-tag", false, "Prevent tagging the release")
+
 }

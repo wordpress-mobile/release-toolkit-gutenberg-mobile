@@ -53,6 +53,18 @@ func CreateGbmPR(version, dir string) (gh.PullRequest, error) {
 		}
 	}
 
+	// Update the Gutenberg submodule
+	gbBranch := "rnmobile/release_" + version
+	if org != repo.WpMobileOrg {
+		console.Warn("You are not using the %s org. Check the .gitmodules file to make sure the gutenberg submodule is pointing to %s/gutenberg.", repo.WpMobileOrg, org)
+	}
+	if exists, _ := gh.SearchBranch("gutenberg", gbBranch); (exists == gh.Branch{}) {
+		return pr, fmt.Errorf("the Gutenberg branch %s does not exist on %s/gutenberg-mobile", gbBranch, org)
+	}
+	if err := updateGbSubmodule(gbBranch, dir, git); err != nil {
+		return pr, fmt.Errorf("error updating the Gutenberg submodule: %v", err)
+	}
+
 	// Set up Gutenberg Mobile node environment
 	console.Info("Setting up Node environment")
 	npm := shell.NewNpmCmd(sp)
@@ -64,39 +76,17 @@ func CreateGbmPR(version, dir string) (gh.PullRequest, error) {
 		return pr, fmt.Errorf("error running npm ci: %v", err)
 	}
 
-	// Commit package.json and package-lock.json
-	// Update package versions for package.json and package-lock.json
+	// Update package version
 	console.Info("Updating package versions")
-	updatePackageJson(dir, version, "package.json", "package-lock.json")
-
-	// Create a git client for Gutenberg submodule so the Gutenberg ref can be updated to the correct branch
-	console.Info("Updating Gutenberg submodule")
-	gbBranch := "rnmobile/release_" + version
-	if org != repo.WpMobileOrg {
-		console.Warn("You are not using the %s org. Check the .gitmodules file to make sure the gutenberg submodule is pointing to %s/gutenberg.", repo.WpMobileOrg, org)
+	if err := npm.Version(version); err != nil {
+		return pr, fmt.Errorf("error updating the package version: %v", err)
 	}
-	if exists, _ := gh.SearchBranch("gutenberg", gbBranch); (exists == gh.Branch{}) {
-		return pr, fmt.Errorf("the Gutenberg branch %s does not exist on %s/gutenberg-mobile", gbBranch, org)
+	if err := git.CommitAll("Release script: Update package versions to %s", version); err != nil {
+		return pr, fmt.Errorf("error committing the package version update: %v", err)
 	}
 
-	gbSp := sp
-	gbSp.Dir = filepath.Join(dir, "gutenberg")
-	gbGit := shell.NewGitCmd(gbSp)
-
-	if err := gbGit.Fetch(gbBranch); err != nil {
-		return pr, fmt.Errorf("error fetching the Gutenberg branch: %v", err)
-	}
-
-	if err := gbGit.Switch(gbBranch); err != nil {
-		return pr, fmt.Errorf("error checking out the Gutenberg branch: %v", err)
-	}
-
-	if err := git.CommitAll("Release script: Update gutenberg submodule"); err != nil {
-		return pr, fmt.Errorf("error committing the gutenberg submodule update: %v", err)
-	}
-
-	console.Info("Bundling Gutenberg Mobile")
-	if err := npm.Run("bundle"); err != nil {
+	console.Info("Updating i18n files")
+	if err := npm.Run("i18n:update"); err != nil {
 		return pr, fmt.Errorf("error running npm run bundle: %v", err)
 	}
 
@@ -110,27 +100,8 @@ func CreateGbmPR(version, dir string) (gh.PullRequest, error) {
 		}
 	}
 
-	// Update XCFramework builders project Podfile.lock
-	console.Info("Update XCFramework builders project Podfile.lock")
-
-	// set up a shell command for the ios-xcframework directory
-	xcSp := sp
-	xcSp.Dir = fmt.Sprintf("%s/ios-xcframework", dir)
-	bundle := shell.NewBundlerCmd(xcSp)
-
-	// Run `bundle install`
-	if err := bundle.Install(); err != nil {
-		return pr, fmt.Errorf("error running bundle install: %v", err)
-	}
-
-	// Run `bundle exec pod install``
-	if err := bundle.PodInstall(); err != nil {
-		return pr, fmt.Errorf("error running bundle exec pod install: %v", err)
-	}
-
-	// Commit output of bundle commands
-	if err := git.CommitAll("Release script: Sync XCFramework `Podfile.lock` with %s", version); err != nil {
-		return pr, fmt.Errorf("error committing the XCFramework `Podfile.lock` update: %v", err)
+	if err := updateXcFramework(version, dir, git); err != nil {
+		return pr, fmt.Errorf("error updating the XCFramework builders project: %v", err)
 	}
 
 	// Update the RELEASE-NOTES.txt and commit output
@@ -318,4 +289,51 @@ func getReleaseNotes(dir string, gbmPr *gh.PullRequest) ([]byte, error) {
 	}
 
 	return rn, nil
+}
+
+func updateGbSubmodule(gbBranch, dir string, git shell.GitCmds) error {
+	console.Info("Updating Gutenberg submodule")
+	// Create a git client for Gutenberg submodule so the Gutenberg ref can be
+	// updated to the correct branch
+	gbSp := shell.CmdProps{Dir: filepath.Join(dir, "gutenberg"), Verbose: true}
+	gbGit := shell.NewGitCmd(gbSp)
+
+	if err := gbGit.Fetch(gbBranch); err != nil {
+		return fmt.Errorf("error fetching the Gutenberg branch: %v", err)
+	}
+
+	if err := gbGit.Switch(gbBranch); err != nil {
+		return fmt.Errorf("error checking out the Gutenberg branch: %v", err)
+	}
+
+	if err := git.CommitAll("Release script: Update gutenberg submodule"); err != nil {
+		return fmt.Errorf("error committing the gutenberg submodule update: %v", err)
+	}
+	return nil
+}
+
+func updateXcFramework(version, dir string, git shell.GitCmds) error {
+	console.Info("Update XCFramework builders project Podfile.lock")
+
+	// set up a shell command for the ios-xcframework directory
+	xcSp := shell.CmdProps{Dir: fmt.Sprintf("%s/ios-xcframework", dir), Verbose: true}
+
+	bundle := shell.NewBundlerCmd(xcSp)
+
+	// Run `bundle install`
+	if err := bundle.Install(); err != nil {
+		return fmt.Errorf("error running bundle install: %v", err)
+	}
+
+	// Run `bundle exec pod install``
+	if err := bundle.PodInstall(); err != nil {
+		return fmt.Errorf("error running bundle exec pod install: %v", err)
+	}
+
+	// Commit output of bundle commands
+	if err := git.CommitAll("Release script: Sync XCFramework `Podfile.lock` with %s", version); err != nil {
+		return fmt.Errorf("error committing the XCFramework `Podfile.lock` update: %v", err)
+	}
+
+	return nil
 }
