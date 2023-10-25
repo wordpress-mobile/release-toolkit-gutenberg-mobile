@@ -61,7 +61,7 @@ func CreateGbmPR(version, dir string) (gh.PullRequest, error) {
 	if exists, _ := gh.SearchBranch("gutenberg", gbBranch); (exists == gh.Branch{}) {
 		return pr, fmt.Errorf("the Gutenberg branch %s does not exist on %s/gutenberg-mobile", gbBranch, org)
 	}
-	if err := updateGb(gbBranch, dir, git); err != nil {
+	if err := updateGbSubmodule(gbBranch, dir, git); err != nil {
 		return pr, fmt.Errorf("error updating the Gutenberg submodule: %v", err)
 	}
 
@@ -291,7 +291,7 @@ func getReleaseNotes(dir string, gbmPr *gh.PullRequest) ([]byte, error) {
 	return rn, nil
 }
 
-func updateGb(gbBranch, dir string, git shell.GitCmds) error {
+func updateGbSubmodule(gbBranch, dir string, git shell.GitCmds) error {
 	console.Info("Updating Gutenberg submodule")
 	// Create a git client for Gutenberg submodule so the Gutenberg ref can be
 	// updated to the correct branch
