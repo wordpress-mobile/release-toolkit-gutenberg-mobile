@@ -13,11 +13,12 @@ import (
 	"github.com/wordpress-mobile/gbm-cli/pkg/utils"
 )
 
-func CreateGbPR(version, dir string) (gh.PullRequest, error) {
+func CreateGbPR(version, dir string, noTag bool) (gh.PullRequest, error) {
 	var pr gh.PullRequest
 
 	shellProps := shell.CmdProps{Dir: dir, Verbose: true}
 	git := shell.NewGitCmd(shellProps)
+	npm := shell.NewNpmCmd(shellProps)
 
 	org := repo.GetOrg("gutenberg")
 	branch := "rnmobile/release_" + version
@@ -54,10 +55,15 @@ func CreateGbPR(version, dir string) (gh.PullRequest, error) {
 	console.Info("Updating package versions")
 	pkgs := []string{"react-native-aztec", "react-native-bridge", "react-native-editor"}
 	for _, pkg := range pkgs {
-		editorPackPath := filepath.Join(dir, "packages", pkg, "package.json")
-		if err := utils.UpdatePackageVersion(version, editorPackPath); err != nil {
+		editorPackPath := filepath.Join(dir, "packages", pkg)
+		if err := npm.VersionIn(editorPackPath, version); err != nil {
 			return pr, fmt.Errorf("error updating the package version: %v", err)
 		}
+		/*
+			if err := utils.UpdatePackageVersion(version, editorPackPath); err != nil {
+				return pr, fmt.Errorf("error updating the package version: %v", err)
+			}
+		*/
 	}
 
 	if err := git.CommitAll("Release script: Update react-native-editor version to %s", version); err != nil {
@@ -79,7 +85,7 @@ func CreateGbPR(version, dir string) (gh.PullRequest, error) {
 		return pr, fmt.Errorf("error setting up the node environment: %v", err)
 	}
 
-	if err := exec.NpmCi(dir, true); err != nil {
+	if err := npm.Ci(); err != nil {
 		return pr, fmt.Errorf("error running npm ci: %v", err)
 	}
 
@@ -88,11 +94,13 @@ func CreateGbPR(version, dir string) (gh.PullRequest, error) {
 	// Run bundle install directly since the preios script sometimes fails
 	editorIosPath := filepath.Join(dir, "packages", "react-native-editor", "ios")
 
-	if err := exec.BundleInstall(editorIosPath, true); err != nil {
+	iosShellProps := shell.CmdProps{Dir: editorIosPath, Verbose: true}
+	bundle := shell.NewBundlerCmd(iosShellProps)
+	if err := bundle.Install(); err != nil {
 		return pr, fmt.Errorf("error running bundle install: %v", err)
 	}
 
-	if err := exec.NpmRun(editorIosPath, true, "preios"); err != nil {
+	if err := npm.RunIn(editorIosPath, "preios"); err != nil {
 		return pr, fmt.Errorf("error running npm run core preios: %v", err)
 	}
 
