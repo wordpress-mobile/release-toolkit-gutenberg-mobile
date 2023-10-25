@@ -23,10 +23,6 @@ var PrepareCmd = &cobra.Command{
 func Execute() {
 	err := PrepareCmd.Execute()
 	exitIfError(err, 1)
-	if keepTempDir {
-		workspace.Keep()
-	}
-	defer workspace.Cleanup()
 }
 
 // Set up the temp directory and version
@@ -40,6 +36,9 @@ func preflight(args []string) {
 	// Validate Aztec version
 	if valid := gbm.ValidateAztecVersions(); !valid {
 		exitIfError(errors.New("invalid Aztec versions found"), 1)
+	}
+	if keepTempDir {
+		workspace.Keep()
 	}
 }
 
