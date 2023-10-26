@@ -5,7 +5,6 @@ import (
 	"path/filepath"
 
 	"github.com/wordpress-mobile/gbm-cli/pkg/console"
-	"github.com/wordpress-mobile/gbm-cli/pkg/exec"
 	"github.com/wordpress-mobile/gbm-cli/pkg/gh"
 	"github.com/wordpress-mobile/gbm-cli/pkg/render"
 	"github.com/wordpress-mobile/gbm-cli/pkg/repo"
@@ -75,7 +74,7 @@ func CreateGbPR(version, dir string, noTag bool) (gh.PullRequest, error) {
 
 	console.Info("Setting up Gutenberg node environment")
 
-	if err := exec.SetupNode(dir, true); err != nil {
+	if err := utils.SetupNode(dir); err != nil {
 		return pr, fmt.Errorf("error setting up the node environment: %v", err)
 	}
 
