@@ -66,8 +66,8 @@ func (ai AndroidIntegration) GetPr(ri ReleaseIntegration) (gh.PullRequest, error
 	return gh.PullRequest{}, nil
 }
 
-func (ai AndroidIntegration) GbPublished(version string) (bool, error) {
-	published, err := gbm.AndroidGbmBuildPublished(version)
+func (ai AndroidIntegration) GbPublished(gbmPr gh.PullRequest) (bool, error) {
+	published, err := gbm.AndroidGbmBuildPublished(gbmPr)
 	if err != nil {
 		console.Warn("Error checking if GBM build is published: %v", err)
 	}

@@ -33,7 +33,7 @@ type Target interface {
 	UpdateGutenbergConfig(dir string, gbmPr gh.PullRequest) error
 	GetRepo() string
 	GetPr(ri ReleaseIntegration) (gh.PullRequest, error)
-	GbPublished(version string) (bool, error)
+	GbPublished(gh.PullRequest) (bool, error)
 }
 
 func (ri *ReleaseIntegration) Run(dir string) (gh.PullRequest, error) {
@@ -43,7 +43,7 @@ func (ri *ReleaseIntegration) Run(dir string) (gh.PullRequest, error) {
 	// Check if the GBM build is published
 	// Only if the target is wordpress-mobile
 	if org == "wordpress-mobile" {
-		published, err := ri.Target.GbPublished(ri.Version)
+		published, err := ri.Target.GbPublished(ri.GbmPr)
 		if err != nil {
 			return gh.PullRequest{}, err
 		}

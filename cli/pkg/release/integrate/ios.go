@@ -81,8 +81,8 @@ func (ia IosIntegration) GetPr(ri ReleaseIntegration) (gh.PullRequest, error) {
 	return gh.PullRequest{}, nil
 }
 
-func (ia IosIntegration) GbPublished(version string) (bool, error) {
-	published, err := gbm.IosGbmBuildPublished(version)
+func (ia IosIntegration) GbPublished(gbmPr gh.PullRequest) (bool, error) {
+	published, err := gbm.IosGbmBuildPublished(gbmPr)
 	if err != nil {
 		console.Warn("Error checking if GBM build is published: %v", err)
 	}
