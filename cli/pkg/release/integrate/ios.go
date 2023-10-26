@@ -33,7 +33,7 @@ func (ii IosIntegration) UpdateGutenbergConfig(dir string, gbmPr gh.PullRequest)
 		updates = []string{".ref.tag = \"v" + gbmPr.ReleaseVersion + "\"", "del(.ref.commit)"}
 	} else {
 		console.Info("Updating gutenberg-mobile ref to the commit %s", gbmPr.Head.Sha)
-		updates = []string{".ref.commit = \"v" + gbmPr.Head.Sha + "\"", "del(.ref.tag)"}
+		updates = []string{".ref.commit = " + gbmPr.Head.Sha + "\"", "del(.ref.tag)"}
 	}
 
 	configPath := filepath.Join(dir, "Gutenberg/config.yml")
