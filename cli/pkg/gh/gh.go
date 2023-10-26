@@ -11,8 +11,8 @@ import (
 	"github.com/cli/go-gh/v2/pkg/api"
 	"github.com/fatih/color"
 	"github.com/wordpress-mobile/gbm-cli/pkg/console"
-	"github.com/wordpress-mobile/gbm-cli/pkg/exec"
 	"github.com/wordpress-mobile/gbm-cli/pkg/repo"
+	"github.com/wordpress-mobile/gbm-cli/pkg/shell"
 )
 
 // Branch represents a GitHub branch API schema.
@@ -358,17 +358,18 @@ func labelRequest(rpo string, prNum int, labels []string) ([]Label, error) {
 
 func PreviewPr(rpo, dir string, pr PullRequest) {
 	org := repo.GetOrg(rpo)
-	cyan := color.New(color.FgCyan, color.Bold).SprintfFunc()
-	console.Log(cyan("\nPr Preview"))
-	console.Log(cyan("Local:")+" %s\n", dir)
-	console.Log(cyan("Repo:")+" %s/%s\n", org, rpo)
-	console.Log(cyan("Title:")+" %s\n", pr.Title)
-	console.Log(cyan("Body:\n")+"%s\n", pr.Body)
-	console.Log(cyan("Commits:"))
+	row := console.Row
 
-	git := exec.Git(dir, true)
+	console.Print(console.Heading, "\nPr Preview")
 
-	git("log", pr.Base.Ref+"...HEAD", "--oneline", "--no-merges", "-10")
+	white := color.New(color.FgWhite).SprintFunc()
 
-	console.Info("\n")
+	console.Print(row, "Repo: %s/%s", white(org), white(rpo))
+	console.Print(row, "Title: %s", white(pr.Title))
+	console.Print(row, "Body:\n%s", white(pr.Body))
+	console.Print(row, "Commits:")
+
+	git := shell.NewGitCmd(shell.CmdProps{Dir: dir, Verbose: true})
+
+	git.Log(pr.Base.Ref+"...HEAD", "--oneline", "--no-merges", "-10")
 }
