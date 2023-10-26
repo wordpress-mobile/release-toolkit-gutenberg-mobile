@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 
 	"github.com/wordpress-mobile/gbm-cli/pkg/console"
-	"github.com/wordpress-mobile/gbm-cli/pkg/exec"
 	"github.com/wordpress-mobile/gbm-cli/pkg/gbm"
 	"github.com/wordpress-mobile/gbm-cli/pkg/gh"
 	"github.com/wordpress-mobile/gbm-cli/pkg/shell"
@@ -67,7 +66,7 @@ func CreateGbmPR(version, dir string) (gh.PullRequest, error) {
 	// Set up Gutenberg Mobile node environment
 	console.Info("Setting up Node environment")
 	npm := shell.NewNpmCmd(sp)
-	if err := exec.SetupNode(dir, true); err != nil {
+	if err := utils.SetupNode(dir); err != nil {
 		return pr, fmt.Errorf("error setting up Node environment: %v", err)
 	}
 	// Run npm ci and npm run bundle
