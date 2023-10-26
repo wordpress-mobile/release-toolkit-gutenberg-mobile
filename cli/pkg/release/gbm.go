@@ -15,7 +15,6 @@ import (
 
 	"github.com/wordpress-mobile/gbm-cli/pkg/render"
 	"github.com/wordpress-mobile/gbm-cli/pkg/repo"
-	"github.com/wordpress-mobile/gbm-cli/pkg/utils"
 )
 
 func CreateGbmPR(version, dir string) (gh.PullRequest, error) {
@@ -107,7 +106,7 @@ func CreateGbmPR(version, dir string) (gh.PullRequest, error) {
 	// Update the RELEASE-NOTES.txt and commit output
 	console.Info("Update the release-notes in the mobile package")
 	chnPath := filepath.Join(dir, "RELEASE-NOTES.txt")
-	if err := utils.UpdateReleaseNotes(version, chnPath); err != nil {
+	if err := UpdateReleaseNotes(version, chnPath); err != nil {
 		return pr, fmt.Errorf("error updating the release notes: %v", err)
 	}
 

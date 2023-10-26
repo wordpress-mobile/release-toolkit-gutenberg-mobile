@@ -10,7 +10,6 @@ import (
 	"github.com/wordpress-mobile/gbm-cli/pkg/render"
 	"github.com/wordpress-mobile/gbm-cli/pkg/repo"
 	"github.com/wordpress-mobile/gbm-cli/pkg/shell"
-	"github.com/wordpress-mobile/gbm-cli/pkg/utils"
 )
 
 func CreateGbPR(version, dir string, noTag bool) (gh.PullRequest, error) {
@@ -72,7 +71,7 @@ func CreateGbPR(version, dir string, noTag bool) (gh.PullRequest, error) {
 
 	console.Info("Update the CHANGELOG in the react-native-editor package")
 	chnPath := filepath.Join(dir, "packages", "react-native-editor", "CHANGELOG.md")
-	if err := utils.UpdateChangeLog(version, chnPath); err != nil {
+	if err := UpdateChangeLog(version, chnPath); err != nil {
 		return pr, fmt.Errorf("error updating the CHANGELOG: %v", err)
 	}
 	if err := git.CommitAll("Release script: Update CHANGELOG for version %s", version); err != nil {
