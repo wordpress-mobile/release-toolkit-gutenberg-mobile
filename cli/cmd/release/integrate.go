@@ -22,8 +22,9 @@ var IntegrateCmd = &cobra.Command{
 	Short: "integrate a release",
 	Long:  `Use this command to integrate a release. If the android or ios flags are set, only that platform will be integrated. Otherwise, both will be integrated.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		version, err := utils.GetVersionArg(args)
+		semver, err := utils.GetVersionArg(args)
 		exitIfError(err, 1)
+		version := semver.String()
 
 		gbmPr, err := gbm.FindGbmReleasePr(version)
 		exitIfError(err, 1)

@@ -5,17 +5,19 @@ import (
 	"os"
 
 	"github.com/wordpress-mobile/gbm-cli/pkg/console"
-	"github.com/wordpress-mobile/gbm-cli/pkg/utils"
+	"github.com/wordpress-mobile/gbm-cli/pkg/semver"
 )
 
-func GetVersionArg(args []string) (string, error) {
+func GetVersionArg(args []string) (semver.SemVer, error) {
 	if len(args) == 0 {
-		return "", fmt.Errorf("missing version")
+		return nil, fmt.Errorf("missing version")
 	}
-	if !utils.ValidateVersion(args[0]) {
-		return "", fmt.Errorf("invalid version %s.  Versions must have a `Major.Minor.Patch` form", args[0])
+	version, err := semver.NewSemVer(args[0])
+	if err != nil {
+		return nil, fmt.Errorf("invalid version %s.  Versions must have a `Major.Minor.Patch` form", args[0])
 	}
-	return utils.NormalizeVersion(args[0])
+
+	return version, nil
 }
 
 func ExitIfError(err error, code int) {

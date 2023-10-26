@@ -30,8 +30,10 @@ func Execute() {
 func preflight(args []string) {
 	var err error
 	tempDir = workspace.Dir()
-	version, err = utils.GetVersionArg(args)
+
+	semver, err := utils.GetVersionArg(args)
 	exitIfError(err, 1)
+	version = semver.String()
 
 	// Validate Aztec version
 	if valid := gbm.ValidateAztecVersions(); !valid {

@@ -14,8 +14,10 @@ var StatusCmd = &cobra.Command{
 	Short: "get the status of a release",
 	Long:  `Use this command to get the status of a release.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		version, err := utils.GetVersionArg(args)
+		semver, err := utils.GetVersionArg(args)
 		exitIfError(err, 1)
+
+		version := semver.String()
 
 		// Print styles
 		heading := console.Heading
