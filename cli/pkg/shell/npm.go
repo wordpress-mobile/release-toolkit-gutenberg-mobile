@@ -1,7 +1,5 @@
 package shell
 
-import "github.com/wordpress-mobile/gbm-cli/pkg/console"
-
 type NpmCmds interface {
 	Install(...string) error
 	Ci() error
@@ -33,7 +31,6 @@ func (c *client) Version(version string) error {
 }
 
 func (c *client) VersionIn(packagePath, version string) error {
-	console.Debug("Running npm version %s in %s", version, packagePath)
 	versionCmd := []string{"version", version, "--no-git-tag=false"}
 	return c.cmdInPath(packagePath, versionCmd...)
 }
