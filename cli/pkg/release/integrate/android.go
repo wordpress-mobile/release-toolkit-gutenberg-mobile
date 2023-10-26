@@ -9,6 +9,8 @@ import (
 
 	"github.com/wordpress-mobile/gbm-cli/pkg/console"
 	"github.com/wordpress-mobile/gbm-cli/pkg/gbm"
+	"github.com/wordpress-mobile/gbm-cli/pkg/release"
+
 	"github.com/wordpress-mobile/gbm-cli/pkg/gh"
 	"github.com/wordpress-mobile/gbm-cli/pkg/repo"
 	"github.com/wordpress-mobile/gbm-cli/pkg/shell"
@@ -59,7 +61,7 @@ func (ai AndroidIntegration) GetRepo() string {
 func (ai AndroidIntegration) GetPr(ri ReleaseIntegration) (gh.PullRequest, error) {
 	// @TODO: add support for finding non release PRs
 	if ri.Version != "" {
-		return gbm.FindAndroidReleasePr(ri.Version)
+		return release.FindAndroidReleasePr(ri.Version)
 	}
 	return gh.PullRequest{}, nil
 }
