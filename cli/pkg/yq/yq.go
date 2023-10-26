@@ -1,4 +1,4 @@
-package utils
+package yq
 
 import (
 	"github.com/mikefarah/yq/v4/pkg/yqlib"

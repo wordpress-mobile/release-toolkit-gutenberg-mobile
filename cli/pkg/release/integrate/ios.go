@@ -10,7 +10,7 @@ import (
 	"github.com/wordpress-mobile/gbm-cli/pkg/gh"
 	"github.com/wordpress-mobile/gbm-cli/pkg/repo"
 	"github.com/wordpress-mobile/gbm-cli/pkg/shell"
-	"github.com/wordpress-mobile/gbm-cli/pkg/utils"
+	"github.com/wordpress-mobile/gbm-cli/pkg/yq"
 )
 
 type IosIntegration struct {
@@ -43,7 +43,7 @@ func (ii IosIntegration) UpdateGutenbergConfig(dir string, gbmPr gh.PullRequest)
 	}
 
 	// perform updates using the yq syntax
-	config, err := utils.YqEvalAll(updates, string(buf))
+	config, err := yq.YqEvalAll(updates, string(buf))
 	if err != nil {
 		return err
 	}
