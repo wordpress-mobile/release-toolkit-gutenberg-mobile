@@ -9,6 +9,7 @@ import (
 	"github.com/wordpress-mobile/gbm-cli/pkg/render"
 	"github.com/wordpress-mobile/gbm-cli/pkg/repo"
 	"github.com/wordpress-mobile/gbm-cli/pkg/shell"
+	"github.com/wordpress-mobile/gbm-cli/pkg/utils"
 )
 
 func CreateGbPR(version, dir string, noTag bool) (gh.PullRequest, error) {
