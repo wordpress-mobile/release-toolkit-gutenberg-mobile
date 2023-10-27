@@ -9,7 +9,7 @@ import (
 	"github.com/wordpress-mobile/gbm-cli/pkg/console"
 	"github.com/wordpress-mobile/gbm-cli/pkg/gbm"
 	"github.com/wordpress-mobile/gbm-cli/pkg/render"
-	"github.com/wordpress-mobile/gbm-cli/pkg/utils"
+	"github.com/wordpress-mobile/gbm-cli/pkg/semver"
 )
 
 var version string
@@ -37,10 +37,11 @@ var ChecklistCmd = &cobra.Command{
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		vv := utils.ValidateVersion(version)
-		if !vv {
-			exitIfError(fmt.Errorf("%v is not a valid version. Versions must have a `Major.Minor.Patch` form", version), 1)
+		semver, err := semver.NewSemVer(version)
+		if err != nil {
+			exitIfError(fmt.Errorf("invalid version %s.  Versions must have a `Major.Minor.Patch` form", version), 1)
 		}
+		version = semver.String()
 
 		// For now let's assume we should include the Aztec steps unless explicitly checking if the versions are valid.
 		// We'll render the aztec steps with the optional
@@ -53,10 +54,10 @@ var ChecklistCmd = &cobra.Command{
 			}
 		}
 
-		scheduled := utils.IsScheduledRelease(version)
+		scheduled := semver.IsScheduledRelease()
 
 		if releaseDate == "" {
-			releaseDate = utils.NextReleaseDate()
+			releaseDate = nextReleaseDate()
 		}
 
 		releaseUrl := fmt.Sprintf("https://github.com/wordpress-mobile/gutenberg-mobile/releases/new?tag=v%s&target=release/%s&title=Release+%s", version, version, version)
