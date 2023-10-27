@@ -33,13 +33,13 @@ var allCmd = &cobra.Command{
 
 		console.Info("Preparing Gutenberg for release %s", version)
 
-		gbPr, err = release.CreateGbPR(version, gbDir, noTag)
+		gbPr, err = release.CreateGbPR(version.String(), gbDir, noTag)
 		exitIfError(err, 1)
 		console.Info("Finished preparing Gutenberg PR")
 
 		console.Info("Preparing Gutenberg Mobile for release %s", version)
 
-		pr, err := release.CreateGbmPR(version, gbmDir)
+		pr, err := release.CreateGbmPR(version.String(), gbmDir)
 		exitIfError(err, 1)
 		console.Info("Finished preparing Gutenberg Mobile PR")
 

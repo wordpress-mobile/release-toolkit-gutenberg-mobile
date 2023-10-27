@@ -8,12 +8,14 @@ import (
 	wp "github.com/wordpress-mobile/gbm-cli/cmd/workspace"
 	"github.com/wordpress-mobile/gbm-cli/pkg/console"
 	"github.com/wordpress-mobile/gbm-cli/pkg/gbm"
+	"github.com/wordpress-mobile/gbm-cli/pkg/semver"
 )
 
 var exitIfError func(error, int)
 var keepTempDir, noTag bool
 var workspace wp.Workspace
-var tempDir, version string
+var tempDir string
+var version semver.SemVer
 
 var PrepareCmd = &cobra.Command{
 	Use:   "prepare",
@@ -31,9 +33,8 @@ func preflight(args []string) {
 	var err error
 	tempDir = workspace.Dir()
 
-	semver, err := utils.GetVersionArg(args)
+	version, err = utils.GetVersionArg(args)
 	exitIfError(err, 1)
-	version = semver.String()
 
 	// Validate Aztec version
 	if valid := gbm.ValidateAztecVersions(); !valid {

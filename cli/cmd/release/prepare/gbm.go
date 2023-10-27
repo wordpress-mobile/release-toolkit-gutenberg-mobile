@@ -16,7 +16,7 @@ var gbmCmd = &cobra.Command{
 
 		console.Info("Preparing Gutenberg Mobile for release %s", version)
 
-		pr, err := release.CreateGbmPR(version, tempDir)
+		pr, err := release.CreateGbmPR(version.String(), tempDir)
 		exitIfError(err, 1)
 
 		console.Info("Created PR %s", pr.Url)
