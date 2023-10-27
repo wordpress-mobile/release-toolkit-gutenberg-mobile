@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/cli/go-gh/v2/pkg/api"
@@ -214,6 +215,23 @@ func GetPr(rpo string, number int) (PullRequest, error) {
 	}
 	pr.Repo = rpo
 	return pr, nil
+}
+
+func GetPrs(rpo string, numbers []string) (prs []PullRequest) {
+	for _, n := range numbers {
+		num, err := strconv.Atoi(n)
+		if err != nil {
+			console.Warn("Skipping PR %s, not a valid number", n)
+			continue
+		}
+
+		if pr, err := GetPr(rpo, num); err != nil {
+			console.Warn("Skipping PR %d, %s", num, err)
+		} else {
+			prs = append(prs, pr)
+		}
+	}
+	return prs
 }
 
 func CreatePr(rpo string, pr *PullRequest) error {
