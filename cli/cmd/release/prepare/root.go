@@ -8,6 +8,8 @@ import (
 	wp "github.com/wordpress-mobile/gbm-cli/cmd/workspace"
 	"github.com/wordpress-mobile/gbm-cli/pkg/console"
 	"github.com/wordpress-mobile/gbm-cli/pkg/gbm"
+	"github.com/wordpress-mobile/gbm-cli/pkg/gh"
+	"github.com/wordpress-mobile/gbm-cli/pkg/release"
 	"github.com/wordpress-mobile/gbm-cli/pkg/semver"
 )
 
@@ -64,4 +66,20 @@ func init() {
 	PrepareCmd.PersistentFlags().BoolVar(&keepTempDir, "k", false, "Keep temporary directory after running command")
 	PrepareCmd.PersistentFlags().BoolVar(&noTag, "no-tag", false, "Prevent tagging the release")
 	PrepareCmd.PersistentFlags().StringArrayVar(&prs, "prs", []string{}, "prs to include in the release. Only used with patch releases")
+}
+
+func setupPatchBuild(build *release.Build) {
+
+	// Get the ref to the prior release
+	priorVersion := version.PriorVersion()
+
+	build.Base = gh.Repo{Ref: "rnmobile/" + priorVersion.String()}
+
+	build.Prs = gh.GetPrs("gutenberg", prs)
+
+	if len(build.Prs) == 0 {
+		exitIfError(errors.New("no PRs found for patch release"), 1)
+		return
+	}
+
 }

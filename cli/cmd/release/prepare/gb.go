@@ -21,16 +21,12 @@ var gbCmd = &cobra.Command{
 			Dir:     tempDir,
 			Version: version,
 			Tag:     !noTag,
+			Base:    gh.Repo{Ref: "trunk"},
 		}
 
 		if version.IsPatchRelease() {
 			console.Info("Preparing Gutenberg for patch release %s", version)
-			build.Prs = gh.GetPrs("gutenberg", prs)
-
-			if len(build.Prs) == 0 {
-				exitIfError(errors.New("no PRs found for patch release"), 1)
-				return
-			}
+			setupPatchBuild(&build)
 
 			exitIfError(errors.New("not implemented yet"), 1)
 		}

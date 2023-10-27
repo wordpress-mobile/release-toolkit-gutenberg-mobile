@@ -18,6 +18,7 @@ type Build struct {
 	Dir     string
 	Tag     bool
 	Prs     []gh.PullRequest
+	Base    gh.Repo
 }
 
 type ReleaseChanges struct {
