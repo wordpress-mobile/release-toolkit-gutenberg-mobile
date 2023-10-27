@@ -5,7 +5,6 @@ import (
 	"path/filepath"
 
 	"github.com/wordpress-mobile/gbm-cli/pkg/console"
-	"github.com/wordpress-mobile/gbm-cli/pkg/exec"
 	"github.com/wordpress-mobile/gbm-cli/pkg/gh"
 	"github.com/wordpress-mobile/gbm-cli/pkg/render"
 	"github.com/wordpress-mobile/gbm-cli/pkg/repo"
@@ -58,11 +57,6 @@ func CreateGbPR(version, dir string, noTag bool) (gh.PullRequest, error) {
 		if err := npm.VersionIn(editorPackPath, version); err != nil {
 			return pr, fmt.Errorf("error updating the package version: %v", err)
 		}
-		/*
-			if err := utils.UpdatePackageVersion(version, editorPackPath); err != nil {
-				return pr, fmt.Errorf("error updating the package version: %v", err)
-			}
-		*/
 	}
 
 	if err := git.CommitAll("Release script: Update react-native-editor version to %s", version); err != nil {
@@ -80,11 +74,11 @@ func CreateGbPR(version, dir string, noTag bool) (gh.PullRequest, error) {
 
 	console.Info("Setting up Gutenberg node environment")
 
-	if err := exec.SetupNode(dir, true); err != nil {
+	if err := utils.SetupNode(dir); err != nil {
 		return pr, fmt.Errorf("error setting up the node environment: %v", err)
 	}
 
-	if err := npm.Ci(); err != nil {
+	if err := npm.Install(); err != nil {
 		return pr, fmt.Errorf("error running npm ci: %v", err)
 	}
 
