@@ -165,10 +165,6 @@ func SearchPr(filter RepoFilter) (PullRequest, error) {
 		return PullRequest{}, nil
 	}
 	if result.TotalCount > 1 {
-		console.Warn("Found too many PRs for %s", filter.QueryString)
-		for _, pr := range result.Items {
-			console.Info("%s %s", pr.Title, pr.Url)
-		}
 		return PullRequest{}, fmt.Errorf("too many PRs found")
 	}
 	number := result.Items[0].Number

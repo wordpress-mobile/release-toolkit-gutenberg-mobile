@@ -8,6 +8,7 @@ import (
 	"github.com/wordpress-mobile/gbm-cli/pkg/console"
 	"github.com/wordpress-mobile/gbm-cli/pkg/gbm"
 	"github.com/wordpress-mobile/gbm-cli/pkg/gh"
+	"github.com/wordpress-mobile/gbm-cli/pkg/release"
 	"github.com/wordpress-mobile/gbm-cli/pkg/repo"
 	"github.com/wordpress-mobile/gbm-cli/pkg/shell"
 	"github.com/wordpress-mobile/gbm-cli/pkg/yq"
@@ -75,13 +76,13 @@ func (ii IosIntegration) GetRepo() string {
 func (ia IosIntegration) GetPr(ri ReleaseIntegration) (gh.PullRequest, error) {
 	// @TODO: add support for finding non release PRs
 	if ri.Version != "" {
-		return gbm.FindIosReleasePr(ri.Version)
+		return release.FindIosReleasePr(ri.Version)
 	}
 	return gh.PullRequest{}, nil
 }
 
-func (ia IosIntegration) GbPublished(version string) (bool, error) {
-	published, err := gbm.IosGbmBuildPublished(version)
+func (ia IosIntegration) GbPublished(gbmPr gh.PullRequest) (bool, error) {
+	published, err := gbm.IosGbmBuildPublished(gbmPr)
 	if err != nil {
 		console.Warn("Error checking if GBM build is published: %v", err)
 	}

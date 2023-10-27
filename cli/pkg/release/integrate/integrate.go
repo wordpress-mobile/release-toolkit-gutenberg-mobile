@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"github.com/wordpress-mobile/gbm-cli/pkg/console"
-	"github.com/wordpress-mobile/gbm-cli/pkg/gbm"
 	"github.com/wordpress-mobile/gbm-cli/pkg/gh"
+	"github.com/wordpress-mobile/gbm-cli/pkg/release"
 	"github.com/wordpress-mobile/gbm-cli/pkg/render"
 	"github.com/wordpress-mobile/gbm-cli/pkg/repo"
 	"github.com/wordpress-mobile/gbm-cli/pkg/shell"
@@ -33,7 +33,7 @@ type Target interface {
 	UpdateGutenbergConfig(dir string, gbmPr gh.PullRequest) error
 	GetRepo() string
 	GetPr(ri ReleaseIntegration) (gh.PullRequest, error)
-	GbPublished(version string) (bool, error)
+	GbPublished(gh.PullRequest) (bool, error)
 }
 
 func (ri *ReleaseIntegration) Run(dir string) (gh.PullRequest, error) {
@@ -43,7 +43,7 @@ func (ri *ReleaseIntegration) Run(dir string) (gh.PullRequest, error) {
 	// Check if the GBM build is published
 	// Only if the target is wordpress-mobile
 	if org == "wordpress-mobile" {
-		published, err := ri.Target.GbPublished(ri.Version)
+		published, err := ri.Target.GbPublished(ri.GbmPr)
 		if err != nil {
 			return gh.PullRequest{}, err
 		}
@@ -113,7 +113,7 @@ func (ri *ReleaseIntegration) cloneRepo(git shell.GitCmds) error {
 	rpo := ri.Target.GetRepo()
 	repoPath := repo.GetRepoPath(rpo)
 
-	branch := "gutenberg/integrate_release_" + ri.Version
+	branch := fmt.Sprintf(release.IntegrateBranchName, ri.Version)
 	exists, err := gh.SearchBranch(rpo, branch)
 	if err != nil {
 		return err
@@ -147,7 +147,7 @@ func (ri *ReleaseIntegration) cloneRepo(git shell.GitCmds) error {
 
 func (ri *ReleaseIntegration) createAfterBranch(git shell.GitCmds) error {
 	rpo := ri.Target.GetRepo()
-	afterBranch := "gutenberg/after_" + ri.Version
+	afterBranch := fmt.Sprintf(release.IntegrateAfterBranchName, ri.Version)
 	// Check if branch exits
 	exists, err := gh.SearchBranch(rpo, afterBranch)
 	if err != nil {
@@ -182,7 +182,7 @@ func (ri *ReleaseIntegration) createPR(dir string, gbmPr gh.PullRequest) (gh.Pul
 	version := ri.Version
 	pr := gh.PullRequest{}
 	console.Info("Creating PR")
-	pr.Title = fmt.Sprint("Integrate gutenberg-mobile release v", ri.Version)
+	pr.Title = fmt.Sprintf(release.IntegratePrTitle, ri.Version)
 	pr.Base.Ref = ri.BaseBranch
 	pr.Head.Ref = ri.HeadBranch
 
@@ -191,7 +191,7 @@ func (ri *ReleaseIntegration) createPR(dir string, gbmPr gh.PullRequest) (gh.Pul
 	}
 
 	pr.Labels = []gh.Label{{
-		Name: gbm.IntegrationPrLabel,
+		Name: release.IntegratePrLabel,
 	}}
 
 	rpo := ri.Target.GetRepo()
@@ -224,7 +224,7 @@ func renderPrBody(version string, pr *gh.PullRequest, gbmPr gh.PullRequest) erro
 }
 
 func useRelease(version string) (bool, error) {
-	release, err := gbm.GetGbmRelease(version)
+	release, err := release.GetGbmRelease(version)
 	if err != nil {
 		console.Warn("Unable to check for a release: %s", err)
 		return false, nil

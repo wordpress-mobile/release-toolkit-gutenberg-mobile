@@ -10,8 +10,8 @@ import (
 	"github.com/wordpress-mobile/gbm-cli/cmd/utils"
 	wp "github.com/wordpress-mobile/gbm-cli/cmd/workspace"
 	"github.com/wordpress-mobile/gbm-cli/pkg/console"
-	"github.com/wordpress-mobile/gbm-cli/pkg/gbm"
 	"github.com/wordpress-mobile/gbm-cli/pkg/gh"
+	"github.com/wordpress-mobile/gbm-cli/pkg/release"
 	"github.com/wordpress-mobile/gbm-cli/pkg/release/integrate"
 )
 
@@ -26,7 +26,7 @@ var IntegrateCmd = &cobra.Command{
 		exitIfError(err, 1)
 		version := semver.String()
 
-		gbmPr, err := gbm.FindGbmReleasePr(version)
+		gbmPr, err := release.FindGbmReleasePr(version)
 		exitIfError(err, 1)
 		if gbmPr.Number == 0 {
 			exitIfError(errors.New("no GBM PR found"), 1)

@@ -1,11 +1,13 @@
 package release
 
 import (
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"github.com/wordpress-mobile/gbm-cli/cmd/utils"
 	"github.com/wordpress-mobile/gbm-cli/pkg/console"
 	"github.com/wordpress-mobile/gbm-cli/pkg/gbm"
 	"github.com/wordpress-mobile/gbm-cli/pkg/gh"
+	"github.com/wordpress-mobile/gbm-cli/pkg/release"
 	"github.com/wordpress-mobile/gbm-cli/pkg/repo"
 )
 
@@ -23,33 +25,52 @@ var StatusCmd = &cobra.Command{
 		heading := console.Heading
 		headingRow := console.HeadingRow
 		row := console.Row
+		basic := color.New(color.FgWhite)
 
 		console.Print(heading, "\nRelease %s Status\n", version)
+
+		// Check to see if the release has been published
+		rel, err := release.GetGbmRelease(version)
+		exitIfError(err, 1)
+
+		if (rel != gh.Release{}) {
+			console.Print(heading, "\n🎉 Release %s has been published!\n %s\n", version, rel.Url)
+		}
 
 		prs := []gh.PullRequest{}
 		gbPr, gbmPr, androidPr, iosPr := gh.PullRequest{}, gh.PullRequest{}, gh.PullRequest{}, gh.PullRequest{}
 
 		// @TODO: search for gb pr
+		gbPr, err = release.FindGbReleasePr(version)
+		if err != nil {
+			console.Warn("Could not get Gutenberg PR: %s", err)
+		}
 		gbPr.Repo = repo.GetOrg("gutenberg") + "/gutenberg"
 		prs = append(prs, gbPr)
 
-		gbmPr, err = gbm.FindGbmReleasePr(version)
-		exitIfError(err, 1)
+		gbmPr, err = release.FindGbmReleasePr(version)
+		if err != nil {
+			console.Warn("Could not get Gutenberg Mobile PR: %s", err)
+		}
 		gbmPr.Repo = repo.GetOrg("gutenberg-mobile") + "/gutenberg-mobile"
 		prs = append(prs, gbmPr)
 
-		androidPr, err = gbm.FindAndroidReleasePr(version)
-		exitIfError(err, 1)
+		androidPr, err = release.FindAndroidReleasePr(version)
+		if err != nil {
+			console.Warn("Could not find Android PR: %s", err)
+		}
 		androidPr.Repo = repo.GetOrg("WordPress-Android") + "/WordPress-Android"
 		prs = append(prs, androidPr)
 
-		iosPr, err = gbm.FindIosReleasePr(version)
-		exitIfError(err, 1)
+		iosPr, err = release.FindIosReleasePr(version)
+		if err != nil {
+			console.Warn("Could not find iOS PR: %s", err)
+		}
 		iosPr.Repo = repo.GetOrg("WordPress-iOS") + "/WordPress-iOS"
 		prs = append(prs, iosPr)
 
 		console.Print(heading, "Release Prs:")
-		console.Print(headingRow, "%-27s %-10s %-10v %s", "Repo", "State", "Mergeable", "Url")
+		console.Print(headingRow, "%-36s %-10s %-10v %s", "Repo", "State", "Mergeable", "Url")
 
 		// List the PRs
 		for _, pr := range prs {
@@ -57,28 +78,32 @@ var StatusCmd = &cobra.Command{
 				pr.State = "…"
 				pr.Url = "…"
 			}
-			console.Print(row, "• %-25s %-10s %-10v %s", pr.Repo, pr.State, pr.Mergeable, pr.Url)
+			console.Print(row, "• %-34s %-10s %-10v %s", pr.Repo, pr.State, pr.Mergeable, pr.Url)
 		}
 
 		// Get the status for the head sha
-
-		console.Print(heading, "\nGutenberg Mobile Build Status")
+		console.Print(heading, "\nGutenberg Mobile Build Status\n")
 		if gbmPr.Number == 0 {
-			console.Info("...Waiting for Gutenberg Mobile PR to be created before checking build status")
+			console.Print(row, "...Waiting for Gutenberg Mobile PR to be created before checking build status")
 			return
 		}
 		sha := gbmPr.Head.Sha
-		console.Info("Getting Gutenberg Builds for sha: %s", sha)
-		exitIfError(err, 1)
+		console.Print(basic, "Getting Gutenberg Builds for sha: %s", sha)
 
-		androidReady, err := gbm.AndroidGbmBuildPublished(version)
-		exitIfError(err, 1)
+		console.Print(headingRow, "%-10s %-10s", "Platform", "Status")
 
-		iosReady, err := gbm.IosGbmBuildPublished(version)
-		exitIfError(err, 1)
+		androidReady, err := gbm.AndroidGbmBuildPublished(gbmPr)
+		if err != nil {
+			console.Warn("Could not get Android build status: %s", err)
+		}
 
-		console.Info("Android Build Ready: %v", androidReady)
-		console.Info("iOS Build Ready: %v", iosReady)
+		iosReady, err := gbm.IosGbmBuildPublished(gbmPr)
+
+		if err != nil {
+			console.Warn("Could not get iOS build status: %s", err)
+		}
+		console.Print(row, "%-10s %-10v", "Android", androidReady)
+		console.Print(row, "%-10s %-10v", "iOS", iosReady)
 
 	},
 }
