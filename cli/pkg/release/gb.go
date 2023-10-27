@@ -108,7 +108,7 @@ func CreateGbPR(version, dir string, noTag bool) (gh.PullRequest, error) {
 		return pr, fmt.Errorf("error committing the Podfile changes: %v", err)
 	}
 
-	console.Info("\n 🎉 Gutenberg preparations succeeded.")
+	console.Info("🎉 Gutenberg preparations succeeded.")
 
 	// Prepare the GB PR
 	console.Info("Creating PR")

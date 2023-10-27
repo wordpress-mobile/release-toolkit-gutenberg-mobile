@@ -19,6 +19,7 @@ type GitCmds interface {
 	SetUpstreamTo(...string) error
 	IsPorcelain() bool
 	PushTag(string, ...string) error
+	Log(...string) error
 }
 
 func (c *client) Clone(args ...string) error {
@@ -94,4 +95,9 @@ func (c *client) PushTag(tag string, annotate ...string) error {
 		return err
 	}
 	return c.cmd("push", "origin", tag)
+}
+
+func (c *client) Log(args ...string) error {
+	log := append([]string{"log"}, args...)
+	return c.cmd(log...)
 }

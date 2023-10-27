@@ -67,7 +67,7 @@ Use Info to log messages from the scripts. Output is sent to stderr to not muddl
 */
 func Info(format string, args ...interface{}) {
 	cyan := color.New(color.FgCyan).SprintfFunc()
-	l.Printf(cyan("\n[INFO] "+format, args...))
+	l.Printf(cyan("[INFO] "+format, args...))
 	color.Unset()
 }
 
@@ -78,7 +78,7 @@ func Log(format string, args ...interface{}) {
 
 func Debug(format string, args ...interface{}) {
 	blue := color.New(color.FgHiBlue).SprintfFunc()
-	l.Printf(blue("\n[DEBUG] "+format, args...))
+	l.Printf(blue("[DEBUG] "+format, args...))
 	color.Unset()
 }
 
@@ -90,7 +90,7 @@ func Print(c *color.Color, format string, args ...interface{}) {
 
 func Warn(format string, args ...interface{}) {
 	yellow := color.New(color.FgYellow).SprintfFunc()
-	l.Printf(yellow("\n[WARN] "+format, args...))
+	l.Printf(yellow("[WARN] "+format, args...))
 	color.Unset()
 }
 
@@ -100,7 +100,7 @@ func Inspect(i interface{}) {
 
 func Error(err error) {
 	red := color.New(color.FgRed).SprintfFunc()
-	l.Printf(red("\n[ERROR] " + err.Error()))
+	l.Printf(red("[ERROR] " + err.Error() + "\n"))
 	color.Unset()
 }
 
