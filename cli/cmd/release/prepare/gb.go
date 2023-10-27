@@ -14,9 +14,19 @@ var gbCmd = &cobra.Command{
 		preflight(args)
 		defer workspace.Cleanup()
 
+		if version.IsPatchRelease() {
+			console.Info("Preparing Gutenberg for patch release %s", version)
+		}
+
 		console.Info("Preparing Gutenberg for release %s", version)
 
-		pr, err := release.CreateGbPR(version.String(), tempDir, noTag)
+		build := release.Build{
+			Dir:     tempDir,
+			Version: version,
+			Tag:     !noTag,
+		}
+
+		pr, err := release.CreateGbPR(build)
 		exitIfError(err, 1)
 
 		console.Info("Created PR %s", pr.Url)

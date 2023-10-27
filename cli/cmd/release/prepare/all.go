@@ -32,14 +32,23 @@ var allCmd = &cobra.Command{
 		gbPr := gh.PullRequest{}
 
 		console.Info("Preparing Gutenberg for release %s", version)
+		build := release.Build{
+			Dir:     gbDir,
+			Version: version,
+			Tag:     !noTag,
+		}
 
-		gbPr, err = release.CreateGbPR(version.String(), gbDir, noTag)
+		gbPr, err = release.CreateGbPR(build)
 		exitIfError(err, 1)
 		console.Info("Finished preparing Gutenberg PR")
 
 		console.Info("Preparing Gutenberg Mobile for release %s", version)
 
-		pr, err := release.CreateGbmPR(version.String(), gbmDir)
+		build = release.Build{
+			Dir:     gbmDir,
+			Version: version,
+		}
+		pr, err := release.CreateGbmPR(build)
 		exitIfError(err, 1)
 		console.Info("Finished preparing Gutenberg Mobile PR")
 

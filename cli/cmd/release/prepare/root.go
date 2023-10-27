@@ -16,6 +16,7 @@ var keepTempDir, noTag bool
 var workspace wp.Workspace
 var tempDir string
 var version semver.SemVer
+var prs []string
 
 var PrepareCmd = &cobra.Command{
 	Use:   "prepare",
@@ -62,5 +63,5 @@ func init() {
 	PrepareCmd.AddCommand(allCmd)
 	PrepareCmd.PersistentFlags().BoolVar(&keepTempDir, "k", false, "Keep temporary directory after running command")
 	PrepareCmd.PersistentFlags().BoolVar(&noTag, "no-tag", false, "Prevent tagging the release")
-
+	PrepareCmd.PersistentFlags().StringArrayVar(&prs, "prs", []string{}, "prs to include in the release. Only used with patch releases")
 }

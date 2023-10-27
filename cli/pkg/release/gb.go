@@ -12,8 +12,10 @@ import (
 	"github.com/wordpress-mobile/gbm-cli/pkg/utils"
 )
 
-func CreateGbPR(version, dir string, noTag bool) (gh.PullRequest, error) {
+func CreateGbPR(build Build) (gh.PullRequest, error) {
 	var pr gh.PullRequest
+	version := build.Version.String()
+	dir := build.Dir
 
 	shellProps := shell.CmdProps{Dir: dir, Verbose: true}
 	git := shell.NewGitCmd(shellProps)
@@ -144,7 +146,7 @@ func CreateGbPR(version, dir string, noTag bool) (gh.PullRequest, error) {
 		return pr, fmt.Errorf("pr was not created successfully")
 	}
 
-	if !noTag {
+	if build.Tag {
 		console.Info("Adding release tag")
 		if err := git.PushTag("rnmobile/" + version); err != nil {
 			console.Warn("Error tagging the release: %v", err)

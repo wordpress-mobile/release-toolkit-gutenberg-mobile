@@ -10,7 +10,15 @@ import (
 
 	"github.com/wordpress-mobile/gbm-cli/pkg/console"
 	"github.com/wordpress-mobile/gbm-cli/pkg/gh"
+	"github.com/wordpress-mobile/gbm-cli/pkg/semver"
 )
+
+type Build struct {
+	Version semver.SemVer
+	Dir     string
+	Tag     bool
+	Prs     []gh.PullRequest
+}
 
 type ReleaseChanges struct {
 	Title  string
