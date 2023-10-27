@@ -11,7 +11,7 @@ type semver struct {
 type SemVer interface {
 	String() string
 	Vstring() string
-	PriorVersion() string
+	PriorVersion() SemVer
 	IsScheduledRelease() bool
 	IsPatchRelease() bool
 	Parse(version string) error
@@ -31,11 +31,16 @@ func (s *semver) Vstring() string {
 	return fmt.Sprintf("v%d.%d.%d", s.Major, s.Minor, s.Patch)
 }
 
-func (s *semver) PriorVersion() string {
+func (s *semver) PriorVersion() SemVer {
+	var p SemVer
+
+	// ignore errors here because we know the version is valid
 	if s.IsPatchRelease() {
-		return fmt.Sprintf("%d.%d.%d", s.Major, s.Minor, s.Patch-1)
+		p, _ = NewSemVer(fmt.Sprintf("%d.%d.%d", s.Major, s.Minor, s.Patch-1))
+		return p
 	}
-	return fmt.Sprintf("%d.%d.%d", s.Major, s.Minor-1, 0)
+	p, _ = NewSemVer(fmt.Sprintf("%d.%d.%d", s.Major, s.Minor-1, 0))
+	return p
 }
 
 func (s *semver) IsScheduledRelease() bool {
