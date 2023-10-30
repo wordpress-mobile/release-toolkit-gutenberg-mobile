@@ -7,6 +7,7 @@ This directory contains the available CLI subcommands and utilities, organized i
 Renders the Release Checklist.
 
 - [`release`](https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/tree/cli/command-docs/cli/cmd/release)
+Parent command for subcommands used for the release flow.
 
 - `utils`
 Various utility functions used within the CLI.
