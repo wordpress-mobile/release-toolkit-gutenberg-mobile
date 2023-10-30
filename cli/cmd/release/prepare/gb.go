@@ -8,7 +8,7 @@ import (
 
 var gbCmd = &cobra.Command{
 	Use:   "gb",
-	Short: "Prepare Gutenberg for a mobile release",
+	Short: "prepare Gutenberg for a mobile release",
 	Long:  `Use this command to prepare a Gutenberg release PR`,
 	Run: func(cc *cobra.Command, args []string) {
 		preflight(args)

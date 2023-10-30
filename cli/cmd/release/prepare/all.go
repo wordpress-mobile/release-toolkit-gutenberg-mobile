@@ -12,7 +12,7 @@ import (
 
 var allCmd = &cobra.Command{
 	Use:   "all",
-	Short: "Prepare Gutenberg and Gutenberg Mobile for a mobile release",
+	Short: "prepare Gutenberg and Gutenberg Mobile for a mobile release",
 	Long:  `Use this command to prepare a Gutenberg and Gutenberg Mobile release PRs`,
 	Run: func(cc *cobra.Command, args []string) {
 		var err error
