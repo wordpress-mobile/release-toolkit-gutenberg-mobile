@@ -30,3 +30,8 @@ go run main.go release integrate v1.107.0
 - `-h`, `--help`: Command line help for `integrate` command
 
 ### status
+Command used to check the status of any given release:
+
+```
+go run main.go release status 1.07.0 
+```
