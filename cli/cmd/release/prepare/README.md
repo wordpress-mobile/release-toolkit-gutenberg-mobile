@@ -1,8 +1,8 @@
 # prepare
 
-The `prepare` command is responsible for generating the checklists that make up the release process.
+The `prepare` command is responsible for generating the pull requests that make up the release process.
 
-Used to prepare Gutenberg and Gutenberg Mobile PRs for the release. Contains three subcommands:
+Contains three subcommands:
 
 - `all`: Prepare both Gutenberg and Gutenberg Mobile PRs release
 - `gb`: Prepare Gutenberg PR for a mobile release
