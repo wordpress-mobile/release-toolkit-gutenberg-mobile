@@ -6,7 +6,7 @@ This directory contains the available CLI subcommands and utilities, organized i
 - [`render`](https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/blob/trunk/cli/cmd/render/README.md)
 Renders the Release Checklist.
 
-- [`release`](https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/blob/trunk/cli/cmd/release/README.md)
+- [`release`](https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/tree/cli/command-docs/cli/cmd/release)
 
 - `utils`
 Various utility functions used within the CLI.
