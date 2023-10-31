@@ -37,13 +37,12 @@
 <h3>Create the Release{{ if .Scheduled }} (Thursday) {{end}}</h3>
 <!-- /wp:heading -->
 
-{{ Task `Verify that <code>gutenberg-mobile/RNTAztecView.podspec</code> and <code>gutenberg-mobile/gutenberg/packages/react-native-aztec/RNTAztecView.podspec</code>
- refer to the same <code>WordPress-Aztec-iOS</code> version and are pointing to a stable, tagged release (e.g. 1.14.1). If they are not, we may need to <a href="#create-a-new-aztec-release">create a new Aztec</a> release.` }}
+{{ Task `Clone the <a href="https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile">CLI</a> or pull the latest version if you have already cloned it.` }}
 
-{{ Task `Clone the <a href="https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile">release scripts</a> or pull the latest version if you have already cloned it.` }}
+{{ Task `Review the <a href="https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/blob/develop/cli/Releasing.md">release script instructions</a>.
+In your clone of the release scripts <code>cli</code> directory, run the prepare command:  <code>go run main.go release prepare all %s</code>. This creates the gutenberg and gutenberg-mobile release PRs.` }}
 
-{{ Task `Review the <a href="https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/blob/develop/Releasing.md">release script instructions</a>.
- In your clone of the release scripts, run the script via:  <code>./release_automation.sh</code>. This creates the gutenberg and gutenberg-mobile release PRs as well as WPAndroid and WPiOS integration PRs.` }}
+{{ Task `Once the CI tasks succeed, run the integrate command to create the main apps PRs for WordPress-iOS and WordPress-Android: <code>go run main.go release integrate %s</code> `}}
 
 {{ if .Scheduled }}
 <!-- wp:group -->
@@ -59,17 +58,6 @@
 </div>
 <!-- /wp:group -->
 {{ end }}
-
-{{ Task `In both <code>RELEASE-NOTES.txt</code> and <code>gutenberg/packages/react-native-editor/CHANGELOG.md</code>,
- replace <code>Unreleased</code> section with the release version and create a new <code>Unreleased</code> section.` }}
-
-{{ Task `Review and update <code>RELEASE-NOTES.txt</code> file on both WPAndroid and WPiOS PRs so it includes all user-facing changes introduced in the release.
- Keep in mind that some changes can be specific to a single platform, so they should only be added to the release notes of the platform that affects
- (e.g. a change that only affects Android should only be included in WPAndroid release notes).` }}
-
-{{ Task `Verify the WPAndroid and WPiOS PR builds succeed. For WPAndroid, if the PR CI tasks include a 403 error related to an inability to resolve the
- <code>react-native-bridge</code> dependency, you must wait for the <code>Build Android RN Bridge &amp; Publish to S3</code>
- task to succeed in gutenberg-mobile and then restart the WPAndroid CI tasks. Similarly, for iOS, you must wait for the <code>Build iOS RN XCFramework &amp; Publish to S3</code> task to succeed.` }}
 
 {{ Task `Once the installable builds are ready, perform a quick smoke test of the editor on both iOS and Android to verify it launches without crashing.
 We will perform additional testing after the main apps cut their releases.` }}
@@ -112,14 +100,8 @@ and don't forget to run <code>npm run bundle</code> in gutenberg-mobile again if
 {{ Task `Add the new change to the "Extra PRs that Landed After the Release Was Cut" section of the gutenberg-mobile PR description.` }}
 
 <!-- wp:heading {"level":3} -->
-<h3>Integrate the Release{{ if .Scheduled }} (Thursday) {{end}}</h3>
+<h3>Publish the Release{{ if .Scheduled }} (Thursday) {{end}}</h3>
 <!-- /wp:heading -->
-
-{{ Task `Verify the <code>gutenberg</code> ref within the gutenberg-mobile release branch is pointed to the latest commit in the gutenberg release branch.` }}
-
-{{ Task `Create and push a <code>rnmobile/%s</code> git tag for the head of gutenberg release branch.` .Version }}
-
-{{ Task `Ensure that the bundle files are updated to include any changes to the release branch by running <code>npm run bundle</code> in gutenberg-mobile release branch and committing any changes.` }}
 
 {{ Task `<a href="%s">Create a new gutenberg-mobile GitHub Release</a>. Include a list of changes in the release description. Ensure the checkmark "Set as the latest release" is checked, and <strong>publish the release with the "Publish release" button.</strong>` .ReleaseUrl }}
 
