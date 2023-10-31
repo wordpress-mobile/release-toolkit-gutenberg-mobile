@@ -3,15 +3,18 @@
 The Release Checklist Template can be generated with the following command: (replacing `X.XX.X` with the applicable release number):
 
 ```
-go run main.go render checklist -v X.XX.X --message "This hotfix addresses ISSUE_OR_CRASH in ORIGINAL_VERSION. See P2_PR_SLACK_ETC_LINK_OR_LINKS for the rationale behind the decision to make it."
+go run main.go render checklist -v X.XX.X
 ```
 
 The `--c` flag will copy the output to your clipboard. To view the output in the command line, simply remove the `--c` flag.
 
 
 If the release is a betafix/hotfix, include a message explaining briefly the reason for releasing the fix.
-**Example:** `This hotfix addresses ISSUE_OR_CRASH in ORIGINAL_VERSION. See P2_PR_SLACK_ETC_LINK_OR_LINKS for the rationale behind the decision to make it.`
+**Example:** 
 
+```
+go run main.go render checklist -v X.XX.X --message "This hotfix addresses ISSUE_OR_CRASH in ORIGINAL_VERSION. See P2_PR_SLACK_ETC_LINK_OR_LINKS for the rationale behind the decision to make it."
+```
 
 # Different types of releases
 
@@ -23,7 +26,7 @@ It's best practice to use the automation script (mentioned in the release templa
 
 ### When
 
-Whenever a build is needed for testing (usually a few days prior to a Regular release)
+Whenever a build is needed for testing (usually a few days prior to a Regular release).
 
 ### Branches
 
@@ -116,7 +119,7 @@ At the same time there could also be a regular release, a betafix or even anothe
 
 1. If necessary create new patch version branches `release/X.Y.1` in WPiOS and WPAndroid.
 
-Rest should be same the as Betafix
+The rest should be same the as Betafix.
 
 ### Release checklist template differences
 
