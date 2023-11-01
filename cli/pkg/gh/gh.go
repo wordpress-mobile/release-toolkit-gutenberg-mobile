@@ -56,6 +56,7 @@ type PullRequest struct {
 	Head               Repo
 	Base               Repo
 	RequestedReviewers []User `json:"requested_reviewers"`
+	MergeCommit        string `json:"merge_commit_sha"`
 
 	// This field is not part of the GH api but is useful
 	// to get the context of the PR when passing it around
@@ -101,6 +102,14 @@ type Release struct {
 	Prerelease  bool
 	Target      string `json:"target_commitish"`
 	PublishedAt string `json:"published_at"`
+}
+
+type Commit struct {
+	Sha    string
+	Url    string
+	Commit struct {
+		Message string
+	}
 }
 
 // Build a RepoFilter from a repo name and a list of queries.

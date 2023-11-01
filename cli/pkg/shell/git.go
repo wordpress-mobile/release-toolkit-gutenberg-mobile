@@ -20,6 +20,7 @@ type GitCmds interface {
 	IsPorcelain() bool
 	PushTag(string, ...string) error
 	Log(...string) error
+	CherryPick(string) error
 }
 
 func (c *client) Clone(args ...string) error {
@@ -100,4 +101,9 @@ func (c *client) PushTag(tag string, annotate ...string) error {
 func (c *client) Log(args ...string) error {
 	log := append([]string{"log"}, args...)
 	return c.cmd(log...)
+}
+
+func (c *client) CherryPick(commit string) error {
+	pick := append([]string{"cherry-pick"}, commit)
+	return c.cmd(pick...)
 }

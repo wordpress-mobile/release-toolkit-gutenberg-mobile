@@ -1,8 +1,6 @@
 package prepare
 
 import (
-	"errors"
-
 	"github.com/spf13/cobra"
 	"github.com/wordpress-mobile/gbm-cli/pkg/console"
 	"github.com/wordpress-mobile/gbm-cli/pkg/gh"
@@ -20,15 +18,15 @@ var gbCmd = &cobra.Command{
 		build := release.Build{
 			Dir:     tempDir,
 			Version: version,
-			Tag:     !noTag,
-			Base:    gh.Repo{Ref: "trunk"},
+			UseTag:  !noTag,
+			Base: gh.Repo{
+				Ref: "trunk",
+			},
 		}
 
 		if version.IsPatchRelease() {
-			console.Info("Preparing Gutenberg for patch release %s", version)
+			console.Info("Preparing a patch release")
 			setupPatchBuild(&build)
-
-			exitIfError(errors.New("not implemented yet"), 1)
 		}
 
 		console.Info("Preparing Gutenberg for release %s", version)

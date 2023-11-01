@@ -74,12 +74,10 @@ func setupPatchBuild(build *release.Build) {
 	priorVersion := version.PriorVersion()
 
 	build.Base = gh.Repo{Ref: "rnmobile/" + priorVersion.String()}
-
 	build.Prs = gh.GetPrs("gutenberg", prs)
 
 	if len(build.Prs) == 0 {
 		exitIfError(errors.New("no PRs found for patch release"), 1)
 		return
 	}
-
 }

@@ -35,7 +35,7 @@ var allCmd = &cobra.Command{
 		build := release.Build{
 			Dir:     gbDir,
 			Version: version,
-			Tag:     !noTag,
+			UseTag:  !noTag,
 		}
 
 		gbPr, err = release.CreateGbPR(build)

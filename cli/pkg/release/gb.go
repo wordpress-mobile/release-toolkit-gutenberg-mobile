@@ -40,8 +40,7 @@ func CreateGbPR(build Build) (gh.PullRequest, error) {
 		console.Info("Cloning Gutenberg to %s", dir)
 
 		// Let's clone into the current directory so that the git client can find the .git directory
-		err := git.Clone(repo.GetRepoPath("gutenberg"), "--depth=1", ".")
-
+		err := git.Clone(repo.GetRepoPath("gutenberg"), "--branch", build.Base.Ref, ".")
 		if err != nil {
 			return pr, fmt.Errorf("error cloning the Gutenberg repository: %v", err)
 		}
@@ -50,6 +49,21 @@ func CreateGbPR(build Build) (gh.PullRequest, error) {
 		err = git.Switch("-c", branch)
 		if err != nil {
 			return pr, fmt.Errorf("error checking out the branch: %v", err)
+		}
+
+	}
+
+	if build.Prs != nil {
+		console.Info("Cherry picking PRs")
+		for _, pr := range build.Prs {
+			if pr.MergeCommit == "" {
+				return pr, fmt.Errorf("error cherry picking PR %d: no merge commit", pr.Number)
+			}
+			console.Info("Cherry picking PR %d via commit %s", pr.Number, pr.MergeCommit)
+
+			if err := git.CherryPick(pr.MergeCommit); err != nil {
+				return pr, fmt.Errorf("error cherry picking PR %d: %v", pr.Number, err)
+			}
 		}
 	}
 
@@ -82,7 +96,7 @@ func CreateGbPR(build Build) (gh.PullRequest, error) {
 	}
 
 	if err := npm.Install(); err != nil {
-		return pr, fmt.Errorf("error running npm ci: %v", err)
+		return pr, fmt.Errorf("error running npm install: %v", err)
 	}
 
 	console.Info("Running preios script")
@@ -146,7 +160,7 @@ func CreateGbPR(build Build) (gh.PullRequest, error) {
 		return pr, fmt.Errorf("pr was not created successfully")
 	}
 
-	if build.Tag {
+	if build.UseTag {
 		console.Info("Adding release tag")
 		if err := git.PushTag("rnmobile/" + version); err != nil {
 			console.Warn("Error tagging the release: %v", err)
