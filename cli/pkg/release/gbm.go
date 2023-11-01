@@ -221,20 +221,17 @@ func getChangeLog(dir string, gbmPr *gh.PullRequest) ([]byte, error) {
 	cl := []byte{}
 
 	if dir == "" {
-		console.Warn("not implemented")
-		return cl, nil
+		gbPr, _ := FindGbReleasePr(gbmPr.ReleaseVersion)
 
-		// TODO: find the best way to get the gbPr
+		org := repo.GetOrg("gutenberg")
+		endpoint := fmt.Sprintf("https://raw.githubusercontent.com/%s/gutenberg/%s/packages/react-native-editor/CHANGELOG.md", org, gbPr.Head.Sha)
 
-		// org, _ := repo.GetOrg("gutenberg")
-		// endpoint := fmt.Sprintf("https://raw.githubusercontent.com/%s/gutenberg/%s/packages/react-native-editor/CHANGELOG.md", org, gbPr.Head.Sha)
-
-		// if resp, err := http.Get(endpoint); err != nil {
-		// 	fmt.Errorf("unable to get the changelog (err %s)", err)
-		// } else {
-		// 	defer resp.Body.Close()
-		// 	buff = resp.Body
-		// }
+		if resp, err := http.Get(endpoint); err != nil {
+			return cl, fmt.Errorf("unable to get the changelog (err %s)", err)
+		} else {
+			defer resp.Body.Close()
+			buff = resp.Body
+		}
 
 	} else {
 		// Read in the change log
