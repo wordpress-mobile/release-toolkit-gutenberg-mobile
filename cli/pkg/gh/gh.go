@@ -112,6 +112,31 @@ type Commit struct {
 	}
 }
 
+type Ref struct {
+	Ref    string
+	Object struct {
+		Sha string
+		Url string
+	}
+}
+
+type Tag struct {
+	Sha string
+
+	// annotated tags have a tagger
+	Tagger struct {
+		Date string
+	}
+	// lightweight tags have an author
+	Author struct {
+		Date string
+	}
+
+	// Lifting the date up which is not part of the api
+	// but is why we can handle both annotated and lightweight tags the same way
+	Date string
+}
+
 // Build a RepoFilter from a repo name and a list of queries.
 func BuildRepoFilter(rpo string, queries ...string) RepoFilter {
 	org := repo.GetOrg(rpo)
@@ -283,6 +308,34 @@ func CreatePr(rpo string, pr *PullRequest) error {
 		}
 	}
 	return nil
+}
+
+func GetTag(rpo, tag string) (Tag, error) {
+	t := Tag{}
+
+	// First we have to get the Ref for the tag
+	org := repo.GetOrg(rpo)
+	client := getClient()
+	endpoint := fmt.Sprintf("repos/%s/%s/git/refs/tags/%s", org, rpo, tag)
+	r := Ref{}
+	if err := client.Get(endpoint, &r); err != nil {
+		return t, err
+	}
+
+	// Then get the tag object
+	if err := client.Get(r.Object.Url, &t); err != nil {
+		return t, err
+	}
+
+	// Lift the date up from either the tagger (annotated) or the author (lightweight)
+	if t.Tagger.Date != "" {
+		t.Date = t.Tagger.Date
+	}
+
+	if t.Author.Date != "" {
+		t.Date = t.Author.Date
+	}
+	return t, nil
 }
 
 // Adds labels to a PR

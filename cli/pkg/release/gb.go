@@ -17,6 +17,8 @@ func CreateGbPR(build Build) (gh.PullRequest, error) {
 	version := build.Version.String()
 	dir := build.Dir
 
+	isPatch := build.Version.IsPatchRelease()
+
 	shellProps := shell.CmdProps{Dir: dir, Verbose: true}
 	git := shell.NewGitCmd(shellProps)
 	npm := shell.NewNpmCmd(shellProps)
@@ -40,7 +42,7 @@ func CreateGbPR(build Build) (gh.PullRequest, error) {
 		console.Info("Cloning Gutenberg to %s", dir)
 
 		// Let's clone into the current directory so that the git client can find the .git directory
-		err := git.Clone(repo.GetRepoPath("gutenberg"), "--branch", build.Base.Ref, ".")
+		err := git.Clone(repo.GetRepoPath("gutenberg"), "--branch", build.Base.Ref, "--depth=1", ".")
 		if err != nil {
 			return pr, fmt.Errorf("error cloning the Gutenberg repository: %v", err)
 		}
@@ -50,11 +52,15 @@ func CreateGbPR(build Build) (gh.PullRequest, error) {
 		if err != nil {
 			return pr, fmt.Errorf("error checking out the branch: %v", err)
 		}
-
 	}
 
-	if build.Prs != nil {
+	if isPatch {
 		console.Info("Cherry picking PRs")
+		err := git.Fetch("trunk", build.Depth)
+		if err != nil {
+			return pr, fmt.Errorf("error fetching the Gutenberg repository: %v", err)
+		}
+
 		for _, pr := range build.Prs {
 			if pr.MergeCommit == "" {
 				return pr, fmt.Errorf("error cherry picking PR %d: no merge commit", pr.Number)
@@ -139,7 +145,7 @@ func CreateGbPR(build Build) (gh.PullRequest, error) {
 		},
 	}
 
-	gh.PreviewPr("gutenberg", dir, pr)
+	previewPr("gutenberg", dir, build.Base.Ref, pr)
 
 	prompt := fmt.Sprintf("\nReady to create the PR on %s/gutenberg?", org)
 	cont := console.Confirm(prompt)

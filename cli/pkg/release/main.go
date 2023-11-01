@@ -11,6 +11,7 @@ type Build struct {
 	UseTag  bool
 	Prs     []gh.PullRequest
 	Base    gh.Repo
+	Depth   string
 }
 
 type ReleaseChanges struct {
