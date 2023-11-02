@@ -219,7 +219,10 @@ func openInEditor(dir string, files []string) error {
 	}
 
 	if editor == "" {
-		console.Warn("No editor set. Manually edit the files before continuing")
+		console.Warn("No editor set. Manually edit or verify the following files before continuing:")
+		for _, f := range files {
+			console.Print(console.Row, f)
+		}
 		return nil
 	}
 	if open := console.Confirm(fmt.Sprintf("\nOpen '%s' with `%s`?", fileArgs, editor)); !open {
