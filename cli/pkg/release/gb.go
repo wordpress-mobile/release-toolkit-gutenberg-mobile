@@ -27,28 +27,32 @@ func CreateGbPR(version, dir string, noTag bool) (gh.PullRequest, error) {
 	if (exists != gh.Branch{}) {
 		console.Warn("Branch %s already exists", branch)
 
-		cont := console.Confirm("Do you wish to continue?")
+		cont := console.Confirm("Do you wish to continue? (The remote branch will be deleted.)")
 
 		if !cont {
 			console.Info("Bye 👋")
 			return pr, fmt.Errorf("exiting before creating PR")
 		}
-		return pr, fmt.Errorf("existing branch not implemented yet")
-	} else {
-		console.Info("Cloning Gutenberg to %s", dir)
 
-		// Let's clone into the current directory so that the git client can find the .git directory
-		err := git.Clone(repo.GetRepoPath("gutenberg"), "--depth=1", ".")
-
-		if err != nil {
-			return pr, fmt.Errorf("error cloning the Gutenberg repository: %v", err)
+		// Delete the branch on the GitHub repo
+		if err := gh.DeleteBranch("gutenberg", branch); err != nil {
+			return pr, fmt.Errorf("error deleting the branch: %v", err)
 		}
+	}
 
-		console.Info("Checking out branch %s", branch)
-		err = git.Switch("-c", branch)
-		if err != nil {
-			return pr, fmt.Errorf("error checking out the branch: %v", err)
-		}
+	console.Info("Cloning Gutenberg to %s", dir)
+
+	// Let's clone into the current directory so that the git client can find the .git directory
+	err := git.Clone(repo.GetRepoPath("gutenberg"), "--depth=1", ".")
+
+	if err != nil {
+		return pr, fmt.Errorf("error cloning the Gutenberg repository: %v", err)
+	}
+
+	console.Info("Checking out branch %s", branch)
+	err = git.Switch("-c", branch)
+	if err != nil {
+		return pr, fmt.Errorf("error checking out the branch: %v", err)
 	}
 
 	console.Info("Updating package versions")
