@@ -140,6 +140,17 @@ func SearchBranch(rpo, branch string) (Branch, error) {
 	return response, nil
 }
 
+func DeleteBranch(rpo, branch string) error {
+	org := repo.GetOrg(rpo)
+	if org == "" {
+		return fmt.Errorf("unable to get org for %s", rpo)
+	}
+	response := Branch{}
+	client := getClient()
+	endpoint := fmt.Sprintf("repos/%s/%s/git/refs/heads/%s", org, rpo, branch)
+	return client.Delete(endpoint, &response)
+}
+
 // SearchPrs returns a list of PRs for the given repo and filter.
 func SearchPrs(filter RepoFilter) (SearchResult, error) {
 	client := getClient()
