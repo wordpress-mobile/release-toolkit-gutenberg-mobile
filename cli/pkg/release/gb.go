@@ -70,8 +70,12 @@ func CreateGbPR(build Build) (gh.PullRequest, error) {
 			if err := git.CherryPick(pr.MergeCommit); err != nil {
 
 				console.Print(console.Highlight, "\nThere was an issue cherry picking PR #%d", pr.Number)
-				console.Print(console.HeadingRow, "\nThe conflict can be resolved by inspecting the following files:")
 				conflicts, err := git.StatConflicts()
+				if len(conflicts) == 0 {
+					return pr, fmt.Errorf("error cherry picking PR %d: %v", pr.Number, err)
+				}
+				console.Print(console.HeadingRow, "\nThe conflict can be resolved by inspecting the following files:")
+
 				if err != nil {
 					return pr, fmt.Errorf("error getting the list of conflicting files: %v", err)
 				}
