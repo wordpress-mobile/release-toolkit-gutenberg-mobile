@@ -166,7 +166,7 @@ func renderGbmPrBody(dir string, version string, pr *gh.PullRequest) error {
 	if err != nil {
 		console.Warn(err.Error())
 	}
-	rn, err := getReleaseNotes("", pr)
+	rn, err := getReleaseNotes(dir, pr)
 	if err != nil {
 		console.Warn(err.Error())
 	}
