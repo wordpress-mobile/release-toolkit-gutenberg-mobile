@@ -70,6 +70,7 @@ func CreateGbmPR(version, dir string) (gh.PullRequest, error) {
 	if err := utils.SetupNode(dir); err != nil {
 		return pr, fmt.Errorf("error setting up Node environment: %v", err)
 	}
+
 	// Run npm ci and npm run bundle
 	if err := npm.Ci(); err != nil {
 		return pr, fmt.Errorf("error running npm ci: %v", err)
@@ -122,7 +123,7 @@ func CreateGbmPR(version, dir string) (gh.PullRequest, error) {
 	pr.Base.Ref = "trunk"
 	pr.Head.Ref = branch
 
-	if err := renderGbmPrBody(version, &pr); err != nil {
+	if err := renderGbmPrBody(dir, version, &pr); err != nil {
 		console.Info("Unable to render the GB PR body (err %s)", err)
 	}
 
@@ -160,9 +161,8 @@ func CreateGbmPR(version, dir string) (gh.PullRequest, error) {
 	return pr, nil
 }
 
-func renderGbmPrBody(version string, pr *gh.PullRequest) error {
-	// TODO - replace "" with dir variable
-	cl, err := getChangeLog("", pr)
+func renderGbmPrBody(dir string, version string, pr *gh.PullRequest) error {
+	cl, err := getChangeLog(dir, pr)
 	if err != nil {
 		console.Warn(err.Error())
 	}
