@@ -37,7 +37,7 @@
 <h3>Create the Release{{ if .Scheduled }} (Thursday) {{end}}</h3>
 <!-- /wp:heading -->
 
-{{ Task `Clone the <a href="https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile">CLI</a> or pull the latest version if you have already cloned it.` }}
+{{ Task `Pull the latest version of the <a href="https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/releases">CLI</a>.` }}
 
 {{ Task `Review the <a href="https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/blob/develop/cli/Releasing.md">release script instructions</a>.
 In your clone of the release scripts <code>cli</code> directory, run the prepare command:  <code>go run main.go release prepare all %s</code>. This creates the gutenberg and gutenberg-mobile release PRs.` }}
