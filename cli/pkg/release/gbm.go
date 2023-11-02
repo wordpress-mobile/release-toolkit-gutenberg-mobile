@@ -37,19 +37,30 @@ func CreateGbmPR(version, dir string) (gh.PullRequest, error) {
 
 	if (exists != gh.Branch{}) {
 		console.Info("Branch %s already exists", branch)
-		return pr, nil
-	} else {
-		console.Info("Cloning Gutenberg Mobile to %s", dir)
-		err := git.Clone(repo.GetRepoPath("gutenberg-mobile"), "--depth=1", "--recursive", ".")
-		if err != nil {
-			return pr, fmt.Errorf("error cloning the Gutenberg Mobile repository: %v", err)
+		
+		cont := console.Confirm("Do you wish to continue? (The remote branch will be deleted.)")
+
+		if !cont {
+			console.Info("Bye 👋")
+			return pr, fmt.Errorf("exiting before creating PR")
 		}
 
-		console.Info("Checking out branch %s", branch)
-		err = git.Switch("-c", branch)
-		if err != nil {
-			return pr, fmt.Errorf("error checking out the branch: %v", err)
+		// Delete the branch on the GitHub repo
+		if err := gh.DeleteBranch("gutenberg-mobile", branch); err != nil {
+			return pr, fmt.Errorf("error deleting the branch: %v", err)
 		}
+	}
+
+	console.Info("Cloning Gutenberg Mobile to %s", dir)
+	err := git.Clone(repo.GetRepoPath("gutenberg-mobile"), "--depth=1", "--recursive", ".")
+	if err != nil {
+		return pr, fmt.Errorf("error cloning the Gutenberg Mobile repository: %v", err)
+	}
+
+	console.Info("Checking out branch %s", branch)
+	err = git.Switch("-c", branch)
+	if err != nil {
+		return pr, fmt.Errorf("error checking out the branch: %v", err)
 	}
 
 	// Update the Gutenberg submodule
