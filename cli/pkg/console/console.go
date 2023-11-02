@@ -17,6 +17,7 @@ var (
 	Heading    *color.Color
 	HeadingRow *color.Color
 	Row        *color.Color
+	Highlight  *color.Color
 )
 
 func init() {
@@ -24,6 +25,7 @@ func init() {
 	Heading = color.New(color.FgWhite, color.Bold)
 	HeadingRow = color.New(color.FgGreen, color.Bold)
 	Row = color.New(color.FgGreen)
+	Highlight = color.New(color.FgHiWhite)
 }
 
 // Deprecated
@@ -123,4 +125,17 @@ func Confirm(ask string) bool {
 			return false
 		}
 	}
+}
+
+func Ask(ask string) string {
+	reader := bufio.NewReader(os.Stdin)
+
+	l.Printf("%s: ", ask)
+
+	response, err := reader.ReadString('\n')
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return strings.TrimSpace(response)
 }

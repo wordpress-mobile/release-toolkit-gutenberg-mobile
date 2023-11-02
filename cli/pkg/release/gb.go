@@ -68,7 +68,31 @@ func CreateGbPR(build Build) (gh.PullRequest, error) {
 			console.Info("Cherry picking PR %d via commit %s", pr.Number, pr.MergeCommit)
 
 			if err := git.CherryPick(pr.MergeCommit); err != nil {
-				return pr, fmt.Errorf("error cherry picking PR %d: %v", pr.Number, err)
+
+				console.Print(console.Highlight, "\nThere was an issue cherry picking PR #%d", pr.Number)
+				console.Print(console.HeadingRow, "\nThe conflict can be resolved by inspecting the following files:")
+				conflicts, err := git.StatConflicts()
+				if err != nil {
+					return pr, fmt.Errorf("error getting the list of conflicting files: %v", err)
+				}
+				for _, file := range conflicts {
+					console.Print(console.Row, "• "+filepath.Join(dir, file))
+				}
+
+				if err := openInEditor(dir, conflicts); err != nil {
+					console.Warn("There was an issue opening the conflicting files in your editor: %v", err)
+				}
+
+				fixed := console.Confirm("Continue after resolving the conflict?")
+
+				if fixed {
+					err := git.CherryPick("--continue")
+					if err != nil {
+						return pr, fmt.Errorf("error continuing the cherry pick: %v", err)
+					}
+				} else {
+					return pr, fmt.Errorf("error cherry picking PR %d: %v", pr.Number, err)
+				}
 			}
 		}
 	}
@@ -86,11 +110,32 @@ func CreateGbPR(build Build) (gh.PullRequest, error) {
 		return pr, err
 	}
 
+	// Update the CHANGELOG
 	console.Info("Update the CHANGELOG in the react-native-editor package")
 	chnPath := filepath.Join(dir, "packages", "react-native-editor", "CHANGELOG.md")
 	if err := UpdateChangeLog(version, chnPath); err != nil {
 		return pr, fmt.Errorf("error updating the CHANGELOG: %v", err)
 	}
+
+	// If this is a patch release we should prompt for the wrangler to manually update the change log
+	if isPatch {
+
+		console.Print(console.Highlight, "\nSince this is a patch release manually update the CHANGELOG")
+		var prNumbers string
+		for _, pr := range build.Prs {
+			prNumbers += fmt.Sprintf("#%d ", pr.Number)
+		}
+		console.Print(console.Highlight, "Note: We just cherry picked these PRs: %s", prNumbers)
+
+		if err := openInEditor(dir, []string{filepath.Join("packages", "react-native-editor", "CHANGELOG.md")}); err != nil {
+			console.Warn("There was an issue opening the CHANGELOG in your editor: %v", err)
+		}
+
+		if cont := console.Confirm("Do you wish to continue after updating the CHANGELOG?"); !cont {
+			return pr, fmt.Errorf("exiting before creating PR, Stopping at CHANGELOG update")
+		}
+	}
+
 	if err := git.CommitAll("Release script: Update CHANGELOG for version %s", version); err != nil {
 		return pr, fmt.Errorf("error committing the CHANGELOG updates: %v", err)
 	}

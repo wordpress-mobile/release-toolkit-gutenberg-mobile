@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -205,4 +207,33 @@ func previewPr(rpo, dir, branchFrom string, pr gh.PullRequest) {
 	git := shell.NewGitCmd(shell.CmdProps{Dir: dir, Verbose: true})
 
 	git.Log(branchFrom+"...HEAD", "--oneline", "--no-merges", "-10")
+}
+
+func openInEditor(dir string, files []string) error {
+	editor := os.Getenv("EDITOR")
+
+	fileArgs := strings.Join(files, " ")
+
+	if editor == "" {
+		editor = console.Ask("\nNo $EDITOR set. Enter the command to open your editor:")
+	}
+
+	if editor == "" {
+		console.Warn("No editor set. Manually edit the files before continuing")
+		return nil
+	}
+	if open := console.Confirm(fmt.Sprintf("\nOpen '%s' with `%s`?", fileArgs, editor)); !open {
+		console.Warn("Canceled opening the files in the editor. Manually edit the files before continuing")
+		return nil
+	}
+
+	for i, f := range files {
+		files[i] = filepath.Join(dir, f)
+	}
+	cmd := exec.Command(editor, files...)
+	console.Debug(cmd.String())
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
 }
