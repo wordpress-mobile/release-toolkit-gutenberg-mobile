@@ -39,8 +39,7 @@
 
 {{ Task `Pull the latest version of the <a href="https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/releases">CLI</a>.` }}
 
-{{ Task `Review the <a href="https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/blob/develop/cli/Releasing.md">release script instructions</a>.
-In your clone of the release scripts <code>cli</code> directory, run the prepare command:  <code>go run main.go release prepare all %s</code>. This creates the gutenberg and gutenberg-mobile release PRs.` }}
+{{ Task `In your clone of the <code>cli</code> directory, run the prepare command: <code>go run main.go release prepare all %s</code> to create the gutenberg and gutenberg-mobile release PRs.` }}
 
 {{ Task `Once the CI tasks succeed, run the integrate command to create the main apps PRs for WordPress-iOS and WordPress-Android: <code>go run main.go release integrate %s</code> `}}
 
