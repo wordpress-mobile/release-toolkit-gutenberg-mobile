@@ -63,7 +63,7 @@ func init() {
 	PrepareCmd.AddCommand(gbmCmd)
 	PrepareCmd.AddCommand(gbCmd)
 	PrepareCmd.AddCommand(allCmd)
-	PrepareCmd.PersistentFlags().BoolVar(&keepTempDir, "k", false, "Keep temporary directory after running command")
+	PrepareCmd.PersistentFlags().BoolVar(&keepTempDir, "keep", false, "Keep temporary directory after running command")
 	PrepareCmd.PersistentFlags().BoolVar(&noTag, "no-tag", false, "Prevent tagging the release")
 	PrepareCmd.PersistentFlags().StringSliceVar(&prs, "prs", []string{}, "prs to include in the release. Only used with patch releases")
 }
