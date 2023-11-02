@@ -87,7 +87,6 @@ At the same time there could also be a regular release going on for example for 
 
 ### Automation script differences
 
-1. Before running the script switch to the relevant branch to cut from in gutenberg-mobile repo.
 1. Run the CLI tool as normal
 1. When asked by the script enter the relevant branch names to cut from (to target) in other repos.
 1. If a commit that is fixing the issue is already merged to gutenberg, when asked by the script enter the commit hash to be cherry-picked.
