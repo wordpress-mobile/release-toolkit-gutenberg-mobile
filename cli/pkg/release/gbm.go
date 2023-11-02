@@ -70,6 +70,7 @@ func CreateGbmPR(version, dir string) (gh.PullRequest, error) {
 	if err := utils.SetupNode(dir); err != nil {
 		return pr, fmt.Errorf("error setting up Node environment: %v", err)
 	}
+
 	// Run npm ci and npm run bundle
 	if err := npm.Ci(); err != nil {
 		return pr, fmt.Errorf("error running npm ci: %v", err)
@@ -122,7 +123,7 @@ func CreateGbmPR(version, dir string) (gh.PullRequest, error) {
 	pr.Base.Ref = "trunk"
 	pr.Head.Ref = branch
 
-	if err := renderGbmPrBody(version, &pr); err != nil {
+	if err := renderGbmPrBody(dir, version, &pr); err != nil {
 		console.Info("Unable to render the GB PR body (err %s)", err)
 	}
 
@@ -160,13 +161,12 @@ func CreateGbmPR(version, dir string) (gh.PullRequest, error) {
 	return pr, nil
 }
 
-func renderGbmPrBody(version string, pr *gh.PullRequest) error {
-	// TODO - replace "" with dir variable
-	cl, err := getChangeLog("", pr)
+func renderGbmPrBody(dir string, version string, pr *gh.PullRequest) error {
+	cl, err := getChangeLog(dir, pr)
 	if err != nil {
 		console.Warn(err.Error())
 	}
-	rn, err := getReleaseNotes("", pr)
+	rn, err := getReleaseNotes(dir, pr)
 	if err != nil {
 		console.Warn(err.Error())
 	}
@@ -221,20 +221,17 @@ func getChangeLog(dir string, gbmPr *gh.PullRequest) ([]byte, error) {
 	cl := []byte{}
 
 	if dir == "" {
-		console.Warn("not implemented")
-		return cl, nil
+		gbPr, _ := FindGbReleasePr(gbmPr.ReleaseVersion)
 
-		// TODO: find the best way to get the gbPr
+		org := repo.GetOrg("gutenberg")
+		endpoint := fmt.Sprintf("https://raw.githubusercontent.com/%s/gutenberg/%s/packages/react-native-editor/CHANGELOG.md", org, gbPr.Head.Sha)
 
-		// org, _ := repo.GetOrg("gutenberg")
-		// endpoint := fmt.Sprintf("https://raw.githubusercontent.com/%s/gutenberg/%s/packages/react-native-editor/CHANGELOG.md", org, gbPr.Head.Sha)
-
-		// if resp, err := http.Get(endpoint); err != nil {
-		// 	fmt.Errorf("unable to get the changelog (err %s)", err)
-		// } else {
-		// 	defer resp.Body.Close()
-		// 	buff = resp.Body
-		// }
+		if resp, err := http.Get(endpoint); err != nil {
+			return cl, fmt.Errorf("unable to get the changelog (err %s)", err)
+		} else {
+			defer resp.Body.Close()
+			buff = resp.Body
+		}
 
 	} else {
 		// Read in the change log
