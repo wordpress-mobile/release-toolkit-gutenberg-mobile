@@ -231,7 +231,6 @@ func openInEditor(dir string, files []string) error {
 		files[i] = filepath.Join(dir, f)
 	}
 	cmd := exec.Command(editor, files...)
-	console.Debug(cmd.String())
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
