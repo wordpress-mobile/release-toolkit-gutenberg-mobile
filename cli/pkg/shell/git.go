@@ -110,8 +110,17 @@ func (c *client) CherryPick(commitOrContinue string) error {
 	if commitOrContinue == "--continue" {
 		c.cmd("add", "--all")
 	}
+
 	pick := append([]string{"cherry-pick"}, commitOrContinue)
-	return c.cmd(pick...)
+	if err := c.cmd(pick...); err != nil {
+		// let's try fetching the commit and cherry-picking again
+
+		if err := c.cmd("fetch", "origin", commitOrContinue); err != nil {
+			return err
+		}
+		return c.cmd(pick...)
+	}
+	return nil
 }
 
 func (c *client) StatConflicts() ([]string, error) {
