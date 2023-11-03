@@ -23,6 +23,13 @@ var gbmCmd = &cobra.Command{
 			Base: gh.Repo{
 				Ref: "trunk",
 			},
+			Repo: "gutenberg-mobile",
+		}
+
+		if version.IsPatchRelease() {
+			console.Info("Preparing a patch release")
+			tagName := version.PriorVersion().Vstring()
+			setupPatchBuild(tagName, &build)
 		}
 
 		pr, err := release.CreateGbmPR(build)

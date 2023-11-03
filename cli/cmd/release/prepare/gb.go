@@ -19,6 +19,7 @@ var gbCmd = &cobra.Command{
 			Dir:     tempDir,
 			Version: version,
 			UseTag:  !noTag,
+			Repo:    "gutenberg",
 			Base: gh.Repo{
 				Ref: "trunk",
 			},

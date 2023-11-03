@@ -9,6 +9,7 @@ type Build struct {
 	Version semver.SemVer
 	Dir     string
 	UseTag  bool
+	Repo    string
 	Prs     []gh.PullRequest
 	Base    gh.Repo
 	Depth   string
