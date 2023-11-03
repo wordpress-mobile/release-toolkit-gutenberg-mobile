@@ -3,6 +3,7 @@ package prepare
 import (
 	"github.com/spf13/cobra"
 	"github.com/wordpress-mobile/gbm-cli/pkg/console"
+	"github.com/wordpress-mobile/gbm-cli/pkg/gh"
 	"github.com/wordpress-mobile/gbm-cli/pkg/release"
 )
 
@@ -19,6 +20,9 @@ var gbmCmd = &cobra.Command{
 		build := release.Build{
 			Dir:     tempDir,
 			Version: version,
+			Base: gh.Repo{
+				Ref: "trunk",
+			},
 		}
 
 		pr, err := release.CreateGbmPR(build)
