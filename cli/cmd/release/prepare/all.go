@@ -36,6 +36,9 @@ var allCmd = &cobra.Command{
 			Dir:     gbDir,
 			Version: version,
 			UseTag:  !noTag,
+			Base: gh.Repo{
+				Ref: "trunk",
+			},
 		}
 
 		gbPr, err = release.CreateGbPR(build)
