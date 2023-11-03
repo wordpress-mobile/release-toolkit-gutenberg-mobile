@@ -195,7 +195,7 @@ func (ri *ReleaseIntegration) createPR(dir string, gbmPr gh.PullRequest) (gh.Pul
 	}}
 
 	rpo := ri.Target.GetRepo()
-	gh.PreviewPr(rpo, dir, pr)
+	gh.PreviewPr(rpo, dir, ri.BaseBranch, pr)
 
 	if err := gh.CreatePr(rpo, &pr); err != nil {
 		return pr, err

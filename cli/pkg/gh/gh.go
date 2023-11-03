@@ -432,7 +432,7 @@ func labelRequest(rpo string, prNum int, labels []string) ([]Label, error) {
 	return resp, nil
 }
 
-func PreviewPr(rpo, dir string, pr PullRequest) {
+func PreviewPr(rpo, dir, branchFrom string, pr PullRequest) {
 	org := repo.GetOrg(rpo)
 	row := console.Row
 
@@ -441,11 +441,13 @@ func PreviewPr(rpo, dir string, pr PullRequest) {
 	white := color.New(color.FgWhite).SprintFunc()
 
 	console.Print(row, "Repo: %s/%s", white(org), white(rpo))
+	console.Print(row, "Base: %s", white(pr.Base.Ref))
+	console.Print(row, "Head: %s", white(pr.Head.Ref))
 	console.Print(row, "Title: %s", white(pr.Title))
 	console.Print(row, "Body:\n%s", white(pr.Body))
 	console.Print(row, "Commits:")
 
 	git := shell.NewGitCmd(shell.CmdProps{Dir: dir, Verbose: true})
 
-	git.Log(pr.Base.Ref+"...HEAD", "--oneline", "--no-merges", "-10")
+	git.Log(branchFrom+"...HEAD", "--oneline", "--no-merges", "-10")
 }
