@@ -15,6 +15,8 @@ The current features include:
 For detailed instructions on running a release, visit [Releasing.md](https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/blob/cli/update-checklist/cli/Releasing.md).
 
 ## Testing
+For detailed instructions on testing and configuring your development environment, visit [Testing.md](https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/blob/cli/update-checklist/cli/Testing.md).
+
 
 
 ## Structure
