@@ -1,14 +1,20 @@
 # GBM CLI
 
 ## Overview
-The GBM cli tool helps developmental tasks for managing Gutenberg Mobile releases.
+The GBM CLI tool helps developmental tasks for managing Gutenberg Mobile releases.
 
 The current features include:
 - Command to generate the release checklist
 - Commands to wrangle Gutenberg Mobile releases
 
-## Prerequisites
-Download and install the [Go package](https://go.dev/doc/install). 
+## Development Environment
+1. Download and install the [Go package](https://go.dev/doc/install). 
+2. While not required, it is higly recommended to develop with [VSCode](https://code.visualstudio.com/) and install the [Go VSCode](https://marketplace.visualstudio.com/items?itemName=golang.go) extension.
+
+## Releasing
+For detailed instructions on running a release, visit [Releasing.md](https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/blob/cli/update-checklist/cli/Releasing.md).
+
+## Testing
 
 
 ## Structure
