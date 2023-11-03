@@ -42,15 +42,15 @@ func CreateGbmPR(build Build) (gh.PullRequest, error) {
 		return pr, nil
 	} else {
 		console.Info("Cloning Gutenberg Mobile to %s", dir)
-		err := git.Clone(repo.GetRepoPath("gutenberg-mobile"), "--depth=1", "--recursive", ".")
+		err := git.Clone(repo.GetRepoPath("gutenberg-mobile"), "--branch", build.Base.Ref, "--depth=1", "--recursive", ".")
 		if err != nil {
 			return pr, fmt.Errorf("error cloning the Gutenberg Mobile repository: %v", err)
 		}
 
-		console.Info("Checking out branch %s", branch)
+		console.Info("Setting up the branch %s", branch)
 		err = git.Switch("-c", branch)
 		if err != nil {
-			return pr, fmt.Errorf("error checking out the branch: %v", err)
+			return pr, fmt.Errorf("error switching to the branch: %v", err)
 		}
 	}
 
@@ -92,14 +92,9 @@ func CreateGbmPR(build Build) (gh.PullRequest, error) {
 		return pr, fmt.Errorf("error running npm run bundle: %v", err)
 	}
 
-	// Commit the updated Gutenberg submodule ref
-	if git.IsPorcelain() {
-		console.Info("Nothing to commit after bundling")
-	} else {
-		// Commit the updated bundle output
-		if err := git.CommitAll("Release script: Update bundle for %s", version); err != nil {
-			return pr, fmt.Errorf("error committing the bundle update: %v", err)
-		}
+	// Commit the updated strings
+	if err := git.CommitAll("Release script: Update i18n files for %s", version); err != nil {
+		return pr, fmt.Errorf("error committing the bundle update: %v", err)
 	}
 
 	if err := updateXcFramework(version, dir, git); err != nil {
@@ -111,6 +106,18 @@ func CreateGbmPR(build Build) (gh.PullRequest, error) {
 	chnPath := filepath.Join(dir, "RELEASE-NOTES.txt")
 	if err := UpdateReleaseNotes(version, chnPath); err != nil {
 		return pr, fmt.Errorf("error updating the release notes: %v", err)
+	}
+	// If this is a patch release we should prompt for the wrangler to manually update the release notes
+	if build.Version.IsPatchRelease() {
+		console.Print(console.Highlight, "\nSince this is a patch release manually update the release notes")
+
+		if err := openInEditor(dir, []string{"RELEASE-NOTES.txt"}); err != nil {
+			console.Warn("There was an issue opening RELEASE-NOTES.txt in your editor: %v", err)
+		}
+
+		if cont := console.Confirm("Do you wish to continue after updating RELEASE-NOTES.txt?"); !cont {
+			return pr, fmt.Errorf("exiting before creating PR, Stopping at RELEASE-NOTES.txt update")
+		}
 	}
 
 	if err := git.CommitAll("Release script: Update release notes for version %s", version); err != nil {
@@ -135,7 +142,7 @@ func CreateGbmPR(build Build) (gh.PullRequest, error) {
 	}}
 
 	// Display PR preview
-	gh.PreviewPr("gutenberg-mobile", dir, pr)
+	previewPr("gutenberg-mobile", dir, build.Base.Ref, pr)
 
 	// Add prompt to confirm PR creation
 	prompt := fmt.Sprintf("\nReady to create the PR on %s/gutenberg-mobile?", org)
