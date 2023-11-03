@@ -10,11 +10,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/fatih/color"
 	"github.com/wordpress-mobile/gbm-cli/pkg/console"
 	"github.com/wordpress-mobile/gbm-cli/pkg/gh"
-	"github.com/wordpress-mobile/gbm-cli/pkg/repo"
-	"github.com/wordpress-mobile/gbm-cli/pkg/shell"
 )
 
 func CollectReleaseChanges(version string, changelog, relnotes []byte) ([]ReleaseChanges, error) {
@@ -189,24 +186,6 @@ func readWriteNotes(version, path string, updater func(string, []byte) []byte) e
 		return err
 	}
 	return nil
-}
-
-func previewPr(rpo, dir, branchFrom string, pr gh.PullRequest) {
-	org := repo.GetOrg(rpo)
-	row := console.Row
-
-	console.Print(console.Heading, "\nPr Preview")
-
-	white := color.New(color.FgWhite).SprintFunc()
-
-	console.Print(row, "Repo: %s/%s", white(org), white(rpo))
-	console.Print(row, "Title: %s", white(pr.Title))
-	console.Print(row, "Body:\n%s", white(pr.Body))
-	console.Print(row, "Commits:")
-
-	git := shell.NewGitCmd(shell.CmdProps{Dir: dir, Verbose: true})
-
-	git.Log(branchFrom+"...HEAD", "--oneline", "--no-merges", "-10")
 }
 
 func openInEditor(dir string, files []string) error {
