@@ -12,13 +12,16 @@ func SetupNode(dir string) error {
 
 	// Check for nvm
 	if os.Getenv("NVM_DIR") != "" {
-		console.Info("Setting up node via nvm in %s", dir)
-		cmd = exec.Command("bash", "-l", "-c", "$NVM_DIR/nvm.sh", "use")
+		cmd = exec.Command("bash", "-l", "-c", ". $NVM_DIR/nvm.sh && nvm use")
 		cmd.Path = "/bin/bash"
 	}
 
 	// @TODO check for asdf and set up the command accordingly
 
+	if cmd == nil {
+		console.Warn("No node version manager found. Using system node.")
+		return nil
+	}
 	cmd.Dir = dir
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
