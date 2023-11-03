@@ -68,20 +68,21 @@ func init() {
 	PrepareCmd.PersistentFlags().StringSliceVar(&prs, "prs", []string{}, "prs to include in the release. Only used with patch releases")
 }
 
-func setupPatchBuild(build *release.Build) {
+func setupPatchBuild(tagName string, build *release.Build) {
 
-	// Get the ref to the prior release
-	priorVersion := version.PriorVersion()
-
-	tag, err := gh.GetTag("gutenberg", "rnmobile/"+priorVersion.String())
+	tag, err := gh.GetTag(build.Repo, tagName)
 	exitIfError(err, 1)
 
-	build.Base = gh.Repo{Ref: "rnmobile/" + priorVersion.String()}
-	build.Prs = gh.GetPrs("gutenberg", prs)
-	build.Depth = "--shallow-since=" + tag.Date
+	build.Base = gh.Repo{Ref: tagName}
 
-	if len(build.Prs) == 0 {
-		exitIfError(errors.New("no PRs found for patch release"), 1)
-		return
+	// We don't usually pick prs from Gutenberg Mobile for patch releases
+	if len(prs) != 0 {
+		build.Prs = gh.GetPrs("gutenberg", prs)
+		build.Depth = "--shallow-since=" + tag.Date
+
+		if len(build.Prs) == 0 {
+			exitIfError(errors.New("no PRs found for patch release"), 1)
+			return
+		}
 	}
 }

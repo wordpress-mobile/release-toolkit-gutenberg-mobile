@@ -27,7 +27,8 @@ var gbCmd = &cobra.Command{
 
 		if version.IsPatchRelease() {
 			console.Info("Preparing a patch release")
-			setupPatchBuild(&build)
+			tagName := "rnmobile/" + version.PriorVersion().String()
+			setupPatchBuild(tagName, &build)
 		}
 
 		console.Info("Preparing Gutenberg for release %s", version)
