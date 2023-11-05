@@ -17,8 +17,10 @@ import (
 	"github.com/wordpress-mobile/gbm-cli/pkg/repo"
 )
 
-func CreateGbmPR(version, dir string) (gh.PullRequest, error) {
+func CreateGbmPR(build Build) (gh.PullRequest, error) {
 	var pr gh.PullRequest
+	version := build.Version.String()
+	dir := build.Dir
 
 	sp := shell.CmdProps{Dir: dir, Verbose: true}
 	git := shell.NewGitCmd(sp)

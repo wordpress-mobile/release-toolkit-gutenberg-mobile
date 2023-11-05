@@ -13,6 +13,7 @@ type CmdProps struct {
 type client struct {
 	cmd       func(...string) error
 	cmdInPath func(string, ...string) error
+	dir       string
 }
 
 func execute(cmd *exec.Cmd, dir string, verbose bool) error {
@@ -34,6 +35,7 @@ func NewNpmCmd(cp CmdProps) NpmCmds {
 			cmd := exec.Command("npm", cmds...)
 			return execute(cmd, path, cp.Verbose)
 		},
+		dir: cp.Dir,
 	}
 }
 
@@ -47,6 +49,7 @@ func NewGitCmd(cp CmdProps) GitCmds {
 			cmd := exec.Command("git", cmds...)
 			return execute(cmd, path, cp.Verbose)
 		},
+		dir: cp.Dir,
 	}
 }
 
@@ -60,6 +63,7 @@ func NewBundlerCmd(cp CmdProps) BundlerCmds {
 			cmd := exec.Command("bundle", cmds...)
 			return execute(cmd, path, cp.Verbose)
 		},
+		dir: cp.Dir,
 	}
 }
 
@@ -73,6 +77,7 @@ func NewRakeCmd(cp CmdProps) RakeCmds {
 			cmd := exec.Command("rake", cmds...)
 			return execute(cmd, path, cp.Verbose)
 		},
+		dir: cp.Dir,
 	}
 }
 

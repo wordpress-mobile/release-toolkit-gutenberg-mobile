@@ -24,7 +24,7 @@ func TestSemVer(t *testing.T) {
 	t.Run("It returns the prior version of patch release", func(t *testing.T) {
 		semver, err := NewSemVer("1.0.1")
 		assertNotError(t, err)
-		assertEqual(t, semver.PriorVersion(), "1.0.0")
+		assertEqual(t, semver.PriorVersion().String(), "1.0.0")
 	})
 
 	t.Run("It can determine a scheduled release", func(t *testing.T) {

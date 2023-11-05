@@ -1,7 +1,6 @@
 package console
 
 import (
-	"bufio"
 	"fmt"
 	"log"
 	"os"
@@ -17,6 +16,7 @@ var (
 	Heading    *color.Color
 	HeadingRow *color.Color
 	Row        *color.Color
+	Highlight  *color.Color
 )
 
 func init() {
@@ -24,6 +24,7 @@ func init() {
 	Heading = color.New(color.FgWhite, color.Bold)
 	HeadingRow = color.New(color.FgGreen, color.Bold)
 	Row = color.New(color.FgGreen)
+	Highlight = color.New(color.FgHiWhite)
 }
 
 // Deprecated
@@ -105,22 +106,30 @@ func Error(err error) {
 }
 
 func Confirm(ask string) bool {
-	reader := bufio.NewReader(os.Stdin)
+	var response string
+	fmt.Print(Highlight.Sprintf("%s [y/n]: ", ask))
 
-	for {
-		l.Printf("%s [y/n]: ", ask)
-
-		response, err := reader.ReadString('\n')
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		response = strings.ToLower(strings.TrimSpace(response))
-
-		if response == "y" || response == "yes" {
-			return true
-		} else if response == "n" || response == "no" {
-			return false
-		}
+	_, err := fmt.Scanln(&response)
+	if err != nil {
+		log.Fatal(err)
 	}
+
+	response = strings.ToLower(strings.TrimSpace(response))
+
+	if response == "y" || response == "yes" {
+		return true
+	}
+	return false
+}
+
+func Ask(ask string) string {
+	var response string
+	fmt.Print(Highlight.Sprintf("%s: ", ask))
+
+	_, err := fmt.Scanln(&response)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return strings.TrimSpace(response)
 }

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/cli/go-gh/v2/pkg/api"
@@ -55,6 +56,7 @@ type PullRequest struct {
 	Head               Repo
 	Base               Repo
 	RequestedReviewers []User `json:"requested_reviewers"`
+	MergeCommit        string `json:"merge_commit_sha"`
 
 	// This field is not part of the GH api but is useful
 	// to get the context of the PR when passing it around
@@ -100,6 +102,39 @@ type Release struct {
 	Prerelease  bool
 	Target      string `json:"target_commitish"`
 	PublishedAt string `json:"published_at"`
+}
+
+type Commit struct {
+	Sha    string
+	Url    string
+	Commit struct {
+		Message string
+	}
+}
+
+type Ref struct {
+	Ref    string
+	Object struct {
+		Sha string
+		Url string
+	}
+}
+
+type Tag struct {
+	Sha string
+
+	// annotated tags have a tagger
+	Tagger struct {
+		Date string
+	}
+	// lightweight tags have an author
+	Author struct {
+		Date string
+	}
+
+	// Lifting the date up which is not part of the api
+	// but is why we can handle both annotated and lightweight tags the same way
+	Date string
 }
 
 // Build a RepoFilter from a repo name and a list of queries.
@@ -216,6 +251,23 @@ func GetPr(rpo string, number int) (PullRequest, error) {
 	return pr, nil
 }
 
+func GetPrs(rpo string, numbers []string) (prs []PullRequest) {
+	for _, n := range numbers {
+		num, err := strconv.Atoi(n)
+		if err != nil {
+			console.Warn("Skipping PR %s, not a valid number", n)
+			continue
+		}
+
+		if pr, err := GetPr(rpo, num); err != nil {
+			console.Warn("Skipping PR %d, %s", num, err)
+		} else {
+			prs = append(prs, pr)
+		}
+	}
+	return prs
+}
+
 func CreatePr(rpo string, pr *PullRequest) error {
 	client := getClient()
 	org := repo.GetOrg(rpo)
@@ -256,6 +308,34 @@ func CreatePr(rpo string, pr *PullRequest) error {
 		}
 	}
 	return nil
+}
+
+func GetTag(rpo, tag string) (Tag, error) {
+	t := Tag{}
+
+	// First we have to get the Ref for the tag
+	org := repo.GetOrg(rpo)
+	client := getClient()
+	endpoint := fmt.Sprintf("repos/%s/%s/git/refs/tags/%s", org, rpo, tag)
+	r := Ref{}
+	if err := client.Get(endpoint, &r); err != nil {
+		return t, err
+	}
+
+	// Then get the tag object
+	if err := client.Get(r.Object.Url, &t); err != nil {
+		return t, err
+	}
+
+	// Lift the date up from either the tagger (annotated) or the author (lightweight)
+	if t.Tagger.Date != "" {
+		t.Date = t.Tagger.Date
+	}
+
+	if t.Author.Date != "" {
+		t.Date = t.Author.Date
+	}
+	return t, nil
 }
 
 // Adds labels to a PR
