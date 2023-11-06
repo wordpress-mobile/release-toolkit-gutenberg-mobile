@@ -3,8 +3,8 @@ package gbm
 import (
 	"strings"
 
-	"github.com/wordpress-mobile/gbm-cli/pkg/console"
-	"github.com/wordpress-mobile/gbm-cli/pkg/gh"
+	"github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/cli/pkg/console"
+	"github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/cli/pkg/gh"
 )
 
 func FindGbmSyncedPrs(gbmPr gh.PullRequest, filters []gh.RepoFilter) ([]gh.SearchResult, error) {

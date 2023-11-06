@@ -7,14 +7,14 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/wordpress-mobile/gbm-cli/pkg/console"
-	"github.com/wordpress-mobile/gbm-cli/pkg/gbm"
-	"github.com/wordpress-mobile/gbm-cli/pkg/gh"
-	"github.com/wordpress-mobile/gbm-cli/pkg/shell"
-	"github.com/wordpress-mobile/gbm-cli/pkg/utils"
+	"github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/cli/pkg/console"
+	"github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/cli/pkg/gbm"
+	"github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/cli/pkg/gh"
+	"github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/cli/pkg/shell"
+	"github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/cli/pkg/utils"
 
-	"github.com/wordpress-mobile/gbm-cli/pkg/render"
-	"github.com/wordpress-mobile/gbm-cli/pkg/repo"
+	"github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/cli/pkg/render"
+	"github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/cli/pkg/repo"
 )
 
 func CreateGbmPR(build Build) (gh.PullRequest, error) {

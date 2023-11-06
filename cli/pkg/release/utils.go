@@ -11,10 +11,10 @@ import (
 	"strings"
 
 	"github.com/fatih/color"
-	"github.com/wordpress-mobile/gbm-cli/pkg/console"
-	"github.com/wordpress-mobile/gbm-cli/pkg/gh"
-	"github.com/wordpress-mobile/gbm-cli/pkg/repo"
-	"github.com/wordpress-mobile/gbm-cli/pkg/shell"
+	"github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/cli/pkg/console"
+	"github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/cli/pkg/gh"
+	"github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/cli/pkg/repo"
+	"github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/cli/pkg/shell"
 )
 
 func CollectReleaseChanges(version string, changelog, relnotes []byte) ([]ReleaseChanges, error) {

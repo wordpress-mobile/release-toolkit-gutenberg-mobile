@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/wordpress-mobile/gbm-cli/pkg/console"
-	"github.com/wordpress-mobile/gbm-cli/pkg/semver"
+	"github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/cli/pkg/console"
+	"github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/cli/pkg/semver"
 )
 
 func GetVersionArg(args []string) (semver.SemVer, error) {

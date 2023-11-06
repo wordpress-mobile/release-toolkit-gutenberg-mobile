@@ -1,4 +1,4 @@
-module github.com/wordpress-mobile/gbm-cli
+module github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/cli
 
 go 1.21
 

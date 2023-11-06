@@ -1,8 +1,8 @@
 package release
 
 import (
-	"github.com/wordpress-mobile/gbm-cli/pkg/gh"
-	"github.com/wordpress-mobile/gbm-cli/pkg/semver"
+	"github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/cli/pkg/gh"
+	"github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/cli/pkg/semver"
 )
 
 type Build struct {

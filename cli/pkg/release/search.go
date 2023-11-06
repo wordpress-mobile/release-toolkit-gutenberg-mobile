@@ -3,8 +3,8 @@ package release
 import (
 	"fmt"
 
-	"github.com/wordpress-mobile/gbm-cli/pkg/gh"
-	"github.com/wordpress-mobile/gbm-cli/pkg/repo"
+	"github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/cli/pkg/gh"
+	"github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/cli/pkg/repo"
 )
 
 func FindGbReleasePr(version string) (gh.PullRequest, error) {

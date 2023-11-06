@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/wordpress-mobile/gbm-cli/cmd/utils"
+	"github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/cli/cmd/utils"
 )
 
 var writeToClipboard bool
