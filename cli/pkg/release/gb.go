@@ -12,8 +12,12 @@ import (
 	"github.com/wordpress-mobile/gbm-cli/pkg/utils"
 )
 
-func CreateGbPR(version, dir string, noTag bool) (gh.PullRequest, error) {
+func CreateGbPR(build Build) (gh.PullRequest, error) {
 	var pr gh.PullRequest
+	version := build.Version.String()
+	dir := build.Dir
+
+	isPatch := build.Version.IsPatchRelease()
 
 	shellProps := shell.CmdProps{Dir: dir, Verbose: true}
 	git := shell.NewGitCmd(shellProps)
@@ -38,8 +42,7 @@ func CreateGbPR(version, dir string, noTag bool) (gh.PullRequest, error) {
 		console.Info("Cloning Gutenberg to %s", dir)
 
 		// Let's clone into the current directory so that the git client can find the .git directory
-		err := git.Clone(repo.GetRepoPath("gutenberg"), "--depth=1", ".")
-
+		err := git.Clone(repo.GetRepoPath("gutenberg"), "--branch", build.Base.Ref, "--depth=1", ".")
 		if err != nil {
 			return pr, fmt.Errorf("error cloning the Gutenberg repository: %v", err)
 		}
@@ -48,6 +51,53 @@ func CreateGbPR(version, dir string, noTag bool) (gh.PullRequest, error) {
 		err = git.Switch("-c", branch)
 		if err != nil {
 			return pr, fmt.Errorf("error checking out the branch: %v", err)
+		}
+	}
+
+	if isPatch {
+		console.Info("Cherry picking PRs")
+		err := git.Fetch("trunk", build.Depth)
+		if err != nil {
+			return pr, fmt.Errorf("error fetching the Gutenberg repository: %v", err)
+		}
+
+		for _, pr := range build.Prs {
+			if pr.MergeCommit == "" {
+				return pr, fmt.Errorf("error cherry picking PR %d: no merge commit", pr.Number)
+			}
+			console.Info("Cherry picking PR %d via commit %s", pr.Number, pr.MergeCommit)
+
+			if err := git.CherryPick(pr.MergeCommit); err != nil {
+
+				console.Print(console.Highlight, "\nThere was an issue cherry picking PR #%d", pr.Number)
+				conflicts, err := git.StatConflicts()
+				if len(conflicts) == 0 {
+					return pr, fmt.Errorf("error cherry picking PR %d: %v", pr.Number, err)
+				}
+				console.Print(console.HeadingRow, "\nThe conflict can be resolved by inspecting the following files:")
+
+				if err != nil {
+					return pr, fmt.Errorf("error getting the list of conflicting files: %v", err)
+				}
+				for _, file := range conflicts {
+					console.Print(console.Row, "• "+filepath.Join(dir, file))
+				}
+
+				if err := openInEditor(dir, conflicts); err != nil {
+					console.Warn("There was an issue opening the conflicting files in your editor: %v", err)
+				}
+
+				fixed := console.Confirm("Continue after resolving the conflict?")
+
+				if fixed {
+					err := git.CherryPick("--continue")
+					if err != nil {
+						return pr, fmt.Errorf("error continuing the cherry pick: %v", err)
+					}
+				} else {
+					return pr, fmt.Errorf("error cherry picking PR %d: %v", pr.Number, err)
+				}
+			}
 		}
 	}
 
@@ -64,11 +114,32 @@ func CreateGbPR(version, dir string, noTag bool) (gh.PullRequest, error) {
 		return pr, err
 	}
 
+	// Update the CHANGELOG
 	console.Info("Update the CHANGELOG in the react-native-editor package")
 	chnPath := filepath.Join(dir, "packages", "react-native-editor", "CHANGELOG.md")
 	if err := UpdateChangeLog(version, chnPath); err != nil {
 		return pr, fmt.Errorf("error updating the CHANGELOG: %v", err)
 	}
+
+	// If this is a patch release we should prompt for the wrangler to manually update the change log
+	if isPatch {
+
+		console.Print(console.Highlight, "\nSince this is a patch release manually update the CHANGELOG")
+		var prNumbers string
+		for _, pr := range build.Prs {
+			prNumbers += fmt.Sprintf("#%d ", pr.Number)
+		}
+		console.Print(console.Highlight, "Note: We just cherry picked these PRs: %s", prNumbers)
+
+		if err := openInEditor(dir, []string{filepath.Join("packages", "react-native-editor", "CHANGELOG.md")}); err != nil {
+			console.Warn("There was an issue opening the CHANGELOG in your editor: %v", err)
+		}
+
+		if cont := console.Confirm("Do you wish to continue after updating the CHANGELOG?"); !cont {
+			return pr, fmt.Errorf("exiting before creating PR, Stopping at CHANGELOG update")
+		}
+	}
+
 	if err := git.CommitAll("Release script: Update CHANGELOG for version %s", version); err != nil {
 		return pr, fmt.Errorf("error committing the CHANGELOG updates: %v", err)
 	}
@@ -80,7 +151,7 @@ func CreateGbPR(version, dir string, noTag bool) (gh.PullRequest, error) {
 	}
 
 	if err := npm.Install(); err != nil {
-		return pr, fmt.Errorf("error running npm ci: %v", err)
+		return pr, fmt.Errorf("error running npm install: %v", err)
 	}
 
 	console.Info("Running preios script")
@@ -123,7 +194,7 @@ func CreateGbPR(version, dir string, noTag bool) (gh.PullRequest, error) {
 		},
 	}
 
-	gh.PreviewPr("gutenberg", dir, pr)
+	previewPr("gutenberg", dir, build.Base.Ref, pr)
 
 	prompt := fmt.Sprintf("\nReady to create the PR on %s/gutenberg?", org)
 	cont := console.Confirm(prompt)
@@ -144,7 +215,7 @@ func CreateGbPR(version, dir string, noTag bool) (gh.PullRequest, error) {
 		return pr, fmt.Errorf("pr was not created successfully")
 	}
 
-	if !noTag {
+	if build.UseTag {
 		console.Info("Adding release tag")
 		if err := git.PushTag("rnmobile/" + version); err != nil {
 			console.Warn("Error tagging the release: %v", err)

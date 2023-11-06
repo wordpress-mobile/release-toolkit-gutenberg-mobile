@@ -3,6 +3,7 @@ package prepare
 import (
 	"github.com/spf13/cobra"
 	"github.com/wordpress-mobile/gbm-cli/pkg/console"
+	"github.com/wordpress-mobile/gbm-cli/pkg/gh"
 	"github.com/wordpress-mobile/gbm-cli/pkg/release"
 )
 
@@ -16,7 +17,15 @@ var gbmCmd = &cobra.Command{
 
 		console.Info("Preparing Gutenberg Mobile for release %s", version)
 
-		pr, err := release.CreateGbmPR(version, tempDir)
+		build := release.Build{
+			Dir:     tempDir,
+			Version: version,
+			Base: gh.Repo{
+				Ref: "trunk",
+			},
+		}
+
+		pr, err := release.CreateGbmPR(build)
 		exitIfError(err, 1)
 
 		console.Info("Created PR %s", pr.Url)

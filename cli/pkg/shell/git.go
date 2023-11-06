@@ -2,6 +2,8 @@ package shell
 
 import (
 	"fmt"
+	"os/exec"
+	"strings"
 
 	"github.com/wordpress-mobile/gbm-cli/pkg/console"
 )
@@ -20,6 +22,8 @@ type GitCmds interface {
 	IsPorcelain() bool
 	PushTag(string, ...string) error
 	Log(...string) error
+	CherryPick(string) error
+	StatConflicts() ([]string, error)
 }
 
 func (c *client) Clone(args ...string) error {
@@ -100,4 +104,42 @@ func (c *client) PushTag(tag string, annotate ...string) error {
 func (c *client) Log(args ...string) error {
 	log := append([]string{"log"}, args...)
 	return c.cmd(log...)
+}
+
+func (c *client) CherryPick(commitOrContinue string) error {
+	if commitOrContinue == "--continue" {
+		c.cmd("add", "--all")
+	}
+
+	pick := append([]string{"cherry-pick"}, commitOrContinue)
+	if err := c.cmd(pick...); err != nil {
+		// let's try fetching the commit and cherry-picking again
+
+		if err := c.cmd("fetch", "origin", commitOrContinue); err != nil {
+			return err
+		}
+		return c.cmd(pick...)
+	}
+	return nil
+}
+
+func (c *client) StatConflicts() ([]string, error) {
+	cmd := exec.Command("git", "diff", "--name-only", "--relative", "--diff-filter=U")
+	cmd.Dir = c.dir
+
+	out, err := cmd.Output()
+	if err != nil {
+		return []string{}, err
+	}
+
+	files := strings.Split(string(out), "\n")
+
+	conflicts := []string{}
+	for _, file := range files {
+		if file != "" {
+			conflicts = append(conflicts, file)
+		}
+	}
+
+	return conflicts, nil
 }

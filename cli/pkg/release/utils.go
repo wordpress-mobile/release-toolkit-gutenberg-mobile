@@ -4,20 +4,18 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
 
+	"github.com/fatih/color"
 	"github.com/wordpress-mobile/gbm-cli/pkg/console"
 	"github.com/wordpress-mobile/gbm-cli/pkg/gh"
+	"github.com/wordpress-mobile/gbm-cli/pkg/repo"
+	"github.com/wordpress-mobile/gbm-cli/pkg/shell"
 )
-
-type ReleaseChanges struct {
-	Title  string
-	Number int
-	PrUrl  string
-	Issues []string
-}
 
 func CollectReleaseChanges(version string, changelog, relnotes []byte) ([]ReleaseChanges, error) {
 	changesRe := regexp.MustCompile(`(?s)\d+\.\d+\.\d+(.*?)\d+\.\d+\.\d+`)
@@ -191,4 +189,53 @@ func readWriteNotes(version, path string, updater func(string, []byte) []byte) e
 		return err
 	}
 	return nil
+}
+
+func previewPr(rpo, dir, branchFrom string, pr gh.PullRequest) {
+	org := repo.GetOrg(rpo)
+	row := console.Row
+
+	console.Print(console.Heading, "\nPr Preview")
+
+	white := color.New(color.FgWhite).SprintFunc()
+
+	console.Print(row, "Repo: %s/%s", white(org), white(rpo))
+	console.Print(row, "Title: %s", white(pr.Title))
+	console.Print(row, "Body:\n%s", white(pr.Body))
+	console.Print(row, "Commits:")
+
+	git := shell.NewGitCmd(shell.CmdProps{Dir: dir, Verbose: true})
+
+	git.Log(branchFrom+"...HEAD", "--oneline", "--no-merges", "-10")
+}
+
+func openInEditor(dir string, files []string) error {
+	editor := os.Getenv("EDITOR")
+
+	fileArgs := strings.Join(files, " ")
+
+	if editor == "" {
+		editor = console.Ask("\nNo $EDITOR set. Enter the command to open your editor:")
+	}
+
+	if editor == "" {
+		console.Warn("No editor set. Manually edit or verify the following files before continuing:")
+		for _, f := range files {
+			console.Print(console.Row, f)
+		}
+		return nil
+	}
+	if open := console.Confirm(fmt.Sprintf("\nOpen '%s' with `%s`?", fileArgs, editor)); !open {
+		console.Warn("Canceled opening the files in the editor. Manually edit the files before continuing")
+		return nil
+	}
+
+	for i, f := range files {
+		files[i] = filepath.Join(dir, f)
+	}
+	cmd := exec.Command(editor, files...)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
 }
