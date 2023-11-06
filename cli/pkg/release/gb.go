@@ -200,11 +200,7 @@ func CreateGbPR(build Build) (gh.PullRequest, error) {
 		},
 	}
 
-<<<<<<< HEAD
 	gh.PreviewPr("gutenberg", dir, build.Base.Ref, pr)
-=======
-	previewPr("gutenberg", dir, build.Base.Ref, pr)
->>>>>>> trunk
 
 	prompt := fmt.Sprintf("\nReady to create the PR on %s/gutenberg?", org)
 	cont := console.Confirm(prompt)
