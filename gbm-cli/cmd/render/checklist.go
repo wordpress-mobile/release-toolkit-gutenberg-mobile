@@ -70,6 +70,7 @@ var ChecklistCmd = &cobra.Command{
 				Scheduled:    scheduled,
 				ReleaseUrl:   releaseUrl,
 				Date:         releaseDate,
+				Message: 	  message,
 				HostVersion:  hostVersion,
 				IncludeAztec: includeAztec,
 				CheckAztec:   checkAztec,
