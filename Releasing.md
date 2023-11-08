@@ -1,51 +1,32 @@
-# Gutenberg Mobile CLI
-The Gutenberg Mobile CLI (`gbm-cli`) tool is available from this repo. The tool is recommended for handling Gutenberg Mobile releases. See [Installing the CLI tool](#installing.md) for more information.
-
 # Release Checklist Template
 
-Use the `gbm-cli` tool to generate the release checklist:
+The Release Checklist Template can be generated with the following command: (replacing `X.XX.X` with the applicable release number):
 
 ```
-gbm-cli render checklist -v {version} --c
+go run main.go render checklist -v X.XX.X
 ```
 
-The `--c` flag should send the rendered checklist output to your system clipboard. If not try manually capturing the output without the `--c` flag.
+The `--c` flag will copy the output to your clipboard. To view the output in the command line, simply remove the `--c` flag.
 
-# Using gbm-cli for releasing
 
- To create the Gutenberg and Gutenberg Mobile PRs run:
-
- ```
- $ gbm-cli release prepare all {version}
- ```
-
-The Android PR can be created right away but the [Build iOS RN XCFramework & Publish to S3](https://github.com/wordpress-mobile/gutenberg-mobile/blob/trunk/.buildkite/pipeline.yml#L167) must complete before creating the iOS PR.
-
-The status for both builds can be checked by running:
+If the release is a betafix/hotfix, include a message explaining briefly the reason for releasing the fix.
+**Example:** 
 
 ```
-$ gbm-cli release status {version}
+go run main.go render checklist -v X.XX.X --message "This hotfix addresses ISSUE_OR_CRASH in ORIGINAL_VERSION. See P2_PR_SLACK_ETC_LINK_OR_LINKS for the rationale behind the decision to make it."
 ```
-
-Once the platform builds are ready run:
-
-```
-$ gbm-cli release integrate {gutenberg-mobile-version}
-```
-
-## Patch releases
-
-The cli tool
 
 # Different types of releases
 
-## 1. Alpha
+## Best practices
 
-Note: The `gbm-cli` tool does not currently support alpha releases (see #217). Use the legacy `release_automation.sh` script if needed.
+It's best practice to use the automation script (mentioned in the release template above) for all releases types (alpha, regular, betafix, hotfix). When wrangling a betafix or hotfix, it's important to merge the fix to Gutenberg `trunk` independently of the release process. When the release is cut (by the automation script) the commit(s) that make up the betafix or hotfix should then be cherry-picked onto the Gutenberg release branch.
+
+## 1. Alpha
 
 ### When
 
-Whenever a build is needed for testing (usually a few days prior to a Regular release)
+Whenever a build is needed for testing (usually a few days prior to a Regular release).
 
 ### Branches
 
@@ -106,8 +87,7 @@ At the same time there could also be a regular release going on for example for 
 
 ### Automation script differences
 
-1. Before running the script switch to the relevant branch to cut from in gutenberg-mobile repo.
-1. Run [release_automation.sh](./release_automation.sh) as usual.
+1. Run the CLI tool as normal
 1. When asked by the script enter the relevant branch names to cut from (to target) in other repos.
 1. If a commit that is fixing the issue is already merged to gutenberg, when asked by the script enter the commit hash to be cherry-picked.
 
@@ -138,11 +118,11 @@ At the same time there could also be a regular release, a betafix or even anothe
 
 1. If necessary create new patch version branches `release/X.Y.1` in WPiOS and WPAndroid.
 
-Rest should be same the as Betafix
+The rest should be same the as Betafix.
 
 ### Release checklist template differences
 
 1. Include `Hotfix` in the heading
 1. After the fix is merged and if there is an ongoing regular release, betafix or hotfix then the changes should be brought back to those branches as well.
 
-Rest should be same the as Betafix
+The rest should be same the as Betafix.
