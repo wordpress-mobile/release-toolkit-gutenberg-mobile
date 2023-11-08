@@ -217,6 +217,17 @@ func GetReleaseByTag(rpo, tag string) (Release, error) {
 	return release, nil
 }
 
+func GetLatestRelease(rpo string) (Release, error) {
+	org := repo.GetOrg(rpo)
+	client := getClient()
+	endpoint := fmt.Sprintf("repos/%s/%s/releases/latest", org, rpo)
+	release := Release{}
+	if err := client.Get(endpoint, &release); err != nil {
+		return Release{}, err
+	}
+	return release, nil
+}
+
 func GetPrOrg(org, repo string, id int) (*PullRequest, error) {
 	client := getClient()
 
