@@ -42,7 +42,7 @@ func CreateGbPR(build Build) (gh.PullRequest, error) {
 		console.Info("Cloning Gutenberg to %s", dir)
 
 		// Let's clone into the current directory so that the git client can find the .git directory
-		err := git.Clone(repo.GetRepoPath("gutenberg"), "--branch", build.Base.Ref, "--depth=1", ".")
+		err := git.Clone(repo.GetRepoHttpsPath("gutenberg"), "--branch", build.Base.Ref, "--depth=1", ".")
 		if err != nil {
 			return pr, fmt.Errorf("error cloning the Gutenberg repository: %v", err)
 		}

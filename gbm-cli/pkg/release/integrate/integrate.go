@@ -111,7 +111,7 @@ func (ri *ReleaseIntegration) Run(dir string) (gh.PullRequest, error) {
 func (ri *ReleaseIntegration) cloneRepo(git shell.GitCmds) error {
 	// Check if release branch already exists
 	rpo := ri.Target.GetRepo()
-	repoPath := repo.GetRepoPath(rpo)
+	repoPath := repo.GetRepoHttpsPath(rpo)
 
 	branch := fmt.Sprintf(release.IntegrateBranchName, ri.Version)
 	exists, err := gh.SearchBranch(rpo, branch)
@@ -121,7 +121,7 @@ func (ri *ReleaseIntegration) cloneRepo(git shell.GitCmds) error {
 
 	if (exists != gh.Branch{}) {
 		console.Info("Cloning repo at release branch %s", branch)
-		if err := git.Clone("-b", branch, "--depth=1", repoPath, "."); err != nil {
+		if err := git.Clone(repoPath, "-b", branch, "--depth=1", "."); err != nil {
 			return err
 		}
 	} else {
