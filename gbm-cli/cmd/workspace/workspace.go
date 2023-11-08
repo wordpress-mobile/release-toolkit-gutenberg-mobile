@@ -63,11 +63,6 @@ func (w *workspace) setCleaner() {
 			return
 		}
 
-		if w.keep {
-			console.Info("Keeping temporary directory %s", w.dir)
-			return
-		}
-
 		if err := os.RemoveAll(w.dir); err != nil {
 			console.Error(err)
 		}
