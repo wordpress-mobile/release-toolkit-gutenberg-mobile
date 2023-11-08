@@ -444,6 +444,10 @@ func labelRequest(rpo string, prNum int, labels []string) ([]Label, error) {
 }
 
 func PreviewPr(rpo, dir, branchFrom string, pr PullRequest) {
+	// if not in a tty (CI) don't print the preview
+	if os.Getenv("CI") == "true" {
+		return
+	}
 	org := repo.GetOrg(rpo)
 	row := console.Row
 
