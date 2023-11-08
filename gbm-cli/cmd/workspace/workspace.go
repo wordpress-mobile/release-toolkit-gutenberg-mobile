@@ -30,6 +30,13 @@ func NewWorkspace() (Workspace, error) {
 		console.Info("GBM_NO_WORKSPACE is set, not creating a workspace directory")
 		w.disabled = true
 	}
+
+	if _, ci := os.LookupEnv("CI"); ci {
+		console.Info("CI environment detected, not creating a workspace directory")
+		w.disabled = true
+		w.dir = "."
+	}
+
 	if err := w.create(); err != nil {
 		return nil, err
 	}
