@@ -55,49 +55,55 @@ func CreateGbPR(build Build) (gh.PullRequest, error) {
 	}
 
 	if isPatch {
-		console.Info("Cherry picking PRs")
-		err := git.Fetch("trunk", build.Depth)
-		if err != nil {
-			return pr, fmt.Errorf("error fetching the Gutenberg repository: %v", err)
-		}
-
-		for _, pr := range build.Prs {
-			if pr.MergeCommit == "" {
-				return pr, fmt.Errorf("error cherry picking PR %d: no merge commit", pr.Number)
+		// We probably won't create a patch release with out PRS to cherry pick but
+		// for testing this is useful to allow and to skip.
+		if len(build.Prs) != 0 {
+			console.Info("Cherry picking PRs")
+			err := git.Fetch("trunk", build.Depth)
+			if err != nil {
+				return pr, fmt.Errorf("error fetching the Gutenberg repository: %v", err)
 			}
-			console.Info("Cherry picking PR %d via commit %s", pr.Number, pr.MergeCommit)
 
-			if err := git.CherryPick(pr.MergeCommit); err != nil {
-
-				console.Print(console.Highlight, "\nThere was an issue cherry picking PR #%d", pr.Number)
-				conflicts, err := git.StatConflicts()
-				if len(conflicts) == 0 {
-					return pr, fmt.Errorf("error cherry picking PR %d: %v", pr.Number, err)
+			for _, pr := range build.Prs {
+				if pr.MergeCommit == "" {
+					return pr, fmt.Errorf("error cherry picking PR %d: no merge commit", pr.Number)
 				}
-				console.Print(console.HeadingRow, "\nThe conflict can be resolved by inspecting the following files:")
+				console.Info("Cherry picking PR %d via commit %s", pr.Number, pr.MergeCommit)
 
-				if err != nil {
-					return pr, fmt.Errorf("error getting the list of conflicting files: %v", err)
-				}
-				for _, file := range conflicts {
-					console.Print(console.Row, "• "+filepath.Join(dir, file))
-				}
+				if err := git.CherryPick(pr.MergeCommit); err != nil {
 
-				if err := openInEditor(dir, conflicts); err != nil {
-					console.Warn("There was an issue opening the conflicting files in your editor: %v", err)
-				}
-
-				fixed := console.Confirm("Continue after resolving the conflict?")
-
-				if fixed {
-					err := git.CherryPick("--continue")
-					if err != nil {
-						return pr, fmt.Errorf("error continuing the cherry pick: %v", err)
+					console.Print(console.Highlight, "\nThere was an issue cherry picking PR #%d", pr.Number)
+					conflicts, err := git.StatConflicts()
+					if len(conflicts) == 0 {
+						return pr, fmt.Errorf("error cherry picking PR %d: %v", pr.Number, err)
 					}
-				} else {
-					return pr, fmt.Errorf("error cherry picking PR %d: %v", pr.Number, err)
+					console.Print(console.HeadingRow, "\nThe conflict can be resolved by inspecting the following files:")
+
+					if err != nil {
+						return pr, fmt.Errorf("error getting the list of conflicting files: %v", err)
+					}
+					for _, file := range conflicts {
+						console.Print(console.Row, "• "+filepath.Join(dir, file))
+					}
+
+					if err := openInEditor(dir, conflicts); err != nil {
+						console.Warn("There was an issue opening the conflicting files in your editor: %v", err)
+					}
+
+					fixed := console.Confirm("Continue after resolving the conflict?")
+
+					if fixed {
+						err := git.CherryPick("--continue")
+						if err != nil {
+							return pr, fmt.Errorf("error continuing the cherry pick: %v", err)
+						}
+					} else {
+						return pr, fmt.Errorf("error cherry picking PR %d: %v", pr.Number, err)
+					}
 				}
 			}
+		} else {
+			console.Warn("No PRs to cherry pick")
 		}
 	}
 
@@ -194,7 +200,7 @@ func CreateGbPR(build Build) (gh.PullRequest, error) {
 		},
 	}
 
-	previewPr("gutenberg", dir, build.Base.Ref, pr)
+	gh.PreviewPr("gutenberg", dir, build.Base.Ref, pr)
 
 	prompt := fmt.Sprintf("\nReady to create the PR on %s/gutenberg?", org)
 	cont := console.Confirm(prompt)
