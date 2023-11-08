@@ -31,7 +31,7 @@ func NewWorkspace() (Workspace, error) {
 		w.disabled = true
 	}
 
-	if _, ci := os.LookupEnv("CI"); ci {
+	if os.Getenv("CI") == "true" {
 		console.Info("CI environment detected, not creating a workspace directory")
 		w.disabled = true
 		w.dir = "."
