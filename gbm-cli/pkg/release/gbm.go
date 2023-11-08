@@ -42,7 +42,7 @@ func CreateGbmPR(build Build) (gh.PullRequest, error) {
 		return pr, nil
 	} else {
 		console.Info("Cloning Gutenberg Mobile to %s", dir)
-		err := git.Clone(repo.GetRepoPath("gutenberg-mobile"), "--branch", build.Base.Ref, "--depth=1", "--recursive", ".")
+		err := git.Clone(repo.GetRepoHttpsPath("gutenberg-mobile"), "--branch", build.Base.Ref, "--depth=1", "--recursive", ".")
 		if err != nil {
 			return pr, fmt.Errorf("error cloning the Gutenberg Mobile repository: %v", err)
 		}
