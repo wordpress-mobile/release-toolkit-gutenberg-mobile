@@ -8,9 +8,25 @@ The current features include:
 - Commands to wrangle Gutenberg Mobile releases
 
 ## Installing
-Check the latest release in this repository for the binary builds. Currently we only build for MacOS arm64 (apple silicon). The script has only been tested on apple silicon but build of other platforms should work as expected. See the official [go install]() documentation for alternative builds.
+Check the latest release in this repository for the binary builds. Currently we only build for MacOS arm64 (apple silicon). The script has only been tested on apple silicon but build of other platforms should work as expected. See the official [go build](https://go.dev/ref/mod#go-install) documentation for alternative builds.
 
-If using apple silicon, download the `gbm-cli` binary from the latest release
+If using apple silicon, download the `gbm-cli` binary from the [latest release(https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/releases)
+Place the executable in your PATH and reload your shell. Try
+
+```
+$ gbm-cli --version
+```
+
+To verify installation.
+
+If `go` (above version `1.21`) is installed you can also use:
+
+```
+go install github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/gbm-cli@latest
+```
+
+This will build and install the executable in the `GOPATH` on your machine.
+Note: Verify that `GOPATH` is set before using this method. If it's not set run `export GOPATH=$HOME/go` before calling `go install`
 
 ## Authentication
 
@@ -26,7 +42,17 @@ Otherwise follow these steps:
 2. While not required, it is highly recommended to develop with [VSCode](https://code.visualstudio.com/) and install the [Go VSCode](https://marketplace.visualstudio.com/items?itemName=golang.go) extension.
 
 ## Releasing
-For detailed instructions on running a release, visit [Releasing.md](../Releasing.md).
+
+Check the [Releasing](../Releasing.md) doc for more information on creating Gutenberg Mobile releases. Use the following for creating new releases of the CLI tool
+
+When ready to push updates to a new `gbm-cli` version make sure to:
+- Increment the version in `./cmd/root.go`
+- Merge the PR with the version bump
+- Create a new Github Release with the updated version.
+- Locally checkout the release tag
+- Create a `./bin` directory if you don't have one already
+- Run `go build -o ./bin/gbm-cli`
+- Add `./bin/gbm-cli` as an artifact to the Github release.
 
 ## Testing
 For detailed instructions on testing and configuring your development environment, visit [Testing.md](https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/blob/cli/update-checklist/cli/Testing.md).
