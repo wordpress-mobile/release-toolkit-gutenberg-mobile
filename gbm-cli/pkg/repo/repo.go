@@ -8,6 +8,7 @@ import (
 const WordPressAndroidRepo = "WordPress-Android"
 const WordPressIosRepo = "WordPress-iOS"
 const GutenbergMobileRepo = "gutenberg-mobile"
+const ReleaseToolkitGutenbergMobileRepo = "release-toolkit-gutenberg-mobile"
 const GutenbergRepo = "gutenberg"
 const JetpackRepo = "jetpack"
 
@@ -50,6 +51,8 @@ func GetOrg(repo string) string {
 	case GutenbergMobileRepo:
 		fallthrough
 	case WordPressAndroidRepo:
+		fallthrough
+	case ReleaseToolkitGutenbergMobileRepo:
 		fallthrough
 	case WordPressIosRepo:
 		return WpMobileOrg

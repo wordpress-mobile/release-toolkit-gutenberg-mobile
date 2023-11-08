@@ -1,325 +1,19 @@
-# Making a release
-
-The `bundle` directory contains the production version of the project's Javascript. This is what the WordPress apps use to avoid having to build Gutenberg.
-
-You can rebuild those files at any time by running
-
-```
-npm run bundle
-```
-
-This is useful in case you want to use an unreleased version of the bundle in the apps. For instance, on a PR that's a work in progress, you might want to include to a specific gutenberg-mobile branch in the apps with an updated bundle so reviewers can see the latest changes before approving them (and releasing a new version).
-
 # Release Checklist Template
 
-When you are ready to cut a new release, use the following template.
-
-For the post title, use this (replacing `X.XX.X` with the applicable release number):
+The Release Checklist Template can be generated with the following command: (replacing `X.XX.X` with the applicable release number):
 
 ```
-Gutenberg Mobile X.XX.X – Release Scenario
+go run main.go render checklist -v X.XX.X
 ```
 
-For the body of the post, just copy this checklist and again replace all occurrences of `X.XX.X` with the applicable release number.
+The `--c` flag will copy the output to your clipboard. To view the output in the command line, simply remove the `--c` flag.
 
-<details><summary>Click to expand</summary>
-<p>
 
-```html
-<!-- wp:paragraph -->
-<p>This checklist is based on the <a href="https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/blob/develop/Releasing.md#release-checklist-template">Release Checklist Template</a>. If you need a checklist for a new gutenberg-mobile release, please copy from that template.</p>
-<!-- /wp:paragraph -->
+If the release is a betafix/hotfix, include a message explaining briefly the reason for releasing the fix.
+**Example:** 
 
-<!-- wp:paragraph -->
-<p>+mobilegutenberg</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:heading {"level":3} -->
-<h3>Before the Release (Tuesday)</h3>
-<!-- /wp:heading -->
-
-<!-- wp:group -->
-<div class="wp-block-group"><!-- wp:paragraph -->
-<p>o Visit all open gutenberg-mobile PRs that are assigned to X.XX.X milestone and leave a comment with a message similar to the following: </p>
-<!-- /wp:paragraph -->
-
-<!-- wp:quote -->
-<blockquote class="wp-block-quote"><p>Hey [author]. We will cut the X.XX.X release on [date]. I plan to circle back and bump this PR to the next milestone then, but please let me know if you'd rather us work to include this PR in X.XX.X. Thanks! </p></blockquote>
-<!-- /wp:quote --></div>
-<!-- /wp:group -->
-
-<!-- wp:heading {"level":3} -->
-<h3>Create the Release (Thursday)</h3>
-<!-- /wp:heading -->
-
-<!-- wp:paragraph -->
-<p>o Verify that <code>gutenberg-mobile/RNTAztecView.podspec</code> and <code>gutenberg-mobile/gutenberg/packages/react-native-aztec/RNTAztecView.podspec</code> refer to the same <code>WordPress-Aztec-iOS</code> version and are pointing to a stable, tagged release (e.g. 1.14.1). If they are not, we may need to <a href="#create-a-new-aztec-release">create a new Aztec</a> release.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>o Clone the <a href="https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile">release scripts</a> or pull the latest version if you have already cloned it.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>o Review the <a href="https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/blob/develop/Releasing.md">release script instructions</a>. In your clone of the release scripts, run the script via:  <code>./release_automation.sh</code>. This creates the gutenberg and gutenberg-mobile release PRs as well as WPAndroid and WPiOS integration PRs.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:group -->
-<div class="wp-block-group"><!-- wp:paragraph -->
-<p>o If this is a scheduled release (e.g. X.XX.0) and not a beta/hot fix (e.g. X.XX.2), post a message similar to the following to the <code>#mobile-gutenberg</code> and <code>#mobile-gutenberg-platform</code> Slack channels: </p>
-<!-- /wp:paragraph -->
-
-<!-- wp:quote -->
-<blockquote class="wp-block-quote"><p>⚠️ The gutenberg-mobile X.XX.X release branches are now cut. Please do not merge any Gutenberg-related changes into the WPiOS or WPAndroid <code>trunk</code> branches until <em>after</em> the main apps cut their own releases next week. If you'd like to merge changes now, merge them into the <code>gutenberg/after_X.XX.X</code> branches. </p></blockquote>
-<!-- /wp:quote --></div>
-<!-- /wp:group -->
-
-<!-- wp:paragraph -->
-<p>o In both <code>RELEASE-NOTES.txt</code> and <code>gutenberg/packages/react-native-editor/CHANGELOG.md</code>, replace <code>Unreleased</code> section with the release version and create a new <code>Unreleased</code> section.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>o Review and update <code>RELEASE-NOTES.txt</code> file on both WPAndroid and WPiOS PRs so it includes all user-facing changes introduced in the release. Keep in mind that some changes can be specific to a single platform, so they should only be added to the release notes of the platform that affects (e.g. a change that only affects Android should only be included in WPAndroid release notes).</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>o Verify the WPAndroid and WPiOS PR builds succeed. For WPAndroid, if the PR CI tasks include a 403 error related to an inability to resolve the <code>react-native-bridge</code> dependency, you must wait for the <code>Build Android RN Bridge &amp; Publish to S3</code> task to succeed in gutenberg-mobile and then restart the WPAndroid CI tasks. Similarly, for iOS, you must wait for the <code>Build iOS RN XCFramework &amp; Publish to S3</code> task to succeed.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>o Once the installable builds are ready, perform a quick smoke test of the editor on both iOS and Android to verify it launches without crashing. We will perform additional testing after the main apps cut their releases. </p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>o Fill in the missing parts of the gutenberg-mobile PR description. When filling in the "Changes" section, link to the most descriptive GitHub issue for any given change and consider adding a short description. Testers rely on this section to gather more details about changes in a release.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>o Mark all 4 PRs ready for review and request review from the team. </p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph {"style":{"color":{"background":"#fcb900ba"}}} -->
-<p class="has-background" style="background-color:#fcb900ba">⚠️ In some release cases (like beta fixes), it's likely that the PRs could have conflicts with <code>trunk</code>. In this case, do not resolve merge conflicts by merging with <code>trunk</code> as this will introduce new and unexpected changes to the release. Instead, leave the conflicts until the release is integrated into the main apps, and then resolve the conflicts when merging the PRs back to <code>trunk</code>. Optionally, a second clone of the release branch can be created to verify the CI checks.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>o If this is a release for inclusion in the frozen WPiOS and WPAndroid release branches (i.e. this is a beta/hot fix, e.g. X.XX.2), ping the directly responsible individual handing the release of each platform of the main apps.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:heading {"level":3} -->
-<h3 id="create-a-new-aztec-release">Create an Aztec Release (conditional)</h3>
-<!-- /wp:heading -->
-
-<!-- wp:paragraph -->
-<p>ℹ️ If <code>gutenberg-mobile/RNTAztecView.podspec</code> and <code>gutenberg-mobile/gutenberg/packages/react-native-aztec/RNTAztecView.podspec</code> refer to a commit SHA instead of a stable release (e.g. 1.14.1) or refer to <em>different</em> versions, the steps in this section may need to be completed. </p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>o Verify all Aztec PRs attached to the "Next Release" milestone or PRs with changes required for this Gutenberg release have been merged before next steps.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>o Open a PR on Aztec repo to update the <code>CHANGELOG.md</code> and <code>README.md</code> files with the new version name.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>o Create a new release and name it with the tag name from step 1. For Aztec-iOS, follow <a href="https://github.com/wordpress-mobile/AztecEditor-iOS/blob/develop/Documentation/ReleaseProcess.md">this process</a>. For Aztec-Android, releases are created via the <a href="https://github.com/wordpress-mobile/AztecEditor-Android/releases">GitHub releases page</a> by hitting the “Draft new release” button, put the tag name to be created in the tag version field and release title field, and also add the changelog to the release description. The binary assets (.zip, tar.gz files) are attached automatically after hitting “Publish release”.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>o Update Aztec version references within <code>gutenberg-mobile/RNTAztecView.podspec</code> and <code>gutenberg-mobile/gutenberg/packages/react-native-aztec/RNTAztecView.podspec</code> to the new <code>WordPress-Aztec-iOS</code> version.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:heading {"level":3} -->
-<h3>Manage Incoming Changes (conditional)</h3>
-<!-- /wp:heading -->
-
-<!-- wp:paragraph -->
-<p>ℹ️ If additional changes (e.g. bug fixes) were merged into the gutenberg-mobile <code>release/X.XX.X</code> or in gutenberg <code>rnmobile/release-X.XX.X</code> branches, the steps in this section need to be completed.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>o After a merge happened in gutenberg-mobile <code>release/X.XX.X</code> or in gutenberg <code>rnmobile/release-X.XX.X</code>, ensure the <code>gutenberg</code> submodule points to the correct hash and the <code>rnmobile/release-X.XX.X</code> in the gutenberg repo branch has been updated.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>o If there were changes in gutenberg repo, make sure to cherry-pick the changes that landed in the <code>trunk</code> branch back to the release branch and don't forget to run <code>npm run bundle</code> in gutenberg-mobile again if necessary.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>o Add the new change to the "Extra PRs that Landed After the Release Was Cut" section of the gutenberg-mobile PR description.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:heading {"level":3} -->
-<h3>Integrate the Release (Thursday)</h3>
-<!-- /wp:heading -->
-
-<!-- wp:paragraph -->
-<p>o Verify the <code>gutenberg</code> ref within the gutenberg-mobile release branch is pointed to the latest commit in the gutenberg release branch.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>o Create and push a <code>rnmobile/X.XX.X</code> git tag for the head of gutenberg release branch. </p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>o Ensure that the bundle files are updated to include any changes to the release branch by running <code>npm run bundle</code> in gutenberg-mobile release branch and committing any changes.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>o <a href="https://github.com/wordpress-mobile/gutenberg-mobile/releases/new?tag=vX.XX.X&amp;target=release/X.XX.X&amp;title=Release%20X.XX.X">Create a new gutenberg-mobile GitHub Release</a>. Include a list of changes in the Release description. Ensure the checkmark "Set as the latest release" is checked, and <strong>publish the release with the "Publish release" button.</strong></p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>o Wait until all CI jobs for the published tag finish and succeed.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>o Navigate to the Buildkite job that built the JS bundles (<code>Build JS Bundles</code>) for the published tag. Open the job and navigate to the "Artifacts" tab. Locate the composed source maps (they have file name <code>bundle/{platform}/App.composed.js.map</code>) and download them.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:group -->
-<div class="wp-block-group"><!-- wp:paragraph -->
-<p>o Navigate and edit the GitHub release. Attach the composed source maps to the release <em>(you can drag and drop the files in the "Attach binaries" drop area)</em>. Once they are uploaded, update the artifact's name following this format:</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:list -->
-<ul><!-- wp:list-item -->
-<li>File: <code><code>bundle/android/App.composed.js.map</code></code> - Artifact name: <code>android-App.js.map</code></li>
-<!-- /wp:list-item -->
-
-<!-- wp:list-item -->
-<li>File: <code><code>bundle/ios/App.composed.js.map</code></code> - Artifact name: <code>ios-App.js.map</code></li>
-<!-- /wp:list-item --></ul>
-<!-- /wp:list -->
-
-<!-- wp:paragraph -->
-<p></p>
-<!-- /wp:paragraph --></div>
-<!-- /wp:group -->
-
-<!-- wp:paragraph -->
-<p>o In WPiOS, update the reference to point to the <em>tag</em> of the Release created in the previous task. </p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>o In WPAndroid, update the <code>gutenbergMobileVersion</code> in <code>build.gradle</code> to point to the <em>tag</em> of the Release used in the previous task. </p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>o Main apps PRs should be ready to merge to their <code>trunk</code> branches now. Merge them or get them merged.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:group -->
-<div class="wp-block-group"><!-- wp:paragraph -->
-<p>o Once everything is merged, send a heads up to our friends in the <code>#apps-infrastructure</code> Slack channel. If this is a "regular" release for the WPiOS and WPAndroid `trunk` branches (i.e. this isn't a beta/hot fix, e.g. X.XX.2), the message will look similar to the following:</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:quote -->
-<blockquote class="wp-block-quote"><p>Hey team. I wanted to let you know that the mobile Gutenberg team has finished integrating the X.XX.X Gutenberg release into the WPiOS and WPAndroid `trunk` branches. The integration is ready for the next release cut/build creation when you are available. Please let me know if you have any questions. Thanks! </p></blockquote>
-<!-- /wp:quote -->
-
-<!-- wp:paragraph -->
-<p>o If the release is a beta/hot fix (e.g. X.XX.2), be sure to directly mention the relevant Excellence Wranglers for the release and modify the following template, similar to the following:</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:quote -->
-<blockquote class="wp-block-quote"><p>Hey team. I wanted to let you know that the mobile Gutenberg team has finished integrating the X.XX.X Gutenberg release into the WPiOS and WPAndroid `release/XX.X` branches, ready for a new beta when you are available. Please let me know if you have any questions. Thanks! </p></blockquote>
-<!-- /wp:quote --></div>
-<!-- /wp:group -->
-
-<!-- wp:paragraph -->
-<p>o Close the <a href="https://github.com/wordpress-mobile/gutenberg-mobile/milestones">Gutenberg Mobile milestone</a> that corresponds to this release.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:heading {"level":3} -->
-<h3>Merge Release Branches</h3>
-<!-- /wp:heading -->
-
-<!-- wp:paragraph -->
-<p>o Resolve any conflicts with <code>trunk</code> and merge the gutenberg PR.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>o Update the gutenberg reference on the gutenberg-mobile release branch to point to the Gutenberg PR merge commit</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>o Merge the <strong>gutenberg-mobile</strong> PR to <code>trunk</code>. Use "Create a merge commit" option when merging to avoid losing any commit history from the release branch.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:heading {"level":3} -->
-<h3>Clean Up Pending Work (After main apps cut)</h3>
-<!-- /wp:heading -->
-
-<!-- wp:paragraph -->
-<p>⚠️ This section may only be completed <em>after</em> the main apps cut their own release branches. </p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>o Update the <code>gutenberg/after_X.XX.X</code> branches and open a PR against <code>trunk</code>. If the branches are empty we’ll just delete them. The PR can actually get created as soon as something gets merged to the <code>gutenberg/after_X.XX.X</code> branches. Merge the <code>gutenberg/after_X.XX.X</code> PR(s) only <em>AFTER</em> the main apps have cut their release branches.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:heading {"level":3} -->
-<h3>Test the Release</h3>
-<!-- /wp:heading -->
-
-<!-- wp:paragraph -->
-<p>ℹ️ Use the main WP apps to complete each the tasks below for both iOS and Android, and post the results of each test group/suite as a comment on the gutenberg-mobile release PR (merged at this point in time). </p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>o Test the new changes that are included in the release PR.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>o Complete the <a href="https://github.com/wordpress-mobile/test-cases/tree/master/test-cases/gutenberg/writing-flow">general writing flow test cases</a>.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>o Complete the <a href="https://github.com/wordpress-mobile/test-cases/blob/trunk/test-cases/gutenberg/unsupported-block-editing.md#unsupported-block-editing---test-cases">Unsupported Block Editor test cases</a>.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>o Complete the <a href="https://docs.google.com/spreadsheets/d/1uJ_o1t5fxeCRfGWTTImmieNgXf_sLflB1iOnKLyhPAw/edit#gid=0">functionality tests scheduled for Android</a>.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>o Complete the <a href="https://docs.google.com/spreadsheets/d/1uJ_o1t5fxeCRfGWTTImmieNgXf_sLflB1iOnKLyhPAw/edit#gid=0">functionality tests scheduled for iOS</a>.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>For the remainder of the main app release period, monitor main app release P2 posts for issues found.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:heading {"level":3} -->
-<h3>Finish the Release</h3>
-<!-- /wp:heading -->
-
-<!-- wp:paragraph -->
-<p>o Update the <a href="https://docs.google.com/spreadsheets/d/15U4v6zUBmPGagksHX_6ZfVA672-1qB2MO8M7HYBOOgQ/edit?usp=sharing">Release Incident Spreadsheet</a> with any fixes that occurred after the release branches were cut.</p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>o If this is a scheduled release (e.g. X.XX.0), message the next release wrangler in the <code>#mobile-gutenberg-platform</code> Slack channel <strong>providing them with a tentative schedule</strong> for the next release. This will help ensure a smooth hand off and sets expectations for when they should begin their work. </p>
-<!-- /wp:paragraph -->
-
-<!-- wp:paragraph -->
-<p>o Celebrate! 🎉</p>
-<!-- /wp:paragraph -->
 ```
-
-
-</p>
-</details>
-
-If the release is a beta/hot fix, include the following block at the top of the body, explaining briefly the reason for releasing the fix.
-**Example:** `This hotfix addresses ISSUE_OR_CRASH in ORIGINAL_VERSION. See P2_PR_SLACK_ETC_LINK_OR_LINKS for the rationale behind the decision to make it.`
-
-```html
-<!-- wp:paragraph {"backgroundColor":"pale-cyan-blue"} -->
-<p class="has-pale-cyan-blue-background-color has-background">[Add reason for releasing the fix HERE]</p>
-<!-- /wp:paragraph -->
+go run main.go render checklist -v X.XX.X --message "This hotfix addresses ISSUE_OR_CRASH in ORIGINAL_VERSION. See P2_PR_SLACK_ETC_LINK_OR_LINKS for the rationale behind the decision to make it."
 ```
 
 # Different types of releases
@@ -332,7 +26,7 @@ It's best practice to use the automation script (mentioned in the release templa
 
 ### When
 
-Whenever a build is needed for testing (usually a few days prior to a Regular release)
+Whenever a build is needed for testing (usually a few days prior to a Regular release).
 
 ### Branches
 
@@ -393,8 +87,7 @@ At the same time there could also be a regular release going on for example for 
 
 ### Automation script differences
 
-1. Before running the script switch to the relevant branch to cut from in gutenberg-mobile repo.
-1. Run [release_automation.sh](./release_automation.sh) as usual.
+1. Run the CLI tool as normal
 1. When asked by the script enter the relevant branch names to cut from (to target) in other repos.
 1. If a commit that is fixing the issue is already merged to gutenberg, when asked by the script enter the commit hash to be cherry-picked.
 
@@ -425,11 +118,11 @@ At the same time there could also be a regular release, a betafix or even anothe
 
 1. If necessary create new patch version branches `release/X.Y.1` in WPiOS and WPAndroid.
 
-Rest should be same the as Betafix
+The rest should be same the as Betafix.
 
 ### Release checklist template differences
 
 1. Include `Hotfix` in the heading
 1. After the fix is merged and if there is an ongoing regular release, betafix or hotfix then the changes should be brought back to those branches as well.
 
-Rest should be same the as Betafix
+The rest should be same the as Betafix.
