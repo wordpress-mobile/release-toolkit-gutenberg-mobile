@@ -3,6 +3,7 @@ package shell
 import (
 	"os"
 	"os/exec"
+	"strings"
 )
 
 type CmdProps struct {
@@ -34,8 +35,8 @@ func NewNpmCmd(cp CmdProps) NpmCmds {
 			// to make sure we are using the correct node version
 			ci := os.Getenv("CI")
 			if ci == "true" && os.Getenv("NVM_DIR") != "" {
-				withNvmUse := append([]string{"-l", "-c", "nvm use && npm"}, cmds...)
-				cmd = exec.Command("bash", withNvmUse...)
+				strCmds := strings.Join(cmds, " ")
+				cmd = exec.Command("bash", "-l", "-c", ". $NVM_DIR/nvm.sh && nvm use && npm "+strCmds)
 			} else {
 				cmd = exec.Command("npm", cmds...)
 			}
