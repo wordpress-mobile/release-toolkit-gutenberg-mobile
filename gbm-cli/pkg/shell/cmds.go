@@ -28,7 +28,18 @@ func execute(cmd *exec.Cmd, dir string, verbose bool) error {
 func NewNpmCmd(cp CmdProps) NpmCmds {
 	return &client{
 		cmd: func(cmds ...string) error {
-			cmd := exec.Command("npm", cmds...)
+			var cmd *exec.Cmd
+
+			// If we are running on a CI and NVM is available we run `nvm use` before each npm command
+			// to make sure we are using the correct node version
+			ci := os.Getenv("CI")
+			if ci == "true" && os.Getenv("NVM_DIR") != "" {
+				withNvmUse := append([]string{"-l", "-c", "nvm use && npm"}, cmds...)
+				cmd = exec.Command("bash", withNvmUse...)
+			} else {
+				cmd = exec.Command("npm", cmds...)
+			}
+
 			return execute(cmd, cp.Dir, cp.Verbose)
 		},
 		cmdInPath: func(path string, cmds ...string) error {
