@@ -9,8 +9,9 @@ import (
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "gbm",
-	Short: "Gutenberg Mobile CLI",
+	Use:     "gbm-cli",
+	Short:   "Gutenberg Mobile CLI",
+	Version: "1.2.0",
 }
 
 func Execute() {
