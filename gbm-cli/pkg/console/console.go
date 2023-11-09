@@ -106,6 +106,10 @@ func Error(err error) {
 }
 
 func Confirm(ask string) bool {
+	// If not in a tty (CI) return true
+	if os.Getenv("CI") == "true" {
+		return true
+	}
 	var response string
 	fmt.Print(Highlight.Sprintf("%s [y/n]: ", ask))
 

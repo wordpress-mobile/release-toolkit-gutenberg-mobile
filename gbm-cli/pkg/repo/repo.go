@@ -16,6 +16,7 @@ var (
 	WpMobileOrg   string
 	WordPressOrg  string
 	AutomatticOrg string
+	ToolkitOrg string
 )
 
 func init() {
@@ -40,6 +41,13 @@ func InitOrgs() {
 	} else {
 		AutomatticOrg = gbmAutomatticOrg
 	}
+
+	if gbmToolkitOrg, ok := os.LookupEnv("GBM_TOOLKIT_ORG"); !ok {
+		ToolkitOrg = "wordpress-mobile"
+	} else {
+		ToolkitOrg = gbmToolkitOrg
+	}
+
 }
 
 func GetOrg(repo string) string {
@@ -53,7 +61,7 @@ func GetOrg(repo string) string {
 	case WordPressAndroidRepo:
 		fallthrough
 	case ReleaseToolkitGutenbergMobileRepo:
-		fallthrough
+		return ToolkitOrg
 	case WordPressIosRepo:
 		return WpMobileOrg
 	default:
@@ -64,4 +72,13 @@ func GetOrg(repo string) string {
 func GetRepoPath(repo string) string {
 	org := GetOrg(repo)
 	return fmt.Sprintf("git@github.com:%s/%s", org, repo)
+}
+
+func GetRepoHttpsPath(repo string) string {
+	org := GetOrg(repo)
+	token := os.Getenv("GITHUB_TOKEN")
+	if token != "" {
+		return fmt.Sprintf("https://%s@github.com/%s/%s", token, org, repo)
+	}
+	return fmt.Sprintf("https://github.com/%s/%s", org, repo)
 }
