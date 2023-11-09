@@ -53,7 +53,7 @@ func GetOrg(repo string) string {
 	case WordPressAndroidRepo:
 		fallthrough
 	case ReleaseToolkitGutenbergMobileRepo:
-		fallthrough
+		return "wordpress-mobile"
 	case WordPressIosRepo:
 		return WpMobileOrg
 	default:
