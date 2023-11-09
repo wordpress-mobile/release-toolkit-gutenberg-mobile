@@ -16,6 +16,7 @@ var (
 	WpMobileOrg   string
 	WordPressOrg  string
 	AutomatticOrg string
+	ToolkitOrg string
 )
 
 func init() {
@@ -40,6 +41,13 @@ func InitOrgs() {
 	} else {
 		AutomatticOrg = gbmAutomatticOrg
 	}
+
+	if gbmToolkitOrg, ok := os.LookupEnv("GBM_TOOLKIT_ORG"); !ok {
+		ToolkitOrg = "wordpress-mobile"
+	} else {
+		ToolkitOrg = gbmToolkitOrg
+	}
+
 }
 
 func GetOrg(repo string) string {
@@ -53,7 +61,7 @@ func GetOrg(repo string) string {
 	case WordPressAndroidRepo:
 		fallthrough
 	case ReleaseToolkitGutenbergMobileRepo:
-		return "wordpress-mobile"
+		return ToolkitOrg
 	case WordPressIosRepo:
 		return WpMobileOrg
 	default:
