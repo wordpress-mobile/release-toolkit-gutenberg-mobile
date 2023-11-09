@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"strings"
 
 	"github.com/davecgh/go-spew/spew"
@@ -97,6 +98,12 @@ func Warn(format string, args ...interface{}) {
 
 func Inspect(i interface{}) {
 	spew.Dump(i)
+}
+
+func Clear() {
+	cmd := exec.Command("clear")
+	cmd.Stdout = os.Stdout
+	cmd.Run()
 }
 
 func Error(err error) {
