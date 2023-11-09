@@ -16,7 +16,7 @@ var (
 	WpMobileOrg   string
 	WordPressOrg  string
 	AutomatticOrg string
-	ToolkitOrg string
+	ToolkitOrg    string
 )
 
 func init() {
@@ -60,10 +60,10 @@ func GetOrg(repo string) string {
 		fallthrough
 	case WordPressAndroidRepo:
 		fallthrough
-	case ReleaseToolkitGutenbergMobileRepo:
-		return ToolkitOrg
 	case WordPressIosRepo:
 		return WpMobileOrg
+	case ReleaseToolkitGutenbergMobileRepo:
+		return ToolkitOrg
 	default:
 		return ""
 	}
