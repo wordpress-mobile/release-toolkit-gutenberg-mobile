@@ -17,6 +17,11 @@ var allCmd = &cobra.Command{
 	Run: func(cc *cobra.Command, args []string) {
 		var err error
 
+		// Can't use "all" for pre-releases
+		if version.IsPreRelease() {
+			console.Warn("You can't use 'all' for pre-releases, just 'gbm")
+			os.Exit(1)
+		}
 		preflight(args)
 		defer workspace.Cleanup()
 

@@ -12,6 +12,12 @@ var gbCmd = &cobra.Command{
 	Short: "prepare Gutenberg for a mobile release",
 	Long:  `Use this command to prepare a Gutenberg release PR`,
 	Run: func(cc *cobra.Command, args []string) {
+		// Check if we're trying to do a pre-release
+		if version.IsPreRelease() {
+			console.Warn("You can't use 'gb' for pre-releases, just 'gbm")
+			return
+		}
+
 		preflight(args)
 
 		defer workspace.Cleanup()
