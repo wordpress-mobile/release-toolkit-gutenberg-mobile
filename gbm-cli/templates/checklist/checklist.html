@@ -106,9 +106,14 @@ and don't forget to run <code>npm run bundle</code> in gutenberg-mobile again if
 
 {{ Task `Wait until all <a href="%s">CI jobs for the published tag</a> to finish and succeed.` .BuildkitReleaseUrl}}
 
-{{ Task `Download the composed source maps from the <a href="%s"></a>release build in Buildkite</a>.
-The 2 files are: <code>Build JS Bundles (step) > Artifacts (tab) > bundle/{platform}/App.composed.js.map </code>.
-Rename them to {platform}-App.js.map and add them as assets to the Github release` .BuildkitReleaseUrl }}
+{{ Task `Download the composed source maps from the <a href="%s">release build in Buildkite</a>.<br />
+The 2 files are:
+
+<pre>
+  Build JS Bundles (step) > Artifacts (tab) > bundle/{platform}/App.composed.js.map
+</pre>
+
+Rename them to <code>{platform}-App.js.map</code> and add them as assets to the <a href="https://github.com/wordpress-mobile/gutenberg-mobile/releases/tag/v%s">Github release.</a>` .BuildkitReleaseUrl .Version }}
 
 {{ Task `run <code>gbm-cli release integrate %s</code> to update the integration PRs with the release tag` .Version}}
 
