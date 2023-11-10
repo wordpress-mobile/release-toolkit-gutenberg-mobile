@@ -6,13 +6,15 @@ import (
 )
 
 type Build struct {
-	Version semver.SemVer
-	Dir     string
-	UseTag  bool
-	Repo    string
-	Prs     []gh.PullRequest
-	Base    gh.Repo
-	Depth   string
+	Version       semver.SemVer
+	Dir           string
+	UseTag        bool
+	Repo          string
+	Prs           []gh.PullRequest
+	Base          gh.Repo
+	Depth         string
+	GbRef         string // This is only used for test and alpha releases
+	UpdateStrings bool   // This is only used for test and alpha releases
 }
 
 type ReleaseChanges struct {

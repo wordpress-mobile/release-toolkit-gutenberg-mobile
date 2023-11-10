@@ -55,14 +55,23 @@ func CreateGbmPR(build Build) (gh.PullRequest, error) {
 	}
 
 	// Update the Gutenberg submodule
-	gbBranch := "rnmobile/release_" + version
 	if org != repo.WpMobileOrg {
 		console.Warn("You are not using the %s org. Check the .gitmodules file to make sure the gutenberg submodule is pointing to %s/gutenberg.", repo.WpMobileOrg, org)
 	}
-	if exists, _ := gh.SearchBranch("gutenberg", gbBranch); (exists == gh.Branch{}) {
-		return pr, fmt.Errorf("the Gutenberg branch %s does not exist on %s/gutenberg-mobile", gbBranch, org)
+
+	var gbRef string
+	if build.Version.IsPreRelease() {
+		gbRef = build.GbRef
+
+	} else {
+		gbBranch := "rnmobile/release_" + version
+
+		if exists, _ := gh.SearchBranch("gutenberg", gbBranch); (exists == gh.Branch{}) {
+			return pr, fmt.Errorf("the Gutenberg branch %s does not exist on %s/gutenberg-mobile", gbBranch, org)
+		}
 	}
-	if err := updateGbSubmodule(gbBranch, dir, git); err != nil {
+
+	if err := updateGbSubmodule(gbRef, dir, git); err != nil {
 		return pr, fmt.Errorf("error updating the Gutenberg submodule: %v", err)
 	}
 
@@ -87,14 +96,16 @@ func CreateGbmPR(build Build) (gh.PullRequest, error) {
 		return pr, fmt.Errorf("error committing the package version update: %v", err)
 	}
 
-	console.Info("Updating i18n files")
-	if err := npm.Run("i18n:update"); err != nil {
-		return pr, fmt.Errorf("error running npm run bundle: %v", err)
-	}
+	// Update i18n strings files
+	if build.UpdateStrings {
+		console.Info("Updating i18n files")
+		if err := npm.Run("i18n:update"); err != nil {
+			return pr, fmt.Errorf("error running npm run bundle: %v", err)
+		}
 
-	// Commit the updated strings
-	if err := git.CommitAll("Release script: Update i18n files for %s", version); err != nil {
-		return pr, fmt.Errorf("error committing the bundle update: %v", err)
+		if err := git.CommitAll("Release script: Update i18n files for %s", version); err != nil {
+			return pr, fmt.Errorf("error committing the bundle update: %v", err)
+		}
 	}
 
 	if err := updateXcFramework(version, dir, git); err != nil {
@@ -107,8 +118,9 @@ func CreateGbmPR(build Build) (gh.PullRequest, error) {
 	if err := UpdateReleaseNotes(version, chnPath); err != nil {
 		return pr, fmt.Errorf("error updating the release notes: %v", err)
 	}
-	// If this is a patch release we should prompt for the wrangler to manually update the release notes
-	if build.Version.IsPatchRelease() {
+
+	// If this is not a schedules release we should prompt for the wrangler to manually update the release notes
+	if !build.Version.IsScheduledRelease() {
 		console.Print(console.Highlight, "\nSince this is a patch release manually update the release notes")
 
 		if err := openInEditor(dir, []string{"RELEASE-NOTES.txt"}); err != nil {
@@ -296,19 +308,19 @@ func getReleaseNotes(dir string, gbmPr *gh.PullRequest) ([]byte, error) {
 	return rn, nil
 }
 
-func updateGbSubmodule(gbBranch, dir string, git shell.GitCmds) error {
+func updateGbSubmodule(gbRef, dir string, git shell.GitCmds) error {
 	console.Info("Updating Gutenberg submodule")
 	// Create a git client for Gutenberg submodule so the Gutenberg ref can be
 	// updated to the correct branch
 	gbSp := shell.CmdProps{Dir: filepath.Join(dir, "gutenberg"), Verbose: true}
 	gbGit := shell.NewGitCmd(gbSp)
 
-	if err := gbGit.Fetch(gbBranch); err != nil {
-		return fmt.Errorf("error fetching the Gutenberg branch: %v", err)
+	if err := gbGit.Fetch(gbRef); err != nil {
+		return fmt.Errorf("error fetching the Gutenberg ref: %v", err)
 	}
 
-	if err := gbGit.Switch(gbBranch); err != nil {
-		return fmt.Errorf("error checking out the Gutenberg branch: %v", err)
+	if err := gbGit.Switch(gbRef, "--detach"); err != nil {
+		return fmt.Errorf("error switching to the Gutenberg ref %s: %v", gbRef, err)
 	}
 
 	if err := git.CommitAll("Release script: Update gutenberg submodule"); err != nil {
