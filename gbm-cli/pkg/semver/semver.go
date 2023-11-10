@@ -47,6 +47,9 @@ func (s *semver) PriorVersion() SemVer {
 		p, _ = NewSemVer(fmt.Sprintf("%d.%d.%d", s.Major, s.Minor, s.Patch-1))
 		return p
 	}
+
+	// Note: We will have to check the lastest published release if s.Minor == 0
+	// It that case we are looking a prior major version.
 	p, _ = NewSemVer(fmt.Sprintf("%d.%d.%d", s.Major, s.Minor-1, 0))
 	return p
 }
