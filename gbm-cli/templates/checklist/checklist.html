@@ -104,24 +104,11 @@ and don't forget to run <code>npm run bundle</code> in gutenberg-mobile again if
 
 {{ Task `<a href="%s">Create a new gutenberg-mobile GitHub Release</a>. Include a list of changes in the release description. Ensure the checkmark "Set as the latest release" is checked, and <strong>publish the release with the "Publish release" button.</strong>` .ReleaseUrl }}
 
-{{ Task `Wait until all CI jobs for the published tag finish and succeed.` }}
+{{ Task `Wait until all <a href="%s">CI jobs for the published tag</a> to finish and succeed.` .BuildkitReleaseUrl}}
 
-{{ Task `Navigate to the Buildkite job that built the JS bundles (<code>Build JS Bundles</code>) for the published tag. Open the job and navigate to the "Artifacts" tab. Locate the composed source maps (they have file name <code>bundle/{platform}/App.composed.js.map</code>) and download them.` }}
-
-<!-- wp:group {"layout":{"type":"constrained"}} -->
-<div class="wp-block-group">
-{{ Task `Navigate and edit the GitHub release. Attach the composed source maps to the release (you can drag and drop the files in the “Attach binaries” drop area). Once they are uploaded, update the artifact’s name following this format:` }}
-<!-- wp:list -->
-<ul><!-- wp:list-item -->
-<li>File: <code>bundle/android/App.composed.js.map</code> – Artifact name: <code>android-App.js.map</code></li>
-<!-- /wp:list-item -->
-
-<!-- wp:list-item -->
-<li>File: <code>bundle/ios/App.composed.js.map</code> – Artifact name: <code>ios-App.js.map</code></li>
-<!-- /wp:list-item --></ul>
-
-<!-- /wp:list --></div>
-<!-- /wp:group -->
+{{ Task `Download the composed source maps from the <a href="%s"></a>release build in Buildkite</a>.
+The 2 files are: <code>Build JS Bundles (step) > Artifacts (tab) > bundle/{platform}/App.composed.js.map </code>.
+Rename them to {platform}-App.js.map and add them as assets to the Github release` .BuildkitReleaseUrl }}
 
 {{ Task `In WPiOS, update the reference to point to the <em>tag</em> of the Release created in the previous task.` }}
 
