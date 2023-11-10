@@ -110,11 +110,9 @@ and don't forget to run <code>npm run bundle</code> in gutenberg-mobile again if
 The 2 files are: <code>Build JS Bundles (step) > Artifacts (tab) > bundle/{platform}/App.composed.js.map </code>.
 Rename them to {platform}-App.js.map and add them as assets to the Github release` .BuildkitReleaseUrl }}
 
-{{ Task `In WPiOS, update the reference to point to the <em>tag</em> of the Release created in the previous task.` }}
+{{ Task `run <code>gbm-cli release integrate %s</code> to update the integration PRs with the release tag` .Version}}
 
-{{ Task `In WPAndroid, update the <code>gutenbergMobileVersion</code> in <code>build.gradle</code> to point to the <em>tag</em> of the Release used in the previous task.` }}
-
-{{ Task `Main apps PRs should be ready to merge to their <code>trunk</code> branches now. Merge them or get them merged.`}}
+{{ Task `Merge the integration PRs once the CI steps pass`}}
 
 <!-- wp:group {"layout":{"type":"constrained"}} -->
 <div class="wp-block-group">
