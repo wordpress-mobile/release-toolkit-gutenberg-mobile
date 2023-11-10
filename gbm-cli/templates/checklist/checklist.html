@@ -37,11 +37,15 @@
 <h3>Create the Release{{ if .Scheduled }} (Thursday) {{end}}</h3>
 <!-- /wp:heading -->
 
-{{ Task `Install or update <code>gbm-cli</code>. See the [Installing](https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile#installing) in the <code>gbm-cli</code> README. ` }}
+{{ Task `Install or update <code>gbm-cli</code>. See the <a href="https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile#installing">Installing</a> in the <code>gbm-cli</code> README and compare <br />
+<code>$ gbm-cli --version</code>
+with the <a href="https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/releases">latest release version</a>.` }}
 
-{{ Task `Run <code>gbm-cli release prepare all %s</code> to create the gutenberg and gutenberg-mobile release PRs.` .Version }}
+{{ Task `Create the Gutenberg and Gutenberg Mobile release PR by running:
+  <pre>$ gbm-cli release prepare all %s</pre>` .Version }}
 
-{{ Task `Once the CI tasks succeed, run the integrate command to create the main apps PRs for WordPress-iOS and WordPress-Android: <code>gbm-cli release integrate %s</code>` .Version }}
+{{ Task `After the CI tasks succeed, create the WordPress-iOS and WordPress-Android integration PRs by running:
+  <pre>$ gbm-cli release integrate %s</pre>` .Version }}
 
 {{ if .Scheduled }}
 <!-- wp:group -->
@@ -115,7 +119,8 @@ The 2 files are:
 
 Rename them to <code>{platform}-App.js.map</code> and add them as assets to the <a href="https://github.com/wordpress-mobile/gutenberg-mobile/releases/tag/v%s">Github release.</a>` .BuildkitReleaseUrl .Version }}
 
-{{ Task `run <code>gbm-cli release integrate %s</code> to update the integration PRs with the release tag` .Version}}
+{{ Task `Update the integration PRs with the release tag by running:
+  <pre>$ gbm-cli release integrate %s</pre>` .Version}}
 
 {{ Task `Merge the integration PRs once the CI steps pass`}}
 
