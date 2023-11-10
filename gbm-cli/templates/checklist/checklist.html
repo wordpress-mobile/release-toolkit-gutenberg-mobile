@@ -39,9 +39,9 @@
 
 {{ Task `Check your version of <code>gbm-cli</code> by running <code>gbm-cli --version</code>. If you are not on the latest version, install the latest <a href="https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/releases">Release kit release</a>` }}
 
-{{ Task `Run <code>gbm-cli release prepare all %s</code> to create the gutenberg and gutenberg-mobile release PRs.` }}
+{{ Task `Run <code>gbm-cli release prepare all %s</code> to create the gutenberg and gutenberg-mobile release PRs.` .Version }}
 
-{{ Task `Once the CI tasks succeed, run the integrate command to create the main apps PRs for WordPress-iOS and WordPress-Android: <code>go run main.go release integrate %s</code> `}}
+{{ Task `Once the CI tasks succeed, run the integrate command to create the main apps PRs for WordPress-iOS and WordPress-Android: <code>gbm-cli release integrate %s</code>` .Version }}
 
 {{ if .Scheduled }}
 <!-- wp:group -->
