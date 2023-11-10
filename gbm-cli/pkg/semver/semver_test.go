@@ -9,6 +9,12 @@ func TestSemVer(t *testing.T) {
 		assertError(t, err)
 	})
 
+	t.Run("It allows Alpha versions", func(t *testing.T) {
+		semver, err := NewSemVer("1.0.0-alpha1")
+		assertNotError(t, err)
+		assertEqual(t, semver.String(), "1.0.0-alpha1")
+	})
+
 	t.Run("It returns the version without the 'v' prefix", func(t *testing.T) {
 		semver, err := NewSemVer("v1.0.0")
 		assertNotError(t, err)
@@ -32,6 +38,11 @@ func TestSemVer(t *testing.T) {
 		assertNotError(t, err)
 		if !semver.IsScheduledRelease() {
 			t.Fatal("Expected 1.0.0 to be a scheduled release")
+		}
+		semver, err = NewSemVer("1.0.0-alpha1")
+		assertNotError(t, err)
+		if semver.IsScheduledRelease() {
+			t.Fatal("Expected 1.0.0-alpha1 to not be a scheduled release")
 		}
 
 		semver, err = NewSemVer("1.0.1")

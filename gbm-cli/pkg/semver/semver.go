@@ -1,11 +1,15 @@
 package semver
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 type semver struct {
-	Major int
-	Minor int
-	Patch int
+	Major      int
+	Minor      int
+	Patch      int
+	PreRelease string
 }
 
 type SemVer interface {
@@ -14,6 +18,7 @@ type SemVer interface {
 	PriorVersion() SemVer
 	IsScheduledRelease() bool
 	IsPatchRelease() bool
+	IsPreRelease() bool
 	Parse(version string) error
 }
 
@@ -24,11 +29,14 @@ func NewSemVer(version string) (SemVer, error) {
 }
 
 func (s *semver) String() string {
+	if s.PreRelease != "" {
+		return fmt.Sprintf("%d.%d.%d-%s", s.Major, s.Minor, s.Patch, s.PreRelease)
+	}
 	return fmt.Sprintf("%d.%d.%d", s.Major, s.Minor, s.Patch)
 }
 
 func (s *semver) Vstring() string {
-	return fmt.Sprintf("v%d.%d.%d", s.Major, s.Minor, s.Patch)
+	return fmt.Sprintf("v%s", s.String())
 }
 
 func (s *semver) PriorVersion() SemVer {
@@ -44,16 +52,26 @@ func (s *semver) PriorVersion() SemVer {
 }
 
 func (s *semver) IsScheduledRelease() bool {
-	return s.Patch == 0
+	return s.Patch == 0 && s.PreRelease == ""
 }
 
 func (s *semver) IsPatchRelease() bool {
 	return s.Patch > 0
 }
 
+func (s *semver) IsPreRelease() bool {
+	return s.PreRelease != ""
+}
+
 func (s *semver) Parse(version string) error {
 	if version[0] == 'v' {
 		version = version[1:]
+	}
+	// check for pre-release
+	split := strings.Split(version, "-")
+	if len(split) > 1 {
+		version = split[0]
+		s.PreRelease = split[1]
 	}
 	_, err := fmt.Sscanf(version, "%d.%d.%d", &s.Major, &s.Minor, &s.Patch)
 	return err
