@@ -32,5 +32,6 @@ func init() {
 	ReleaseCmd.AddCommand(prepare.PrepareCmd)
 	ReleaseCmd.AddCommand(IntegrateCmd)
 	ReleaseCmd.AddCommand(StatusCmd)
+	ReleaseCmd.AddCommand(PublishCmd)
 	ReleaseCmd.PersistentFlags().BoolVar(&keepTempDir, "keep", false, "Keep temporary directory after running command")
 }
