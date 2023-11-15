@@ -59,7 +59,7 @@ func (w *workspace) create() error {
 
 func (w *workspace) setCleaner() {
 	w.cleaner = func() {
-		if w.disabled || w.dir == "" {
+		if w.disabled || w.dir == "" || w.keep {
 			return
 		}
 
