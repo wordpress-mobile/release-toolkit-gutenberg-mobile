@@ -1,6 +1,9 @@
 package release
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/gbm-cli/cmd/utils"
@@ -11,99 +14,119 @@ import (
 	"github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/gbm-cli/pkg/repo"
 )
 
+var watch bool
+var delay int
 var StatusCmd = &cobra.Command{
 	Use:   "status",
 	Short: "get the status of a release",
 	Long:  `Use this command to get the status of a release.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		semver, err := utils.GetVersionArg(args)
-		exitIfError(err, 1)
 
-		version := semver.String()
+		render := func() {
+			semver, err := utils.GetVersionArg(args)
+			exitIfError(err, 1)
 
-		// Print styles
-		heading := console.Heading
-		headingRow := console.HeadingRow
-		row := console.Row
-		basic := color.New(color.FgWhite)
+			version := semver.String()
 
-		console.Print(heading, "\nRelease %s Status\n", version)
+			// Print styles
+			heading := console.Heading
+			headingRow := console.HeadingRow
+			row := console.Row
+			basic := color.New(color.FgWhite)
 
-		// Check to see if the release has been published
-		rel, err := release.GetGbmRelease(version)
-		exitIfError(err, 1)
+			console.Print(heading, "\nRelease %s Status\n", version)
 
-		if (rel != gh.Release{}) {
-			console.Print(heading, "\n🎉 Release %s has been published!\n %s\n", version, rel.Url)
-		}
+			// Check to see if the release has been published
+			rel, _ := release.GetGbmRelease(version)
 
-		prs := []gh.PullRequest{}
-		gbPr, gbmPr, androidPr, iosPr := gh.PullRequest{}, gh.PullRequest{}, gh.PullRequest{}, gh.PullRequest{}
-
-		// @TODO: search for gb pr
-		gbPr, err = release.FindGbReleasePr(version)
-		if err != nil {
-			console.Warn("Could not get Gutenberg PR: %s", err)
-		}
-		gbPr.Repo = repo.GetOrg("gutenberg") + "/gutenberg"
-		prs = append(prs, gbPr)
-
-		gbmPr, err = release.FindGbmReleasePr(version)
-		if err != nil {
-			console.Warn("Could not get Gutenberg Mobile PR: %s", err)
-		}
-		gbmPr.Repo = repo.GetOrg("gutenberg-mobile") + "/gutenberg-mobile"
-		prs = append(prs, gbmPr)
-
-		androidPr, err = release.FindAndroidReleasePr(version)
-		if err != nil {
-			console.Warn("Could not find Android PR: %s", err)
-		}
-		androidPr.Repo = repo.GetOrg("WordPress-Android") + "/WordPress-Android"
-		prs = append(prs, androidPr)
-
-		iosPr, err = release.FindIosReleasePr(version)
-		if err != nil {
-			console.Warn("Could not find iOS PR: %s", err)
-		}
-		iosPr.Repo = repo.GetOrg("WordPress-iOS") + "/WordPress-iOS"
-		prs = append(prs, iosPr)
-
-		console.Print(heading, "Release Prs:")
-		console.Print(headingRow, "%-36s %-10s %-10v %s", "Repo", "State", "Mergeable", "Url")
-
-		// List the PRs
-		for _, pr := range prs {
-			if pr.Number == 0 {
-				pr.State = "…"
-				pr.Url = "…"
+			if (rel != gh.Release{}) {
+				console.Print(heading, "\n🎉 Release %s has been published!\n %s\n", version, rel.Url)
 			}
-			console.Print(row, "• %-34s %-10s %-10v %s", pr.Repo, pr.State, pr.Mergeable, pr.Url)
+
+			prs := []gh.PullRequest{}
+			gbPr, gbmPr, androidPr, iosPr := gh.PullRequest{}, gh.PullRequest{}, gh.PullRequest{}, gh.PullRequest{}
+
+			// @TODO: search for gb pr
+			gbPr, err = release.FindGbReleasePr(version)
+			if err != nil {
+				console.Warn("Could not get Gutenberg PR: %s", err)
+			}
+			gbPr.Repo = repo.GetOrg("gutenberg") + "/gutenberg"
+			prs = append(prs, gbPr)
+
+			gbmPr, err = release.FindGbmReleasePr(version)
+			if err != nil {
+				console.Warn("Could not get Gutenberg Mobile PR: %s", err)
+			}
+			gbmPr.Repo = repo.GetOrg("gutenberg-mobile") + "/gutenberg-mobile"
+			prs = append(prs, gbmPr)
+
+			androidPr, err = release.FindAndroidReleasePr(version)
+			if err != nil {
+				console.Warn("Could not find Android PR: %s", err)
+			}
+			androidPr.Repo = repo.GetOrg("WordPress-Android") + "/WordPress-Android"
+			prs = append(prs, androidPr)
+
+			iosPr, err = release.FindIosReleasePr(version)
+			if err != nil {
+				console.Warn("Could not find iOS PR: %s", err)
+			}
+			iosPr.Repo = repo.GetOrg("WordPress-iOS") + "/WordPress-iOS"
+			prs = append(prs, iosPr)
+
+			console.Print(heading, "Release Prs:")
+			console.Print(headingRow, "%-36s %-10s %-10v %s", "Repo", "State", "Mergeable", "Url")
+
+			// List the PRs
+			for _, pr := range prs {
+				if pr.Number == 0 {
+					pr.State = "…"
+					pr.Url = "…"
+				}
+				console.Print(row, "• %-34s %-10s %-10v %s", pr.Repo, pr.State, pr.Mergeable, pr.Url)
+			}
+
+			// Get the status for the head sha
+			console.Print(heading, "\nGutenberg Mobile Build Status\n")
+			if gbmPr.Number == 0 {
+				console.Print(row, "...Waiting for Gutenberg Mobile PR to be created before checking build status")
+				return
+			}
+			sha := gbmPr.Head.Sha
+			console.Print(basic, "Getting Gutenberg Builds for sha: %s", sha)
+
+			console.Print(headingRow, "%-10s %-10s", "Platform", "Status")
+
+			androidReady, _ := gbm.AndroidGbmBuildPublished(gbmPr)
+			iosReady, _ := gbm.IosGbmBuildPublished(gbmPr)
+
+			console.Print(row, "%-10s %-10v", "Android", androidReady)
+			console.Print(row, "%-10s %-10v", "iOS", iosReady)
 		}
 
-		// Get the status for the head sha
-		console.Print(heading, "\nGutenberg Mobile Build Status\n")
-		if gbmPr.Number == 0 {
-			console.Print(row, "...Waiting for Gutenberg Mobile PR to be created before checking build status")
-			return
+		if watch {
+			const sc = "\u001B7"
+			const rc = "\u001B8"
+			console.Clear()
+			for {
+				fmt.Print(sc)
+				console.Info("Refreshing status every %d seconds...", delay)
+
+				render()
+				fmt.Print(rc + sc)
+				time.Sleep(time.Duration(delay) * time.Second)
+
+			}
 		}
-		sha := gbmPr.Head.Sha
-		console.Print(basic, "Getting Gutenberg Builds for sha: %s", sha)
-
-		console.Print(headingRow, "%-10s %-10s", "Platform", "Status")
-
-		androidReady, err := gbm.AndroidGbmBuildPublished(gbmPr)
-		if err != nil {
-			console.Warn("Could not get Android build status: %s", err)
-		}
-
-		iosReady, err := gbm.IosGbmBuildPublished(gbmPr)
-
-		if err != nil {
-			console.Warn("Could not get iOS build status: %s", err)
-		}
-		console.Print(row, "%-10s %-10v", "Android", androidReady)
-		console.Print(row, "%-10s %-10v", "iOS", iosReady)
+		render()
 
 	},
+}
+
+func init() {
+	StatusCmd.Flags().BoolVar(&watch, "watch", false, "refresh the status every '-time' seconds")
+
+	// Anything less than 5 seconds is too fast for the GH api
+	StatusCmd.Flags().IntVarP(&delay, "time", "t", 10, "delay in seconds between refreshes")
 }
