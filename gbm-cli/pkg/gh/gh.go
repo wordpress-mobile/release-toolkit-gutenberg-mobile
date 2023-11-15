@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"path"
 	"strconv"
 	"strings"
 
@@ -91,13 +92,16 @@ type Check struct {
 
 type Status struct {
 	State    string
+	Passed   bool
 	Statuses []Check
 }
 
 type Release struct {
+	Id          int
 	TagName     string `json:"tag_name"`
 	Url         string `json:"html_url"`
 	Name        string
+	Body        string
 	Draft       bool
 	Prerelease  bool
 	Target      string `json:"target_commitish"`
@@ -226,6 +230,60 @@ func GetLatestRelease(rpo string) (Release, error) {
 		return Release{}, err
 	}
 	return release, nil
+}
+
+func CreateRelease(rpo string, rel *Release) error {
+	org := repo.GetOrg(rpo)
+	client := getClient()
+	endpoint := fmt.Sprintf("repos/%s/%s/releases", org, rpo)
+
+	nrel := struct {
+		TagName         string `json:"tag_name"`
+		TargetCommitish string `json:"target_commitish"`
+		Name            string `json:"name"`
+		Body            string `json:"body"`
+	}{
+		TagName:         rel.TagName,
+		TargetCommitish: rel.Target,
+		Name:            rel.Name,
+		Body:            rel.Body,
+	}
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(nrel); err != nil {
+		return err
+	}
+
+	if err := client.Post(endpoint, &buf, &rel); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func UploadReleaseAssets(rpo, dir string, rel Release, files ...string) error {
+
+	org := repo.GetOrg(rpo)
+	client := getClient()
+	for _, file := range files {
+		// Check if the file exists
+		if _, err := os.Stat(file); os.IsNotExist(err) {
+			return fmt.Errorf("file %s does not exist", file)
+		}
+		endpoint := fmt.Sprintf("repos/%s/%s/releases/%d/assets?name=%s", org, rpo, rel.Id, file)
+
+		fb, err := os.Open(path.Join(dir, file))
+		if err != nil {
+			return err
+		}
+		defer fb.Close()
+
+		if err := client.Post(endpoint, fb, struct{}{}); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func GetPrOrg(org, repo string, id int) (*PullRequest, error) {
@@ -381,6 +439,8 @@ func GetStatusChecks(rpo, sha string) (Status, error) {
 		return Status{}, err
 	}
 
+	status.Passed = status.State == "success"
+
 	return status, nil
 }
 
@@ -406,6 +466,18 @@ func GetStatus(rpo, sha string) (string, error) {
 	}
 
 	return status.State, nil
+}
+
+func ChecksPassed(rpo, sha string) (bool, error) {
+	status, err := GetStatusChecks(rpo, sha)
+	if err != nil {
+		return false, err
+	}
+
+	if status.State != "success" {
+		return false, nil
+	}
+	return true, nil
 }
 
 func getClient() *api.RESTClient {

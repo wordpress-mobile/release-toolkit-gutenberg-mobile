@@ -13,9 +13,12 @@ var PublishCmd = &cobra.Command{
 	Short: "publish a release",
 	Long:  `Use this command to publish a release.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		semver, err := utils.GetVersionArg(args)
+
+		if keepTempDir {
+			workspace.Keep()
+		}
+		version, err := utils.GetVersionArg(args)
 		exitIfError(err, 1)
-		version := semver.String()
 
 		r, err := release.Publish(version, tempDir)
 		exitIfError(err, 1)

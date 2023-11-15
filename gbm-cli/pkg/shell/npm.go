@@ -10,7 +10,7 @@ type NpmCmds interface {
 }
 
 func (c *client) Ci() error {
-	return c.cmd("ci")
+	return c.cmd("ci", "--unsafe-perm", "--prefer-offline", "--no-audit", "--no-progress")
 }
 
 func (c *client) Run(args ...string) error {
