@@ -8,7 +8,7 @@ import (
 	"github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/gbm-cli/pkg/gh"
 )
 
-const Version = "v1.2.0"
+const Version = "v1.3.0"
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
