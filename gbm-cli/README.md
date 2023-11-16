@@ -8,16 +8,18 @@ The current features include:
 - Commands to wrangle Gutenberg Mobile releases
 
 ## Installing
-Check the latest release in this repository for the binary builds. Currently we only build for MacOS arm64 (apple silicon). The script has only been tested on apple silicon but build of other platforms should work as expected. See the official [go build](https://go.dev/ref/mod#go-install) documentation for alternative builds.
+Check the [latest release](https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/releases/latest) in this repository for the binary builds.
+Currently we only build for MacOS arm64 (apple silicon). The script has only been tested on apple silicon but builds of other platforms should work as expected. See the official [go build](https://go.dev/ref/mod#go-install) documentation for alternative builds.
 
-If using apple silicon, download the `gbm-cli` binary from the [latest release(https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/releases)
-Place the executable in your PATH and reload your shell. Try
+If using apple silicon, download the `gbm-cli` binary from the [latest release](https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/releases/latest)
+Place the executable in your `$PATH` and reload your shell. Try
 
 ```
 $ gbm-cli --version
 ```
 
 To verify installation.
+
 
 If `go` (above version `1.21`) is installed you can also use:
 

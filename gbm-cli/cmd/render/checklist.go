@@ -19,14 +19,15 @@ var releaseDate string
 var checkAztec bool
 
 type templateData struct {
-	Version      string
-	Scheduled    bool
-	Date         string
-	Message      string
-	ReleaseUrl   string
-	HostVersion  string
-	IncludeAztec bool
-	CheckAztec   bool
+	Version            string
+	Scheduled          bool
+	Date               string
+	Message            string
+	ReleaseUrl         string
+	HostVersion        string
+	IncludeAztec       bool
+	CheckAztec         bool
+	BuildkitReleaseUrl string
 }
 
 // checklistCmd represents the checklist command
@@ -66,14 +67,15 @@ var ChecklistCmd = &cobra.Command{
 			Path:  "templates/checklist/checklist.html",
 			Funcs: template.FuncMap{"RenderAztecSteps": renderAztecSteps},
 			Data: templateData{
-				Version:      version,
-				Scheduled:    scheduled,
-				ReleaseUrl:   releaseUrl,
-				Date:         releaseDate,
-				Message: 	  message,
-				HostVersion:  hostVersion,
-				IncludeAztec: includeAztec,
-				CheckAztec:   checkAztec,
+				Version:            version,
+				Scheduled:          scheduled,
+				ReleaseUrl:         releaseUrl,
+				Date:               releaseDate,
+				Message:            message,
+				HostVersion:        hostVersion,
+				IncludeAztec:       includeAztec,
+				CheckAztec:         checkAztec,
+				BuildkitReleaseUrl: "https://buildkite.com/automattic/gutenberg-mobile/builds?branch=" + semver.Vstring(),
 			},
 		}
 

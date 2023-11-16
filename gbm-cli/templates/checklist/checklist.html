@@ -37,11 +37,15 @@
 <h3>Create the Release{{ if .Scheduled }} (Thursday) {{end}}</h3>
 <!-- /wp:heading -->
 
-{{ Task `Pull the latest version of the <a href="https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/releases">CLI</a>.` }}
+{{ Task `Install or update <code>gbm-cli</code>. See the <a href="https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile#installing">Installing</a> in the <code>gbm-cli</code> README and compare <br />
+<code>$ gbm-cli --version</code>
+with the <a href="https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/releases">latest release version</a>.` }}
 
-{{ Task `In your clone of the <code>cli</code> directory, run the prepare command: <code>go run main.go release prepare all %s</code> to create the gutenberg and gutenberg-mobile release PRs.` }}
+{{ Task `Create the Gutenberg and Gutenberg Mobile release PR by running:
+  <pre>$ gbm-cli release prepare all %s</pre>` .Version }}
 
-{{ Task `Once the CI tasks succeed, run the integrate command to create the main apps PRs for WordPress-iOS and WordPress-Android: <code>go run main.go release integrate %s</code> `}}
+{{ Task `After the CI tasks succeed, create the WordPress-iOS and WordPress-Android integration PRs by running:
+  <pre>$ gbm-cli release integrate %s</pre>` .Version }}
 
 {{ if .Scheduled }}
 <!-- wp:group -->
@@ -104,30 +108,21 @@ and don't forget to run <code>npm run bundle</code> in gutenberg-mobile again if
 
 {{ Task `<a href="%s">Create a new gutenberg-mobile GitHub Release</a>. Include a list of changes in the release description. Ensure the checkmark "Set as the latest release" is checked, and <strong>publish the release with the "Publish release" button.</strong>` .ReleaseUrl }}
 
-{{ Task `Wait until all CI jobs for the published tag finish and succeed.` }}
+{{ Task `Wait until all <a href="%s">CI jobs for the published tag</a> to finish and succeed.` .BuildkitReleaseUrl}}
 
-{{ Task `Navigate to the Buildkite job that built the JS bundles (<code>Build JS Bundles</code>) for the published tag. Open the job and navigate to the "Artifacts" tab. Locate the composed source maps (they have file name <code>bundle/{platform}/App.composed.js.map</code>) and download them.` }}
+{{ Task `Download the composed source maps from the <a href="%s">release build in Buildkite</a>.<br />
+The 2 files are:
 
-<!-- wp:group {"layout":{"type":"constrained"}} -->
-<div class="wp-block-group">
-{{ Task `Navigate and edit the GitHub release. Attach the composed source maps to the release (you can drag and drop the files in the “Attach binaries” drop area). Once they are uploaded, update the artifact’s name following this format:` }}
-<!-- wp:list -->
-<ul><!-- wp:list-item -->
-<li>File: <code>bundle/android/App.composed.js.map</code> – Artifact name: <code>android-App.js.map</code></li>
-<!-- /wp:list-item -->
+<pre>
+  Build JS Bundles (step) > Artifacts (tab) > bundle/{platform}/App.composed.js.map
+</pre>
 
-<!-- wp:list-item -->
-<li>File: <code>bundle/ios/App.composed.js.map</code> – Artifact name: <code>ios-App.js.map</code></li>
-<!-- /wp:list-item --></ul>
+Rename them to <code>{platform}-App.js.map</code> and add them as assets to the <a href="https://github.com/wordpress-mobile/gutenberg-mobile/releases/tag/v%s">Github release.</a>` .BuildkitReleaseUrl .Version }}
 
-<!-- /wp:list --></div>
-<!-- /wp:group -->
+{{ Task `Update the integration PRs with the release tag by running:
+  <pre>$ gbm-cli release integrate %s</pre>` .Version}}
 
-{{ Task `In WPiOS, update the reference to point to the <em>tag</em> of the Release created in the previous task.` }}
-
-{{ Task `In WPAndroid, update the <code>gutenbergMobileVersion</code> in <code>build.gradle</code> to point to the <em>tag</em> of the Release used in the previous task.` }}
-
-{{ Task `Main apps PRs should be ready to merge to their <code>trunk</code> branches now. Merge them or get them merged.`}}
+{{ Task `Merge the integration PRs once the CI steps pass`}}
 
 <!-- wp:group {"layout":{"type":"constrained"}} -->
 <div class="wp-block-group">
@@ -150,6 +145,8 @@ and don't forget to run <code>npm run bundle</code> in gutenberg-mobile again if
 <!-- /wp:group -->
 
 {{ Task `Close the <a href="https://github.com/wordpress-mobile/gutenberg-mobile/milestones">Gutenberg Mobile milestone</a> that corresponds to this release.` }}
+
+{{ Task `Create a <a href="https://github.com/wordpress-mobile/gutenberg-mobile/milestones/new"> new Gutenberg Mobile milestone</a> for the next release` }}
 
 <!-- wp:heading {"level":3} -->
 <h3>Merge Release Branches</h3>
