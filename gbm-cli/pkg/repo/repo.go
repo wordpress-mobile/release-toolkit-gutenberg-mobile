@@ -3,6 +3,8 @@ package repo
 import (
 	"fmt"
 	"os"
+
+	"github.com/cli/go-gh/v2/pkg/auth"
 )
 
 const WordPressAndroidRepo = "WordPress-Android"
@@ -76,7 +78,7 @@ func GetRepoPath(repo string) string {
 
 func GetRepoHttpsPath(repo string) string {
 	org := GetOrg(repo)
-	token := os.Getenv("GITHUB_TOKEN")
+	token, _ := auth.TokenForHost("github.com")
 	if token != "" {
 		return fmt.Sprintf("https://%s@github.com/%s/%s", token, org, repo)
 	}
