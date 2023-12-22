@@ -18,7 +18,7 @@ var keepTempDir, noTag bool
 var workspace wp.Workspace
 var tempDir string
 var version semver.SemVer
-var prs []string
+var prs, shas []string
 
 var PrepareCmd = &cobra.Command{
 	Use:   "prepare",
@@ -66,23 +66,26 @@ func init() {
 	PrepareCmd.PersistentFlags().BoolVar(&keepTempDir, "keep", false, "Keep temporary directory after running command")
 	PrepareCmd.PersistentFlags().BoolVar(&noTag, "no-tag", false, "Prevent tagging the release")
 	PrepareCmd.PersistentFlags().StringSliceVar(&prs, "prs", []string{}, "prs to include in the release. Only used with patch releases")
+	PrepareCmd.PersistentFlags().StringSliceVar(&shas, "shas", []string{}, "shas to include in the release. Only used with patch releases")
 }
 
 func setupPatchBuild(tagName string, build *release.Build) {
 
 	tag, err := gh.GetTag(build.Repo, tagName)
 	exitIfError(err, 1)
-
+	build.Depth = "--shallow-since=" + tag.Date
 	build.Base = gh.Repo{Ref: tagName}
 
 	// We don't usually pick prs from Gutenberg Mobile for patch releases
 	if len(prs) != 0 {
 		build.Prs = gh.GetPrs("gutenberg", prs)
-		build.Depth = "--shallow-since=" + tag.Date
-
 		if len(build.Prs) == 0 {
 			exitIfError(errors.New("no PRs found for patch release"), 1)
 			return
 		}
+	}
+
+	if len(shas) != 0 {
+		build.Shas = shas
 	}
 }

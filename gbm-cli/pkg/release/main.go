@@ -11,6 +11,7 @@ type Build struct {
 	UseTag  bool
 	Repo    string
 	Prs     []gh.PullRequest
+	Shas    []string
 	Base    gh.Repo
 	Depth   string
 }
