@@ -11,15 +11,19 @@ The current features include:
 Check the [latest release](https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/releases/latest) in this repository for the binary builds.
 Currently we only build for MacOS arm64 (apple silicon). The script has only been tested on apple silicon but builds of other platforms should work as expected. See the official [go build](https://go.dev/ref/mod#go-install) documentation for alternative builds.
 
-If using apple silicon, download the `gbm-cli` binary from the [latest release](https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/releases/latest)
-Place the executable in your `$PATH` and reload your shell. Try
+If using apple silicon, fetch the `gbm-cli` binary from the [latest release](https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/releases/latest)
+Note: MacOS is very strict about downloading unsigned binaries. There is a work around to allowing them but the easier route is to use `wget`:
+
+```
+$ wget https://github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/releases/latest/download/gbm-cli
+chmod +x ./gbm-cli
+```
+
+Then place the executable in your `$PATH` and reload your shell. To verify installation run:
 
 ```
 $ gbm-cli --version
 ```
-
-To verify installation.
-
 
 If `go` (above version `1.21`) is installed you can also use:
 
@@ -37,7 +41,69 @@ The tool uses the same Github authentication as [`gh`](https://cli.github.com/).
 Otherwise follow these steps:
 
 1. Create a [personal access token](https://github.blog/2013-05-16-personal-api-tokens/)
-2. Export the token under the environment variable `GH_TOKEN`
+2. Export the token under the environment variable `GH_TOKEN` or `GITHUB_TOKEN`
+
+## Commands
+
+### `gbn-cli`
+#### Usage
+Use `gbm-cli -h` to see the full list of available commands.
+
+#### Flags
+
+**`-v, -version`** Displays the current version of the tool
+
+**`-h, --help`** Displays the help menu
+
+### `render`
+
+#### Usage
+The `render` command is responsible for generating the checklists that make up the release process.
+
+#### Flags
+
+**`--c`** - Optional: if set any subcommand will send the output to the system clipboard. Otherwise the result is sent to stdout.
+
+#### Subcommands
+
+#### `render checklist`
+
+##### Usage
+To generate the HTML output for a release checklist, run `checklist` as a subcommand and pass a version number with `-v`:
+
+```
+gbm-cli render checklist -v 1.106.0
+```
+
+The command output can be copied to the clipboard with `--c`:
+
+```
+gbm-cli render checklist -v 1.106.0 --c
+```
+
+##### Flags
+
+**`-version -v`** - Required: This is the release version. If passed a non-zero patch value, the checklist will generate a patch specific checklist. Otherwise the result will be a scheduled checklist. The version must be a full semantic version of the format `X.Y.Z` or `vX.Y.Z`. Short versions which do not include the patch value are not allowed.
+
+**`-message|-m `** - Optional: This is an optional message that will be displayed in a light blue block at the top of the checklist. This is primarily used to explain the reason for a patch release but can also be used for scheduled releases.
+
+**`-date|-d`** - Optional: The `date` option only applies to scheduled releases. It is just an optional string value used to display the release date. If not provided the checklist generator will use the next Thursday from when the script runs
+
+**`-host-version|-V`** Optional: This sets the host app version. It defaults to "X.XX". Currently it is only used to generate the suggested notification message to be shared in the apps infrastructure slack channel.
+
+**`--a`** - Optional: If set, the checklist generator will check to see if the Aztec versions are correct and will omit the steps to update Aztec. see `aztec` sub command to render the aztec steps in the event the aztec versions are not valid when cutting the release
+
+
+### `release`
+
+#### Usage
+
+#### Flags
+
+#### Subcommands
+
+
+
 
 ## Development Environment
 1. Download and install the [Go package](https://go.dev/doc/install). Check `go.mod` for the current version of go required (Note: anything below `v1.21` will not work)
