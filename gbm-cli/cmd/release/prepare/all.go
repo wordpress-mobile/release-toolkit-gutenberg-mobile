@@ -36,6 +36,7 @@ var allCmd = &cobra.Command{
 			Dir:     gbDir,
 			Version: version,
 			UseTag:  !noTag,
+			Repo:    "gutenberg",
 			Base: gh.Repo{
 				Ref: "trunk",
 			},
@@ -61,6 +62,7 @@ var allCmd = &cobra.Command{
 			Base: gh.Repo{
 				Ref: "trunk",
 			},
+			Repo: "gutenberg-mobile",
 		}
 
 		if isPatch {
