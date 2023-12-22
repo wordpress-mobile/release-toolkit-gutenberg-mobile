@@ -16,6 +16,7 @@ import (
 )
 
 var android, ios, both bool
+var hostVersion string
 
 var IntegrateCmd = &cobra.Command{
 	Use:   "integrate",
@@ -37,6 +38,14 @@ var IntegrateCmd = &cobra.Command{
 			BaseBranch: "trunk",
 			HeadBranch: fmt.Sprintf("gutenberg/integrate_release_%s", version),
 			GbmPr:      gbmPr,
+		}
+
+		// If this is a patch release, verify the host version is set and update the integration struct
+		if semver.IsPatchRelease() {
+			if hostVersion == "" {
+				exitIfError(errors.New("host version must be set for patch releases"), 1)
+			}
+			ri.BaseBranch = fmt.Sprintf("release/%s", hostVersion)
 		}
 
 		results := []gh.PullRequest{}
@@ -113,4 +122,5 @@ func init() {
 	tempDir = workspace.Dir()
 	IntegrateCmd.Flags().BoolVarP(&android, "android", "a", false, "Only integrate Android")
 	IntegrateCmd.Flags().BoolVarP(&ios, "ios", "i", false, "Only integrate iOS")
+	IntegrateCmd.Flags().StringVarP(&hostVersion, "host-version", "V", "", "host app version")
 }

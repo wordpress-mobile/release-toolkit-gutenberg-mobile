@@ -14,19 +14,19 @@ Used to prepare Gutenberg and Gutenberg Mobile PRs for the release. Contains thr
 Prepare a release for both platforms:
 
 ```
-go run main.go release prepare all v1.107.0
+gbm-cli release prepare all v1.107.0
 ```
 
 Prepare a release for Gutenberg only:
 
 ```
-go run main.go release prepare gb v1.107.0
+gbm-cli release prepare gb v1.107.0
 ```
 
 Prepare a release for Gutenberg Mobile only:
 
 ```
-go run main.go release prepare gbm v1.107.0
+gbm-cli release prepare gbm v1.107.0
 ```
 
 
@@ -44,10 +44,11 @@ Used to integrate a release into the main apps WordPress-iOS and WordPress-Andro
 After the `prepare` command has been run and the CI has finished, the main apps integration PRs can be created:
 
 ```
-go run main.go release integrate v1.107.0
+gbm-cli release integrate v1.107.0
 ```
 
 **Flags**
+- `-V`, `--host-version`: Target host version, required if creating a patch release
 - `-a`, `--android`: Only integrate Android
 - `-i`, `--ios`: Only integrate iOS
 - `-h`, `--help`: Command line help for `integrate` command
@@ -59,5 +60,5 @@ Command used to check the status of any given release:
 **Usage**
 
 ```
-go run main.go release status 1.07.0 
+gbm-cli release status 1.07.0
 ```
