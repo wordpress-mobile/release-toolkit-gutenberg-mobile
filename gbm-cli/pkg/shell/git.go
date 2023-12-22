@@ -24,6 +24,7 @@ type GitCmds interface {
 	Log(...string) error
 	CherryPick(string) error
 	StatConflicts() ([]string, error)
+	Diff(...string) error
 }
 
 func (c *client) Clone(args ...string) error {
@@ -104,6 +105,11 @@ func (c *client) PushTag(tag string, annotate ...string) error {
 func (c *client) Log(args ...string) error {
 	log := append([]string{"log"}, args...)
 	return c.cmd(log...)
+}
+
+func (c *client) Diff(args ...string) error {
+	diff := append([]string{"diff"}, args...)
+	return c.cmd(diff...)
 }
 
 func (c *client) CherryPick(commitOrContinue string) error {
