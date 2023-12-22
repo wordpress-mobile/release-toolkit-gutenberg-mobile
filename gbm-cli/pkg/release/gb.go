@@ -220,9 +220,12 @@ func CreateGbPR(build Build) (gh.PullRequest, error) {
 	}
 
 	if build.UseTag {
-		console.Info("Adding release tag")
-		if err := git.PushTag("rnmobile/" + version); err != nil {
-			console.Warn("Error tagging the release: %v", err)
+		tag := console.Confirm("Do you wish to tag the release now?")
+		if tag {
+			console.Info("Adding release tag")
+			if err := git.PushTag("rnmobile/" + version); err != nil {
+				console.Warn("Error tagging the release: %v", err)
+			}
 		}
 	} else {
 		console.Warn("Skipping tag creation")
