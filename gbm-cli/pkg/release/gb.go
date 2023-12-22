@@ -127,23 +127,21 @@ func CreateGbPR(build Build) (gh.PullRequest, error) {
 		return pr, fmt.Errorf("error updating the CHANGELOG: %v", err)
 	}
 
-	// If this is a patch release we should prompt for the wrangler to manually update the change log
 	if isPatch {
-
-		console.Print(console.Highlight, "\nSince this is a patch release manually update the CHANGELOG")
 		var prNumbers string
 		for _, pr := range build.Prs {
 			prNumbers += fmt.Sprintf("#%d ", pr.Number)
 		}
 		console.Print(console.Highlight, "Note: We just cherry picked these PRs: %s", prNumbers)
+	}
+	console.Info("Here are the proposed changes to the CHANGELOG:\n")
+	git.Diff("-U0", chnPath)
+	if err := openInEditor(dir, []string{chnPath}); err != nil {
+		console.Warn("There was an issue opening the CHANGELOG in your editor: %v", err)
+	}
 
-		if err := openInEditor(dir, []string{filepath.Join("packages", "react-native-editor", "CHANGELOG.md")}); err != nil {
-			console.Warn("There was an issue opening the CHANGELOG in your editor: %v", err)
-		}
-
-		if cont := console.Confirm("Do you wish to continue after updating the CHANGELOG?"); !cont {
-			return pr, fmt.Errorf("exiting before creating PR, Stopping at CHANGELOG update")
-		}
+	if cont := console.Confirm("Do you wish to continue after updating the CHANGELOG?"); !cont {
+		return pr, fmt.Errorf("exiting before creating PR, Stopping at CHANGELOG update")
 	}
 
 	if err := git.CommitAll("Release script: Update CHANGELOG for version %s", version); err != nil {
