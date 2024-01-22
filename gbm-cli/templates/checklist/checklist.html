@@ -44,8 +44,13 @@ with the <a href="https://github.com/wordpress-mobile/release-toolkit-gutenberg-
 {{ Task `Create the Gutenberg and Gutenberg Mobile release PR by running:
   <pre>$ gbm-cli release prepare all %s</pre>` .Version }}
 
+{{ if .Scheduled}}
 {{ Task `After the CI tasks succeed, create the WordPress-iOS and WordPress-Android integration PRs by running:
   <pre>$ gbm-cli release integrate %s</pre>` .Version }}
+{{ else }}
+{{ Task `After the CI tasks succeed, create the WordPress-iOS and WordPress-Android integration PRs by running:
+  <pre>$ gbm-cli release integrate %s -V </pre>` .Version .HostVersion}}
+{{ end }}
 
 {{ if .Scheduled }}
 <!-- wp:group -->
