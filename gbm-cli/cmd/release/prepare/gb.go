@@ -16,10 +16,10 @@ var gbCmd = &cobra.Command{
 
 		defer workspace.Cleanup()
 		build := release.Build{
-			Dir:     tempDir,
-			Version: version,
-			UseTag:  !noTag,
-			Repo:    "gutenberg",
+			Dir:         tempDir,
+			Version:     version,
+			PromptToTag: !noTag,
+			Repo:        "gutenberg",
 			Base: gh.Repo{
 				Ref: "trunk",
 			},

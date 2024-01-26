@@ -202,10 +202,12 @@ func CreateGbPR(build Build) (gh.PullRequest, error) {
 
 	gh.PreviewPr("gutenberg", dir, build.Base.Ref, pr)
 
-	prompt := fmt.Sprintf("\nReady to create the PR on %s/gutenberg?", org)
-	cont := console.Confirm(prompt)
+	var prompt string
 
-	if !cont {
+	prompt = fmt.Sprintf("\nReady to create the PR on %s/gutenberg?", org)
+	shouldCreatePr := console.Confirm(prompt)
+
+	if !shouldCreatePr {
 		return pr, fmt.Errorf("exiting before creating PR")
 	}
 
@@ -221,7 +223,17 @@ func CreateGbPR(build Build) (gh.PullRequest, error) {
 		return pr, fmt.Errorf("pr was not created successfully")
 	}
 
-	if build.UseTag {
+	// Only tag if we are prompting to tag
+	var shouldTag bool
+
+	if build.PromptToTag {
+		prompt = fmt.Sprintf("\nDo you want to create the release tag on %s/gutenberg?", org)
+		shouldTag = console.Confirm(prompt)
+	} else {
+		shouldTag = false
+	}
+
+	if shouldTag {
 		console.Info("Adding release tag")
 		if err := git.PushTag("rnmobile/" + version); err != nil {
 			console.Warn("Error tagging the release: %v", err)
