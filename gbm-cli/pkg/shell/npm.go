@@ -30,6 +30,8 @@ func switchNodeCmd(cmds ...string) *exec.Cmd {
 		}
 	}
 
+	// Other node managers can be added here...
+
 	// Use system node
 	return exec.Command("npm", cmds...)
 }
