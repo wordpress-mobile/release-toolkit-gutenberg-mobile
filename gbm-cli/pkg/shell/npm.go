@@ -1,5 +1,11 @@
 package shell
 
+import (
+	"os"
+	"os/exec"
+	"strings"
+)
+
 type NpmCmds interface {
 	Install(...string) error
 	Ci() error
@@ -7,6 +13,27 @@ type NpmCmds interface {
 	RunIn(string, ...string) error
 	Version(string) error
 	VersionIn(string, string) error
+}
+
+// Check to see if a node manager is available and set up the command accordingly
+func switchNodeCmd(cmds ...string) *exec.Cmd {
+
+	// Check if nvm is installed
+	if os.Getenv("NVM_DIR") != "" {
+		nvmCmd := "nvm use && npm " + strings.Join(cmds, " ")
+		nvmCheck := exec.Command("bash", "-l", "-c", "nvm")
+		if err := nvmCheck.Run(); err != nil {
+			// Load nvm before running npm
+			return exec.Command("bash", "-l", "-c", ". $NVM_DIR/nvm.sh && "+nvmCmd)
+		} else {
+			return exec.Command("bash", "-l", "-c", nvmCmd)
+		}
+	}
+
+	// Other node managers can be added here...
+
+	// Use system node
+	return exec.Command("npm", cmds...)
 }
 
 func (c *client) Ci() error {

@@ -9,7 +9,6 @@ import (
 	"github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/gbm-cli/pkg/render"
 	"github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/gbm-cli/pkg/repo"
 	"github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/gbm-cli/pkg/shell"
-	"github.com/wordpress-mobile/release-toolkit-gutenberg-mobile/gbm-cli/pkg/utils"
 )
 
 func CreateGbPR(build Build) (gh.PullRequest, error) {
@@ -151,10 +150,6 @@ func CreateGbPR(build Build) (gh.PullRequest, error) {
 	}
 
 	console.Info("Setting up Gutenberg node environment")
-
-	if err := utils.SetupNode(dir); err != nil {
-		return pr, fmt.Errorf("error setting up the node environment: %v", err)
-	}
 
 	if err := npm.Install(); err != nil {
 		return pr, fmt.Errorf("error running npm install: %v", err)
