@@ -50,6 +50,7 @@ go run main.go release integrate v1.107.0
 **Flags**
 - `-a`, `--android`: Only integrate Android
 - `-i`, `--ios`: Only integrate iOS
+- `-V` : Host app version (required for patch releases)
 - `-h`, `--help`: Command line help for `integrate` command
 
 ### status
@@ -59,5 +60,5 @@ Command used to check the status of any given release:
 **Usage**
 
 ```
-go run main.go release status 1.07.0 
+go run main.go release status 1.07.0
 ```
