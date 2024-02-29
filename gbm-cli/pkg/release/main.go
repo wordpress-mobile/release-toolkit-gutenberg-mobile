@@ -6,13 +6,13 @@ import (
 )
 
 type Build struct {
-	Version semver.SemVer
-	Dir     string
-	UseTag  bool
-	Repo    string
-	Prs     []gh.PullRequest
-	Base    gh.Repo
-	Depth   string
+	Version     semver.SemVer
+	Dir         string
+	PromptToTag bool
+	Repo        string
+	Prs         []gh.PullRequest
+	Base        gh.Repo
+	Depth       string
 }
 
 type ReleaseChanges struct {

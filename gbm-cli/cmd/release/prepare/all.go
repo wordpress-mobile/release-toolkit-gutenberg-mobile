@@ -33,9 +33,9 @@ var allCmd = &cobra.Command{
 
 		console.Info("Preparing Gutenberg for release %s", version)
 		build := release.Build{
-			Dir:     gbDir,
-			Version: version,
-			UseTag:  !noTag,
+			Dir:         gbDir,
+			Version:     version,
+			PromptToTag: !noTag,
 			Base: gh.Repo{
 				Ref: "trunk",
 			},
