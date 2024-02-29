@@ -39,6 +39,7 @@ var allCmd = &cobra.Command{
 			Base: gh.Repo{
 				Ref: "trunk",
 			},
+			Repo: "gutenberg",
 		}
 
 		isPatch := version.IsPatchRelease()
@@ -61,6 +62,7 @@ var allCmd = &cobra.Command{
 			Base: gh.Repo{
 				Ref: "trunk",
 			},
+			Repo: "gutenberg-mobile",
 		}
 
 		if isPatch {
