@@ -26,5 +26,7 @@ func init() {
 	// Add the render command
 	rootCmd.AddCommand(render.RenderCmd)
 	rootCmd.AddCommand(release.ReleaseCmd)
-	utils.CheckExeVersion(Version)
+	if !utils.CheckIfTempRun() {
+		utils.CheckExeVersion(Version)
+	}
 }
