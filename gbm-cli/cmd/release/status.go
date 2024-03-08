@@ -2,6 +2,7 @@ package release
 
 import (
 	"fmt"
+	"reflect"
 	"time"
 
 	"github.com/fatih/color"
@@ -39,7 +40,7 @@ var StatusCmd = &cobra.Command{
 			// Check to see if the release has been published
 			rel, _ := release.GetGbmRelease(version)
 
-			if (rel != gh.Release{}) {
+			if (!reflect.DeepEqual(rel, gh.Release{})) {
 				console.Print(heading, "\n🎉 Release %s has been published!\n %s\n", version, rel.Url)
 			}
 
