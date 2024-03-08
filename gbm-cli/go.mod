@@ -7,6 +7,7 @@ toolchain go1.21.2
 require (
 	github.com/davecgh/go-spew v1.1.1
 	github.com/fatih/color v1.15.0
+	github.com/inconshreveable/go-update v0.0.0-20160112193335-8152e7eb6ccf
 	github.com/kylelemons/godebug v1.1.0
 	github.com/mikefarah/yq/v4 v4.35.2
 	github.com/spf13/cobra v1.7.0
