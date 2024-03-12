@@ -102,6 +102,15 @@ type Release struct {
 	Prerelease  bool
 	Target      string `json:"target_commitish"`
 	PublishedAt string `json:"published_at"`
+	Checksum    string
+	Assets      []ReleaseAsset
+}
+
+type ReleaseAsset struct {
+	Name        string
+	ContentType string `json:"content_type"`
+	Size        int
+	DownloadUrl string `json:"browser_download_url"`
 }
 
 type Commit struct {
