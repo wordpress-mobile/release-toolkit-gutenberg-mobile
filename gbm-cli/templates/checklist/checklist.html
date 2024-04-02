@@ -132,14 +132,14 @@ Rename them to <code>{platform}-App.js.map</code> and add them as assets to the 
 <!-- wp:group {"layout":{"type":"constrained"}} -->
 <div class="wp-block-group">
 {{ if not .Scheduled }}
-{{ Task `Once everything is merged, send a heads up to our friends in the <code>#apps-infrastructure</code> Slack channel. Since this is a beta/hot fix (e.g. X.XX.2), directly mention the relevant Excellence Wranglers for the release with the following message:` }}
+{{ Task `Once everything is merged, send a heads up in the <code>#jetpack-mobile</code> Slack channel. Since this is a beta/hot fix (e.g. X.XX.2), directly mention the relevant Release Wranglers for the release with the following message:` }}
   <!-- wp:quote -->
   <blockquote class="wp-block-quote">
     <p>Hey team. I wanted to let you know that the mobile Gutenberg team has finished integrating the {{ .Version }} Gutenberg release into the WPiOS and WPAndroid <code>release/{{ .HostVersion }}</code> branches, ready for a new beta when you are available. Please let me know if you have any questions. Thanks!</p>
   </blockquote>
   <!-- /wp:quote -->
 {{ else }}
-{{ Task `Once everything is merged, send a heads up to our friends in the <code>#apps-infrastructure</code> Slack channel with the following message:` }}
+{{ Task `Once everything is merged, send a heads up in the <code>#jetpack-mobile</code> Slack channel with the following message:` }}
   <!-- wp:quote -->
   <blockquote class="wp-block-quote">
     <p>Hey team. I wanted to let you know that the mobile Gutenberg team has finished integrating the {{ .Version }} Gutenberg release into the WPiOS and WPAndroid <code>trunk</code> branches. The integration is ready for the next release cut/build creation when you are available. Please let me know if you have any questions. Thanks!</p>
