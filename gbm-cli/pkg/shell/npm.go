@@ -24,9 +24,9 @@ func switchNodeCmd(cmds ...string) *exec.Cmd {
 		nvmCheck := exec.Command("bash", "-l", "-c", "nvm")
 		if err := nvmCheck.Run(); err != nil {
 			// Load nvm before running npm
-			return exec.Command("bash", "-l", "-c", ". $NVM_DIR/nvm.sh && "+nvmCmd)
+			return exec.Command("bash", "-c", ". $NVM_DIR/nvm.sh && "+nvmCmd)
 		} else {
-			return exec.Command("bash", "-l", "-c", nvmCmd)
+			return exec.Command("bash", "-c", nvmCmd)
 		}
 	}
 
