@@ -7,9 +7,10 @@ The preferred automation flow now uses the `gbm-cli` tool. See the tool [README]
 
 ### Prerequisites
 
-There are no prerequisites to using the `gbm-cli` tool beyond what is used to develop on Gutenberg Mobile.
-
-It does use the same Github authentication as `gh` so it is recommended to run `gh auth` before using the tool. See [Authentication](./gbm-cli/README.md#authentication) for alternatives.
+- PHP, which can be installed with `brew install php`.
+- A version of Ruby that matches [`.ruby-version`](https://github.com/WordPress/gutenberg/blob/trunk/packages/react-native-editor/ios/.ruby-version).
+  - A utility like [`rbenv`](https://github.com/rbenv/rbenv) can be used to manage Ruby versions.
+- [GitHub authentication](./gbm-cli/README.md#authentication).
 
 #### NVM
 
